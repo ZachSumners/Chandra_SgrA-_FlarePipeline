@@ -1,7 +1,34 @@
+'''
+This pipeline by Zach Sumners and Nicole Ford was created to minimize the human intervention needed to produce light curves of Chandra Xray observations of Sagittarius A*.
+
+It is inspired by the "Guide to analyzing flares" by McGill University's Extreme Gravity and Accretion group (MEGA) but adds additional treatment of
+important precision calibrations such as photon pileup and barycentric timing. 
+
+**To use the pipeline, you need to change:**
+- The Chandra observation ID
+- Your working directory (this will be the folder that the "primary" and "secondary" folders from a Chandra observation download live in).
+- You need to unzip the orbit eph file from the primary folder before using the pipeline.
+
+You can also change which processes you want the pipeline to run.
+'''
+
+#============================#
+#Change the observation ID.
+observationID = 28230
+#Change your working directory.
+wd = f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}'
+#============================#
+barycentric = True
+wcsCorrect = True
+reprocess = True
+#============================#
+
+#Libraries to open the fits files and run command line calls.
 import subprocess
 import os
 from astropy.io import fits
 
+#Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
 from wcs import wcs_correct
 from regions import regions_search, regions_search_grating
@@ -12,36 +39,24 @@ from lightcurve_extract import extract_lightcurve, extract_lightcurve_grating, e
 from countOrders import grating_pileup
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
 
-#Runs MEGA's "Guide to analyzing flares" (plus some other corrections). Prompts will show up in the terminal but you should just be able to hit enter each time to continue.
-
-#Should just have to change Chandra observation ID and working directory. It should be the directory with the primary and secondary folders in it.
-#Also need to extract the orbit eph file from the zip in the primary folder before use.
-
-#Change here
-observationID = 28230
-barycentric = True
-wcsCorrect = True
-reprocess = True
-
+#Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
+#we can define a range of IDs that need magnetar care.
 if observationID > 14703 and observationID < 18731:
 	magnetar = True
 else:
 	magnetar = False
 
-#print(os.getcwd())
-cwd = os.getcwd()
-wd = f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}'
-
+#The data needs to be reprocessed by the latest Chandra calibration files.
 subprocess.call('punlearn ardlib', shell=True, cwd=wd)
-#subprocess.call('gunzip ./primary/*gz ./secondary/*gz')
 if reprocess == True:
 	subprocess.call('chandra_repro', shell=True, cwd=wd)
 
 subprocess.call('punlearn ardlib', shell=True, cwd=wd)
-#Change here
+
+#Whether the reprocessed data was just created or already exists, we need to work with the files in the reprocessed folder.
 repro_wd = f'{wd}/repro'
 
-#Checks to see if a grating was used. Requires a slightly different treatment if so.
+#Checks to see if a grating was used. Requires a different treatment if so. We can check this in the fits header.
 f_evt2 = fits.open(f'{repro_wd}/acisf{observationID}_repro_evt2.fits')
 grating = f_evt2[1].header['GRATING'].strip()
 if grating != 'NONE':
@@ -50,21 +65,22 @@ if grating != 'NONE':
 else:
 	grating_check = False
 	
-#Barycentric corrrections
+#We apply a barycenter timing correction. If we do so, the corrected files will have "bary" in the name.
 if barycentric == True:
 	fileName = 'bary'
 	barycenter_corr(observationID, repro_wd, fileName)
 else:
 	fileName='repro'
 
-#Search for sources in the image
+#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
 find_sources(observationID, repro_wd, fileName)
 
-#WCS correction.
+#Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
+#region should go.
 if wcsCorrect == True:
 	wcs_correct(observationID, repro_wd, fileName)
 
-#Identify SgrA*, background region and first order region (if using HETG grating).
+#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
 if grating_check == False and magnetar == False:
 	regions_search(observationID, repro_wd, fileName)
 elif grating_check == False and magnetar == True:
@@ -72,7 +88,8 @@ elif grating_check == False and magnetar == True:
 else:
 	regions_search_grating(observationID, repro_wd, fileName)
 
-#Finds CCD in use and extracts light curve.
+#Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
+#regions separately for pileup correction later on.
 if grating_check == False and magnetar == False:
 	extract_lightcurve(observationID, repro_wd, fileName)
 elif grating_check == False and magnetar == True:
@@ -80,11 +97,11 @@ elif grating_check == False and magnetar == True:
 else:
 	extract_lightcurve_grating(observationID, repro_wd, fileName)
 
-#Find fraction of light that leaks into Sgr A* region.
+#If the magnetar is bright, this step finds fraction of light that leaks into Sgr A* region.
 if magnetar == True:
 	leak_frac, q_mag = magnetar_correction(observationID, repro_wd, fileName)
 
-#Pileup correction
+#This step comptues the pileup correction and scales the lightcurves appropriately.
 if grating_check == False:
 	pileup_correction(observationID, repro_wd, fileName)
 else:
@@ -93,14 +110,15 @@ else:
 #Plots the light curve
 plot_lightcurve(observationID, repro_wd, fileName)
 
-#Runs bayesian blocks
+#Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 subprocess.call(f'python3 RUN.py {observationID} False {grating_check}', shell=True)
 
-#Fix the pileup if uses grating.
+#If using a grating, this step does a pileup treatment of the Bayesian blocks fit by computing the relative contribution from the zeroth and first order
+#light curves.
 if grating_check == True:
 	grating_pileup(observationID)
 
-#Correct reported quiescent level if magnetar contaminates.
+#Similarly, this step scales the quiescent bayesian blocks region if the magnetar has contaminated.
 if magnetar == True:
 	quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag)
 
