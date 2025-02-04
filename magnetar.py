@@ -78,7 +78,7 @@ from crates_contrib.utils import *
 	
 	
 def magnetar_extraction2(observationID, repro_wd, fileName):
-	tr = SimpleCoordTransform(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_broad_thresh_img.fits')
+	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
 	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
 	print(sgra_ra_px, sgra_dec_px)
 	sgra_rad = 2.5406504
@@ -90,20 +90,20 @@ def magnetar_extraction2(observationID, repro_wd, fileName):
 	con3_ra_px, con3_dec_px = tr.convert('world', 'physical', 266.4178492, -29.0077551)
 
 
-	sgra_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/sgra.reg', 'w')
+	sgra_f = open(f'{repro_wd}/sgra.reg', 'w')
 	#sgra_f.write(f'ellipse(17:45:40.0409, -29:00:28.118, 1.25", 1.25", 90)')
 	sgra_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
 	sgra_f.close()
 	
-	mag_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/mag.reg', 'w')
+	mag_f = open(f'{repro_wd}/mag.reg', 'w')
 	mag_f.write(f'ellipse({mag_ra_px},{mag_dec_px},{mag_rad},{mag_rad},{0})')
 	mag_f.close()
 
-	bkg_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/bkg.reg', 'w')
+	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
 	bkg_f.write(f'annulus({mag_ra_px},{mag_dec_px},12.703252,20.3252032)')
 	bkg_f.close()
 
-	contam_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/contam.reg', 'w')
+	contam_f = open(f'{repro_wd}/contam.reg', 'w')
 	contam_f.write(f'ellipse({con1_ra_px},{con1_dec_px},{sgra_rad},{sgra_rad},{0})\n')
 	contam_f.write(f'ellipse({con2_ra_px},{con2_dec_px},{sgra_rad},{sgra_rad},{0})\n')
 	contam_f.write(f'ellipse({con3_ra_px},{con3_dec_px},{sgra_rad},{sgra_rad},{0})')
@@ -112,9 +112,9 @@ def magnetar_extraction2(observationID, repro_wd, fileName):
 	
 
 def magnetar_correction(observationID, repro_wd, fileName):
-	sgra = fits.open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_sgra_2-8keV_lc300.fits')
-	magnetar = fits.open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_sgra_2-8keV_lc300_magnetar.fits')
-	contam = fits.open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_sgra_2-8keV_lc300_contam.fits')
+	sgra = fits.open(f'{repro_wd}/{observationID}_sgra_2-8keV_lc300.fits')
+	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_2-8keV_lc300_magnetar.fits')
+	contam = fits.open(f'{repro_wd}/{observationID}_sgra_2-8keV_lc300_contam.fits')
 	
 	mean_contam = np.mean(contam[1].data['NET_RATE'])
 	mean_mag = np.mean(magnetar[1].data['NET_RATE'])

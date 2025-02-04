@@ -48,22 +48,22 @@ def regions_search_grating(observationID, repro_wd, fileName):
 	#sgra[2] = 2.5406504
 	#sgra[3] = 2.5406504
 	
-	tr = SimpleCoordTransform(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_broad_thresh_img.fits')
+	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
 	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
 	sgra_rad = 2.5406504
 
-	hetg_region_file = fits.open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/acisf{observationID}_tgmask.fits')
+	hetg_region_file = fits.open(f'{repro_wd}/acisf{observationID}_tgmask.fits')
 	regions = hetg_region_file[1].data
 
-	sgra_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/sgra.reg', 'w')
+	sgra_f = open(f'{repro_wd}/sgra.reg', 'w')
 	sgra_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
 	sgra_f.close()
 
-	bkg_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/bkg.reg', 'w')
+	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
 	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},28.455285,40.650407)')
 	bkg_f.close()
 
-	box_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/box.reg', 'w')
+	box_f = open(f'{repro_wd}/box.reg', 'w')
 	box_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},1020,5.0813008,{regions[1][5]})\n')
 	box_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},1020,5.0813008,{regions[2][5]})')
 	box_f.close()
@@ -115,17 +115,17 @@ def regions_search(observationID, repro_wd, fileName):
 	bkg_f.close()'''
 	
 	
-	tr = SimpleCoordTransform(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/{observationID}_broad_thresh_img.fits')
+	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
 	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
 	sgra_rad = 2.5406504
 
 
-	sgra_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/sgra.reg', 'w')
+	sgra_f = open(f'{repro_wd}/sgra.reg', 'w')
 	#sgra_f.write(f'ellipse(17:45:40.0409, -29:00:28.118, 1.25", 1.25", 90)')
 	sgra_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
 	sgra_f.close()
 
-	bkg_f = open(f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}/repro/bkg.reg', 'w')
+	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
 	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},12.703252,20.3252032)')
 	bkg_f.close()
 

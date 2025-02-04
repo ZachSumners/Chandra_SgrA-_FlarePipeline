@@ -11,7 +11,7 @@ import numpy as np
 import numpy.ma as ma
 import math
 
-obsid = 13843
+#obsid = 13843
 
 lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV_lc300_pileup.fits")
 evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  "_sgra_2-8keV_evt.fits")

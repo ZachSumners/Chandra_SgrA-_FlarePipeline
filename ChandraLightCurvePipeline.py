@@ -12,17 +12,6 @@ important precision calibrations such as photon pileup and barycentric timing.
 You can also change which processes you want the pipeline to run.
 '''
 
-#============================#
-#Change the observation ID.
-observationID = 28230
-#Change your working directory.
-wd = f'/Users/zachsumners/Desktop/Research/Chandra/Pipeline/{observationID}'
-#============================#
-barycentric = True
-wcsCorrect = True
-reprocess = True
-#============================#
-
 #Libraries to open the fits files and run command line calls.
 import subprocess
 import os
@@ -38,6 +27,19 @@ from searchsources import find_sources
 from lightcurve_extract import extract_lightcurve, extract_lightcurve_grating, extract_lightcurve_magnetar
 from countOrders import grating_pileup
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
+
+#============================#
+#Change the observation ID.
+observationID = 28230
+#Set directory filepath. Defaults to the current working directory.
+fp = os.getcwd()
+#Change your working directory to the observation subfolder.
+wd = f'{fp}/{observationID}'
+#============================#
+barycentric = True
+wcsCorrect = True
+reprocess = True
+#============================#
 
 #Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
 #we can define a range of IDs that need magnetar care.
