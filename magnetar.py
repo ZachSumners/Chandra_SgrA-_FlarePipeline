@@ -14,7 +14,7 @@ def magnetar_extraction2(observationID, repro_wd, fileName):
 	#The radius of the Sgr A* region.
 	sgra_rad = 2.5406504
 
-	The radius of the magnetar contamination regions
+	#The radius of the magnetar contamination regions
 	mag_rad = 2.6422764
 
 	#Calculate where the center of the magnetar and contamination regions are in our image.

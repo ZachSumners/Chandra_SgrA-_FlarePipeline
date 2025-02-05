@@ -21,17 +21,16 @@ from astropy.io import fits
 #Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
 from wcs import wcs_correct
-from regions import regions_search, regions_search_grating
-from pileup import pileup_correction, pileup_correction_grating
+from regions import regions_search
+from pileup import pileup_correction
 from plotcurve import plot_lightcurve
 from searchsources import find_sources
-from lightcurve_extract import extract_lightcurve, extract_lightcurve_grating, extract_lightcurve_magnetar
-from countOrders import grating_pileup
+from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
 
 #============================#
 #Change the observation ID.
-observationID = 28230
+observationID = 28229
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.

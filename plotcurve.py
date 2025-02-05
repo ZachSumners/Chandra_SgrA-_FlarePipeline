@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from pycrates import read_file
 from astropy.time import Time
-from datetime import datetime, timedelta
 import matplotlib.dates as mdates
 
 def plot_lightcurve(observationID, repro_wd, fileName):
