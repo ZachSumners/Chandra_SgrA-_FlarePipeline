@@ -15,6 +15,7 @@ You can also change which processes you want the pipeline to run.
 #Libraries to open the fits files and run command line calls.
 import subprocess
 import os
+import sys
 from astropy.io import fits
 
 #Import utility functions from the various pipeline scripts.
@@ -62,6 +63,8 @@ repro_wd = f'{wd}/repro'
 f_evt2 = fits.open(f'{repro_wd}/acisf{observationID}_repro_evt2.fits')
 grating = f_evt2[1].header['GRATING'].strip()
 if grating != 'NONE':
+	print('Chandra observations with gratings are not supported at this time.')
+	sys.exit()
 	grating_check = True
 	magnetar = False
 else:
