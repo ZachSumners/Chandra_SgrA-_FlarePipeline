@@ -89,8 +89,6 @@ if grating_check == False and magnetar == False:
 	regions_search(observationID, repro_wd, fileName)
 elif grating_check == False and magnetar == True:
 	magnetar_extraction2(observationID, repro_wd, fileName)
-else:
-	regions_search_grating(observationID, repro_wd, fileName)
 
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.
@@ -98,8 +96,6 @@ if grating_check == False and magnetar == False:
 	extract_lightcurve(observationID, repro_wd, fileName)
 elif grating_check == False and magnetar == True:
 	extract_lightcurve_magnetar(observationID, repro_wd, fileName)
-else:
-	extract_lightcurve_grating(observationID, repro_wd, fileName)
 
 #If the magnetar is bright, this step finds fraction of light that leaks into Sgr A* region.
 if magnetar == True:
@@ -108,19 +104,12 @@ if magnetar == True:
 #This step comptues the pileup correction and scales the lightcurves appropriately.
 if grating_check == False:
 	pileup_correction(observationID, repro_wd, fileName)
-else:
-	pileup_correction_grating(observationID, repro_wd, fileName)
 
 #Plots the light curve
 plot_lightcurve(observationID, repro_wd, fileName)
 
 #Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 subprocess.call(f'python3 RUN.py {observationID} False {grating_check}', shell=True)
-
-#If using a grating, this step does a pileup treatment of the Bayesian blocks fit by computing the relative contribution from the zeroth and first order
-#light curves.
-if grating_check == True:
-	grating_pileup(observationID)
 
 #Similarly, this step scales the quiescent bayesian blocks region if the magnetar has contaminated.
 if magnetar == True:
