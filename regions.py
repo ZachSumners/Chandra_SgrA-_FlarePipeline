@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from matplotlib.patches import Ellipse
 from astropy.visualization import simple_norm
+from crates_contrib.utils import *
 	
 def regions_search(observationID, repro_wd, fileName):
 	'''This function selects which region found by searchsources.py is Sgr A*. This can be done with a manual selection or automatic selection
