@@ -72,7 +72,7 @@ else:
 #We apply a barycenter timing correction. If we do so, the corrected files will have "bary" in the name.
 if barycentric == True:
 	fileName = 'bary'
-	barycenter_corr(observationID, repro_wd, fileName)
+	barycenter_corr(wd, observationID, repro_wd, fileName)
 else:
 	fileName='repro'
 
