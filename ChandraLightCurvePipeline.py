@@ -82,7 +82,7 @@ find_sources(observationID, repro_wd, fileName)
 #Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
 #region should go.
 if wcsCorrect == True:
-	wcs_correct(observationID, repro_wd, fileName)
+	wcs_correct(fp, observationID, repro_wd, fileName)
 
 #This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
 if grating_check == False and magnetar == False:
