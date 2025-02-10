@@ -115,3 +115,4 @@ subprocess.call(f'python3 RUN.py {observationID} False {grating_check}', shell=T
 if magnetar == True:
 	quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag)
 
+print('The lightcurve pipeline is complete.')
