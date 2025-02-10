@@ -22,9 +22,11 @@ def barycenter_corr(wd, observationID, repro_wd, fileName):
 	subprocess.call('punlearn axbary', shell=True, cwd=repro_wd)
 	#Define the input file (the reprocessed event file)
 	subprocess.call(f'pset axbary infile="acisf{observationID}_repro_evt2.fits"', shell=True, cwd=repro_wd)
-	#find and unzip eph file
-	ephfile = glob.glob(f'{wd}/primary/*eph1.fits.gz')[0]
-	os.system("gunzip -k {}".format(ephfile))
+	#Unzip the eph file if not done already.
+	if not glob.glob(f"{wd}/primary/*eph1.fits"):
+		subprocess.call(f'gunzip {wd}/primary/*eph1.fits.gz', shell=True, cwd=repro_wd)
+	#Copy the eph file originally in the "primary" folder to the repro folder.
+	subprocess.call(f'cp {wd}/primary/*eph1.fits {repro_wd}/orbit_eph0.fits', shell=True, cwd=repro_wd)
 	#Copy the eph file originally in the "primary" folder to the repro folder.
 	subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
 	#Define which file contains the barycenter correction parameters.
