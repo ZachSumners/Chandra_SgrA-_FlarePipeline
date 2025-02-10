@@ -26,8 +26,6 @@ def barycenter_corr(wd, observationID, repro_wd, fileName):
 	if not glob.glob(f"{wd}/primary/*eph1.fits"):
 		subprocess.call(f'gunzip {wd}/primary/*eph1.fits.gz', shell=True, cwd=repro_wd)
 	#Copy the eph file originally in the "primary" folder to the repro folder.
-	subprocess.call(f'cp {wd}/primary/*eph1.fits {repro_wd}/orbit_eph0.fits', shell=True, cwd=repro_wd)
-	#Copy the eph file originally in the "primary" folder to the repro folder.
 	subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
 	#Define which file contains the barycenter correction parameters.
 	subprocess.call(f'pset axbary orbitfile="orbit_eph0.fits"', shell=True, cwd=repro_wd)
