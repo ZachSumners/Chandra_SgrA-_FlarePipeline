@@ -39,6 +39,7 @@ wd = f'{fp}/{observationID}'
 barycentric = True
 wcsCorrect = True
 reprocess = True
+search = False
 #============================#
 
 #Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
@@ -76,19 +77,20 @@ if barycentric == True:
 else:
 	fileName='repro'
 
-#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
-find_sources(observationID, repro_wd, fileName)
-
 #Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
 #region should go.
 if wcsCorrect == True:
 	wcs_correct(fp, observationID, repro_wd, fileName)
 
-#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
-if grating_check == False and magnetar == False:
-	regions_search(observationID, repro_wd, fileName)
-elif grating_check == False and magnetar == True:
-	magnetar_extraction2(observationID, repro_wd, fileName)
+if search == True:
+	#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
+	find_sources(observationID, repro_wd, fileName)
+else:
+	#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
+	if grating_check == False and magnetar == False:
+		regions_search(observationID, repro_wd, fileName)
+	elif grating_check == False and magnetar == True:
+		magnetar_extraction2(observationID, repro_wd, fileName)
 
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.
