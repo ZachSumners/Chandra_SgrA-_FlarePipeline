@@ -37,7 +37,7 @@ fp = os.getcwd()
 wd = f'{fp}/{observationID}'
 #============================#
 barycentric = True
-wcsCorrect = False
+wcsCorrect = True
 reprocess = False
 search = True
 #============================#
@@ -69,7 +69,7 @@ if grating != 'NONE':
 	magnetar = False
 else:
 	grating_check = False
-	
+
 #We apply a barycenter timing correction. If we do so, the corrected files will have "bary" in the name.
 if barycentric == True:
 	fileName = 'bary'

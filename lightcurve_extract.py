@@ -8,12 +8,7 @@ def general_lightcurve_extraction(infile, outfile, bkg, repro_wd):
 
 	#Extract a general lightcurve given some file names.
 	subprocess.call('punlearn dmextract', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract infile={infile}', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract outfile={outfile}', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract bkg={bkg}', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmextract opt="ltc1"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmextract clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('dmextract', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmextract infile={infile} outfile={outfile} bkg={bkg} opt="ltc1" clobber = yes', shell=True, cwd=repro_wd)
 
 def extract_lightcurve_magnetar(observationID, repro_wd, fileName):
 	'''This function extracts the light curve from the specific region for observations where the magnetar is present. This requires special treatment
@@ -75,8 +70,4 @@ def extract_lightcurve(observationID, repro_wd, fileName):
 	
 	#Copies events used in Sgr A* lightcurve to new file.
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy=2000:8000]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_2-8keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy=2000:8000]" outfile="{observationID}_sgra_2-8keV_evt.fits" option="all" clobber = yes', shell=True, cwd=repro_wd)
