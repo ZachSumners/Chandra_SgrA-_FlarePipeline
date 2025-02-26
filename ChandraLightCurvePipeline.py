@@ -21,7 +21,7 @@ from astropy.io import fits
 #Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
 from wcs import wcs_correct
-from regions import regions_search
+from regions import regions_search, regions_search_manual_select
 from pileup import pileup_correction
 from plotcurve import plot_lightcurve
 from searchsources import find_sources
@@ -37,9 +37,9 @@ fp = os.getcwd()
 wd = f'{fp}/{observationID}'
 #============================#
 barycentric = True
-wcsCorrect = True
-reprocess = True
-search = False
+wcsCorrect = False
+reprocess = False
+search = True
 #============================#
 
 #Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
@@ -85,6 +85,7 @@ if wcsCorrect == True:
 if search == True:
 	#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
 	find_sources(observationID, repro_wd, fileName)
+	regions_search_manual_select(observationID, repro_wd, fileName)
 else:
 	#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
 	if grating_check == False and magnetar == False:
