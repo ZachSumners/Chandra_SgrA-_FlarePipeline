@@ -19,13 +19,16 @@ def pileup_correction(observationID, repro_wd, fileName):
 	count_rate = table['NET_RATE']*exptime
 	count_error = table['ERR_RATE']*exptime
 
+	#Additional factor so no division by 0.
+	dividezero_epsilon = 1e-8
+
 	#Apply the pileup correction to determine fraction of counts lost. Calculate the error too.
-	fd = 1-(((np.exp(count_rate)-1)*np.exp(-count_rate))/count_rate)
-	fd_error = (-np.exp(count_rate)/count_rate**2 + np.exp(2*count_rate)/count_rate**2 + np.exp(count_rate)/count_rate - 2*np.exp(2*count_rate)/count_rate)*count_error
+	fd = 1-(((np.exp(count_rate)-1)*np.exp(-count_rate))/(count_rate + dividezero_epsilon))
+	fd_error = (-np.exp(count_rate)/(count_rate + dividezero_epsilon)**2 + np.exp(2*count_rate)/(count_rate + dividezero_epsilon)**2 + np.exp(count_rate)/(count_rate + dividezero_epsilon) - 2*np.exp(2*count_rate)/(count_rate + dividezero_epsilon))*(count_error + dividezero_epsilon)
 
 	#Reverse the effect of fd and put back in binned rates. Calculate the error as well.
-	pileup_rate = count_rate/(1-fd)*1/exptime
-	pileup_error = np.sqrt((1/(1-fd))**2*count_error**2 + (count_rate/(1-fd)**2)**2*fd_error**2)*1/exptime
+	pileup_rate = count_rate/(1-(fd + dividezero_epsilon))*1/exptime
+	pileup_error = np.sqrt((1/(1-(fd+dividezero_epsilon)))**2*count_error**2 + (count_rate/(1-(fd+dividezero_epsilon))**2)**2*fd_error**2)*1/exptime
 	
 	#Add the new pileup rate and pileup error to the lightcurve fits file.
 	table.add_column(pileup_rate, index=21, name='RATE_PILEUP')
