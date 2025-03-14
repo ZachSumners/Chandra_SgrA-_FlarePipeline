@@ -35,11 +35,15 @@ Expected notation:
 ARGUMENTS : 
 
     obsid: int 
-            a number that denotes the observation id for which we want 
-            to write the code
+        a number that denotes the observation id for which we want 
+        to write the code
     magnetar: bool 
         says whether we want to also run the analysis on the 
         magnetar region
+    grating: bool
+        says whether the observation used a grating
+    erange: list
+        a list containing the lower and upper energy range bounds (defaults to 2-8 keV)
     
 RETURNS: 
     creates a folder in  directory ./obsid/results 
@@ -64,10 +68,13 @@ while i < maxi-1:
     obsid = sys.argv[i+1]
     magnetar = sys.argv[i+2]
     grating = sys.argv[i+3]
+    erange_low = (sys.argv[i+4])
+    erange_high = (sys.argv[i+5])
+    erange = [erange_low,erange_high]
     
     #create string for datafile directories: (input)
     #lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV" + "_lc300.fits")
-    evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  "_sgra_2-8keV_evt.fits")
+    evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
     
     
     
@@ -84,7 +91,7 @@ while i < maxi-1:
 
     if grating == 'False':
     	pileup_correction = True
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV_lc300_pileup.fits")
+    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
     	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
     	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra_pileupcorr.png" #plot 
     	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
@@ -93,7 +100,7 @@ while i < maxi-1:
     #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
     elif grating == 'True':
     	pileup_correction = False
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV_lc300.fits")
+    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc300.fits")
     	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
     	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
     	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
@@ -121,8 +128,8 @@ while i < maxi-1:
     
     if magnetar == True :
         #create string for datafile directories: (input)
-        lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + "_magnetar_2-8keV_lc300_pileup.fits")
-        evt_m = "./" + str(obsid) + "/repro/" + (str(obsid) +  "_magnetar_2-8keV_evt.fits")
+        lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + f"_magnetar_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
+        evt_m = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_magnetar_{erange[0]}-{erange[1]}keV_evt.fits")
     
         #OUTPUTs directories:
         bb_info_m = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_bayesianBlocks_info.txt" #block info 
@@ -144,7 +151,7 @@ while i < maxi-1:
         #Get flare information for database: 
         bb.getInfo(evt_m , lc_m , bb_info_m, table_res_m)
         
-    i = i + 3 #update value of i 
+    i = i + 6 #update value of i 
  
     
 

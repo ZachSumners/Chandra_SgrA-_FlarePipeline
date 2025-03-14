@@ -13,8 +13,8 @@ import math
 
 #obsid = 13843
 
-lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV_lc300_pileup.fits")
-evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  "_sgra_2-8keV_evt.fits")
+lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
+evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
 
 bb_info = "./"  + str(obsid) + "/repro/" + "Results/combined_" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
 plot = "./" + str(obsid) + "/repro/" + "Results/combined_" + str(obsid) + "_PLOT_sgra.png" #plot 
