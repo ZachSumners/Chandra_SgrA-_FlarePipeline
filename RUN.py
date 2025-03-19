@@ -27,7 +27,7 @@ Expected notation:
 - all the required data files are within a directory ./obsid 
 - The files names are: 
     obsid_sgra_2-8keV_evt.fits (for event files)
-    obsid_sgrA_2-8keV_lc300.fits (for lightcurves)
+    obsid_sgrA_2-8keV_lc{tbin}.fits (for lightcurves)
 
 
 ------------------------------------------------------------------
@@ -68,12 +68,13 @@ while i < maxi-1:
     obsid = sys.argv[i+1]
     magnetar = sys.argv[i+2]
     grating = sys.argv[i+3]
-    erange_low = (sys.argv[i+4])
-    erange_high = (sys.argv[i+5])
+    erange_low = sys.argv[i+4]
+    erange_high = sys.argv[i+5]
+    tbin = sys.argv[i+6]
     erange = [erange_low,erange_high]
     
     #create string for datafile directories: (input)
-    #lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV" + "_lc300.fits")
+    #lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV" + "_lc{tbin}.fits")
     evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
     
     
@@ -91,7 +92,7 @@ while i < maxi-1:
 
     if grating == 'False':
     	pileup_correction = True
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
+    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
     	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
     	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra_pileupcorr.png" #plot 
     	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
@@ -100,7 +101,7 @@ while i < maxi-1:
     #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
     elif grating == 'True':
     	pileup_correction = False
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc300.fits")
+    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
     	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
     	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
     	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
@@ -128,7 +129,7 @@ while i < maxi-1:
     
     if magnetar == True :
         #create string for datafile directories: (input)
-        lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + f"_magnetar_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
+        lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + f"_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
         evt_m = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_magnetar_{erange[0]}-{erange[1]}keV_evt.fits")
     
         #OUTPUTs directories:
@@ -151,7 +152,7 @@ while i < maxi-1:
         #Get flare information for database: 
         bb.getInfo(evt_m , lc_m , bb_info_m, table_res_m)
         
-    i = i + 6 #update value of i 
+    i = i + 7 #update value of i 
  
     
 

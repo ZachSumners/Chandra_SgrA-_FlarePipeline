@@ -3,12 +3,12 @@ import numpy as np
 from astropy.io import fits
 from astropy.table import Table	
 
-def pileup_correction(observationID, repro_wd, erange, fileName):
+def pileup_correction(observationID, repro_wd, erange, tbin, fileName):
 	'''This file does a pileup correction based on the work of Bouffard (2019) (Equation 2).
  	Note that we do the pileup correction on the *lightcurves*. This will save a new lightcurve with the pileup correction applied.'''
 
 	#Open the lightcurve.
-	f = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300.fits')
+	f = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
 	table = Table(f[1].data)
 
 	#Open the event files to get the exposure time of the observation.
@@ -35,9 +35,9 @@ def pileup_correction(observationID, repro_wd, erange, fileName):
 	table.add_column(pileup_error, index=22, name='PILEUP_ERR')
 
 	#Save this data into a new fits file.
-	hdu = table.write(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup_TABLE.fits', overwrite=True, format='fits')
-	ft = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup_TABLE.fits')
+	hdu = table.write(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup_TABLE.fits', overwrite=True, format='fits')
+	ft = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup_TABLE.fits')
 	ft[1].header['MJDREF'] = 5.08140000000000E+04
 
 	hdul = fits.HDUList([f[0], ft[1], f[2]])
-	hdul.writeto(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup.fits', overwrite=True)
+	hdul.writeto(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)

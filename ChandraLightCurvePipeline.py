@@ -44,8 +44,8 @@ search = False
 #defining other input variables
 #Chandra energy range: list w/lower and upper limits
 erange = [2,8]
-#
-#bsize = 
+#define the time bin size in seconds for lightcurve extraction
+tbin = 300
 #src_coords = 
 #bkg_coords = 
 
@@ -103,9 +103,9 @@ else:
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.
 if grating_check == False and magnetar == False:
-	extract_lightcurve(observationID, repro_wd, erange, fileName)
+	extract_lightcurve(observationID, repro_wd, erange, tbin, fileName)
 elif grating_check == False and magnetar == True:
-	extract_lightcurve_magnetar(observationID, repro_wd, erange, fileName)
+	extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
 
 #If the magnetar is bright, this step finds fraction of light that leaks into Sgr A* region.
 if magnetar == True:
@@ -113,13 +113,13 @@ if magnetar == True:
 
 #This step comptues the pileup correction and scales the lightcurves appropriately.
 if grating_check == False:
-	pileup_correction(observationID, repro_wd, erange, fileName)
+	pileup_correction(observationID, repro_wd, erange, tbin, fileName)
 
 #Plots the light curve
-plot_lightcurve(observationID, repro_wd, erange, fileName)
+plot_lightcurve(observationID, repro_wd, erange, tbin, fileName)
 
 #Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
-subprocess.call(f'python3 RUN.py {observationID} False {grating_check} {erange[0]} {erange[1]}', shell=True)
+subprocess.call(f'python3 RUN.py {observationID} False {grating_check} {erange[0]} {erange[1]} {tbin}', shell=True)
 
 #Similarly, this step scales the quiescent bayesian blocks region if the magnetar has contaminated.
 if magnetar == True:

@@ -5,7 +5,7 @@ from pycrates import read_file
 from astropy.time import Time
 import matplotlib.dates as mdates
 
-def plot_lightcurve(observationID, repro_wd, erange, fileName):
+def plot_lightcurve(observationID, repro_wd, erange, tbin, fileName):
 	'''This function plots the lightcurve that was extracted in lightcurve_extract.py'''
 
 	#Create a figure.
@@ -13,7 +13,7 @@ def plot_lightcurve(observationID, repro_wd, erange, fileName):
 	ax = plt.gca()
 
 	#Open the pileup corrected lightcurve file.
-	tab = read_file(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_pileup.fits")
+	tab = read_file(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
 
 	#Convert the chandra MJD time to a readable time.
 	chandra_time = tab.get_column("time").values
@@ -37,4 +37,4 @@ def plot_lightcurve(observationID, repro_wd, erange, fileName):
 
 	#Save this plot.
 	ax.set_title(f'SgrA* Light Curve - ObsID {observationID} - Obs Start on {obsDate}')
-	plt.savefig(f'{repro_wd}/{observationID}_300lc_{erange[0]}-{erange[1]}keV.png')
+	plt.savefig(f'{repro_wd}/{observationID}_{tbin}lc_{erange[0]}-{erange[1]}keV.png')

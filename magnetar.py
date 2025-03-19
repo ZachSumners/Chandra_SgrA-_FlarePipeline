@@ -47,14 +47,14 @@ def magnetar_extraction2(observationID, repro_wd, fileName):
 	
 	
 
-def magnetar_correction(observationID, repro_wd, erange, fileName):
+def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	'''This function calculates how much of the signal in the Sgr A* region is from the magnetar contamination.
  	It does this by analyzing the lightcurves. Also outlined in Bouffard (2019).'''
 
 	#Open the Sgr A*, magnetar and contamination lightcurves.
-	sgra = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300.fits')
-	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_magnetar.fits')
-	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc300_contam.fits')
+	sgra = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
+	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits')
+	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits')
 
 	#Calculate the fraction of flux that leaks out of the magnetar region into the contamination regions.
 	mean_contam = np.mean(contam[1].data['NET_RATE'])
