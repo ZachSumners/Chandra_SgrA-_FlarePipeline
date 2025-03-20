@@ -39,15 +39,17 @@ wd = f'{fp}/{observationID}'
 barycentric = True
 wcsCorrect = False
 reprocess = False
-search = False
+search = True
 #============================#
 #defining other input variables
 #Chandra energy range: list w/lower and upper limits
 erange = [2,8]
 #define the time bin size in seconds for lightcurve extraction
 tbin = 300
-#src_coords = 
-#bkg_coords = 
+#coordinates of the source in degrees 
+src_coords = [266.41683708333333333, -29.007810555555556]
+#coordinates for the inner and outer radii of the background selection region in pixels
+bkg_coords = [28.455285,40.650407]
 
 #Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
 #we can define a range of IDs that need magnetar care.
@@ -92,13 +94,13 @@ if wcsCorrect == True:
 if search == True:
 	#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
 	find_sources(observationID, repro_wd, erange, fileName)
-	regions_search_manual_select(observationID, repro_wd, erange, fileName)
+	regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName)
 else:
 	#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
 	if grating_check == False and magnetar == False:
-		regions_search(observationID, repro_wd, fileName)
+		regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName)
 	elif grating_check == False and magnetar == True:
-		magnetar_extraction2(observationID, repro_wd, fileName)
+		magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileName)
 
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.

@@ -7,7 +7,7 @@ from crates_contrib.utils import *
 import subprocess
 from astropy.wcs import WCS
 	
-def regions_search(observationID, repro_wd, fileName):
+def regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	'''This function selects which region found by searchsources.py is Sgr A*. This can be done with a manual selection or automatic selection
  	assuming the WCS correction is appropriate.
   
@@ -16,7 +16,8 @@ def regions_search(observationID, repro_wd, fileName):
 	
 	#Open the image created earlier and selects which pixel is the center of Sgr A* based on its literature position.
 	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
-	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
+	#converts coordinates in degrees to pixel coordinates
+	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', src_coords[0], src_coords[1])
 
 	#Radius of Sgr A* region in pixels based on the resolution of Chandra.
 	sgra_rad = 2.5406504
@@ -28,10 +29,10 @@ def regions_search(observationID, repro_wd, fileName):
 
 	#Creates the background region.
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},12.703252,20.3252032)')
+	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()
 
-def regions_search_manual_select(observationID, repro_wd, erange, fileName):
+def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName):
 	'''
 	This function allows the user to visually select which region corresponds to Sgr A* and extracts the Sgr A* region at the center of the 
 	CIAO located source, not the absolute literature coordinates. This allows for slight offsets in WCS coordinates.
@@ -89,5 +90,6 @@ def regions_search_manual_select(observationID, repro_wd, erange, fileName):
 
 	#Save the background region with the central coordinates selected as well.
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({sgra[0]},{sgra[1]},28.455285,40.650407)')
+	#bkg_f.write(f'annulus({sgra[0]},{sgra[1]},28.455285,40.650407)')
+	bkg_f.write(f'annulus({sgra[0]},{sgra[1]},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()

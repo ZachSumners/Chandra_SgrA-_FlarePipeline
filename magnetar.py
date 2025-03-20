@@ -3,13 +3,13 @@ import numpy as np
 from astropy.io import fits
 from crates_contrib.utils import *
 	
-def magnetar_extraction2(observationID, repro_wd, fileName):
+def magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	'''This function finds the neighbouring regions needed to correct for the magnetar just like we found regions in regions.py
  	How we calculate the contamination is outlined in Bouffard (2019).'''
 
 	#Calculate the center of Sgr A* assuming appropriate WCS corrections from the image.
 	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
-	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
+	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', src_coords[0], src_coords[1])
 
 	#The radius of the Sgr A* region.
 	sgra_rad = 2.5406504
@@ -35,7 +35,7 @@ def magnetar_extraction2(observationID, repro_wd, fileName):
 
 	#Save the background region
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({mag_ra_px},{mag_dec_px},12.703252,20.3252032)')
+	bkg_f.write(f'annulus({mag_ra_px},{mag_dec_px},{bkg_coords[0]}, {bkg_coords[1]})')
 	bkg_f.close()
 
 	#Save the contamination regions.
