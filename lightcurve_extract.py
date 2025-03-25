@@ -1,4 +1,4 @@
-import subprocess
+fimport subprocess
 import os
 import numpy as np
 from astropy.io import fits
@@ -37,7 +37,7 @@ def extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
 
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	#The double quotes in the name ARE necessary because the "" is actually sent to the command line.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 	
 	#Magnetar lightcurve extraction as given by the Guide to Analyzing Flares.
 	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(mag.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
