@@ -1,4 +1,4 @@
-fimport subprocess
+import subprocess
 import numpy as np
 from astropy.io import fits
 from crates_contrib.utils import *
@@ -61,9 +61,10 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	mean_mag = np.mean(magnetar[1].data['NET_RATE'])
 	leak_frac = mean_contam/mean_mag
 
+	#Calculate the real lightcurve of Sgr A* based on contamination factor from magnetar (Bouffard 2019).
 	sgr_lightcurve = eff - leak_frac*mangetar[1].data['NET_RATE']
 	hdu = fits.PrimaryHDU(sgr_lightcurve)
-	hdu.writeto(f"{observationID}_sgra_magnetarCorrected_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
+	hdu.writeto(f"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
 
 	#Return this value for later.
 	return leak_frac, mean_mag
