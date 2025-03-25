@@ -1,4 +1,4 @@
-import subprocess
+fimport subprocess
 import numpy as np
 from astropy.io import fits
 from crates_contrib.utils import *
@@ -52,7 +52,7 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
  	It does this by analyzing the lightcurves. Also outlined in Bouffard (2019).'''
 
 	#Open the Sgr A*, magnetar and contamination lightcurves.
-	eff = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
+	eff = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits')
 	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits')
 	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits')
 
