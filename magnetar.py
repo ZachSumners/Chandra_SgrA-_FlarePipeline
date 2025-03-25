@@ -52,7 +52,7 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
  	It does this by analyzing the lightcurves. Also outlined in Bouffard (2019).'''
 
 	#Open the Sgr A*, magnetar and contamination lightcurves.
-	sgra = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
+	eff = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
 	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits')
 	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits')
 
@@ -60,6 +60,10 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	mean_contam = np.mean(contam[1].data['NET_RATE'])
 	mean_mag = np.mean(magnetar[1].data['NET_RATE'])
 	leak_frac = mean_contam/mean_mag
+
+	sgr_lightcurve = eff - leak_frac*mangetar[1].data['NET_RATE']
+	hdu = fits.PrimaryHDU(sgr_lightcurve)
+	hdu.writeto(f"{observationID}_sgra_magnetarCorrected_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
 
 	#Return this value for later.
 	return leak_frac, mean_mag
