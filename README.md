@@ -33,3 +33,8 @@ The ```ChandraLightCurvePipeline.py``` user inputs include:
 
 The pipeline will output a 'repro' sub-folder into the folder containing the observeration data. 'repro'contains various CIAO output files 
 as well as lightcurve files. The pipeline runs a Bayesian Blocks algorithm to detect flares in the light curve, and outputs the results of the flare detection to a 'Results' sub-folder.
+
+## Additional Notes
+
+For more information on the data calibration methods and flare detection algorithm, see [this paper](https://ui.adsabs.harvard.edu/abs/2019ApJ...884..148B/abstract) from Elie Bouffard,
+and the associated code can be found [here](https://github.com/Elie23/X-ray-flare-simulator/tree/master).
