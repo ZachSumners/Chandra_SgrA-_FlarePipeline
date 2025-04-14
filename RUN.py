@@ -126,8 +126,8 @@ while i < maxi-1:
     bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header)
     
     #run this on the magnetar, if magnetar = true: 
-    
-    if magnetar == True :
+    if magnetar == 'True':
+        pileup_correction = True
         #create string for datafile directories: (input)
         lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + f"_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
         evt_m = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_magnetar_{erange[0]}-{erange[1]}keV_evt.fits")
@@ -136,9 +136,9 @@ while i < maxi-1:
         bb_info_m = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_bayesianBlocks_info.txt" #block info 
         plot_m = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_magnetar.png" #plot 
         table_res_m = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_TABLE_RESULTS.txt" #info for flare table
-    
+        print(evt_m)
         #run bayesian block: 
-        bb.process(evt_m, bb_info_m)
+        bb.process(evt_m, bb_info_m, pileup_correction)
     
         #Create the plot: 
         fig = plt.figure()
@@ -148,6 +148,7 @@ while i < maxi-1:
         plt.ylabel("Count Rate")
         plt.title("ObsID " + str(obsid) + " - magnetar")
         fig.savefig(plot_m)
+        print('here2', plot_m)
     
         #Get flare information for database: 
         bb.getInfo(evt_m , lc_m , bb_info_m, table_res_m)

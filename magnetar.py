@@ -3,7 +3,7 @@ import numpy as np
 from astropy.io import fits
 from crates_contrib.utils import *
 	
-def magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileName):
+def magnetar_extraction2(observationID, repro_wd, erange, src_coords, bkg_coords, fileName):
 	'''This function finds the neighbouring regions needed to correct for the magnetar just like we found regions in regions.py
  	How we calculate the contamination is outlined in Bouffard (2019).'''
 
@@ -35,7 +35,7 @@ def magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileNa
 
 	#Save the background region
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({mag_ra_px},{mag_dec_px},{bkg_coords[0]}, {bkg_coords[1]})')
+	bkg_f.write(f'annulus({mag_ra_px},{mag_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()
 
 	#Save the contamination regions.
@@ -44,6 +44,10 @@ def magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileNa
 	contam_f.write(f'ellipse({con2_ra_px},{con2_dec_px},{sgra_rad},{sgra_rad},{0})\n')
 	contam_f.write(f'ellipse({con3_ra_px},{con3_dec_px},{sgra_rad},{sgra_rad},{0})')
 	contam_f.close()
+
+	#Also extract the events from the magnetar region
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(mag.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="{observationID}_magnetar_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes', shell=True, cwd=repro_wd)
+
 	
 	
 
@@ -57,17 +61,42 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits')
 
 	#Calculate the fraction of flux that leaks out of the magnetar region into the contamination regions.
-	mean_contam = np.mean(contam[1].data['NET_RATE'])
-	mean_mag = np.mean(magnetar[1].data['NET_RATE'])
-	leak_frac = mean_contam/mean_mag
+	contamin = contam[1].data['NET_RATE']
+	contamin_err = contam[1].data['ERR_RATE']
+
+	magn = magnetar[1].data['NET_RATE']
+	magn_err = magnetar[1].data['ERR_RATE']
+	leak_frac = np.nanmean(contamin)/(3*np.nanmean(magn))
+	print(f'leak frac {leak_frac}')
+	
+
+	#Error of the leakage fraction
+	#leak_frac_err = np.sqrt( (1/contamin)**2 * contamin_err**2 + (contamin/magn**2)**2 * magn_err**2 )
+	#leak_frac_err = np.abs(contamin/magn) * np.sqrt((contamin_err/contamin)**2 + (magn_err/magn)**2)
 
 	#Calculate the real lightcurve of Sgr A* based on contamination factor from magnetar (Bouffard 2019).
-	sgr_lightcurve = eff - leak_frac*magnetar[1].data['NET_RATE']
-	hdu = fits.PrimaryHDU(sgr_lightcurve)
-	hdu.writeto(f"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
+	effective = eff[1].data['NET_RATE']
+	print(f'Q_eff is {np.mean(effective)}')
+	#effective_err = eff[1].data['ERR_RATE']
+	sgr_lightcurve = effective - leak_frac*magn
+
+	#sgr_err = np.sqrt( effective_err**2 + leak_frac**2 * magn_err**2 + magn**2 * leak_frac_err**2 )
+
+	#print(f'contam error is {contamin_err}, magn error is {magn_err}, leak_frac error is {leak_frac_err}')
+	#Making a new copy of _eff and overwriting the flux with the corrected rate.
+	#The NET_RATE column of the file without _eff is the magnetar corrected flux
+	with fits.open(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits", mode="update") as hdul:
+		table_hdu = hdul[1]
+
+		# Overwrite the column with new data
+		table_hdu.data['NET_RATE'] = sgr_lightcurve
+		#table_hdu.data['ERR_RATE'] = sgr_err
+		hdul.writeto(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
+
+	print('here')
 
 	#Return this value for later.
-	return leak_frac, mean_mag
+	return np.nanmean(leak_frac), np.nanmean(magn)
 	
 def quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag):
 	'''This function, much like the pileup correction, corrects the Sgr A* quiescent rate based on the leak fraction.
@@ -79,8 +108,9 @@ def quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag):
 	with open(table_res, 'r') as f:
 		data = f.readlines()
 		old_quiescent = str(data[16][35:40]) + 'e-03'
+		print(f'old quiescent rate is {old_quiescent}')
 		#Change that level to the corrected rate.
-		new_quiescent = float(old_quiescent) - leak_frac/3*q_mag
+		new_quiescent = float(old_quiescent) - leak_frac*q_mag
 		print(old_quiescent, new_quiescent)
 		data[16] = f'Quiescent Count Rate (10^-3 ct/s): {np.around(new_quiescent/(10**(-3)), 3)} (MAGNETAR CORRECTED)\n'
 

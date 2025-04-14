@@ -30,16 +30,16 @@ from magnetar import magnetar_correction, quiescent_correction, magnetar_extract
 
 #============================#
 #Change the observation ID.
-observationID = 28229
+observationID = 15041
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.
 wd = f'{fp}/{observationID}'
 #============================#
 barycentric = True
-wcsCorrect = False
-reprocess = False
-search = True
+wcsCorrect = True
+reprocess = True
+search = False
 #============================#
 #defining other input variables
 #Chandra energy range: list w/lower and upper limits
@@ -86,21 +86,26 @@ if barycentric == True:
 else:
 	fileName='repro'
 
+find_sources(observationID, repro_wd, erange, fileName)
+
+
+subprocess.call(f'fluximage acisf{observationID}_{fileName}_evt2.fits {observationID} bin=1 band=broad clobber=yes', shell=True, cwd=repro_wd)
+subprocess.call(f'cp {repro_wd}/{observationID}_broad_thresh.img {repro_wd}/{observationID}_broad_thresh_img.fits', shell=True, cwd=repro_wd)
+
 #Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
 #region should go.
 if wcsCorrect == True:
-	wcs_correct(fp, observationID, repro_wd, fileName)
+	wcs_correct(fp, observationID, repro_wd, erange, fileName)
 
 if search == True:
 	#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
-	find_sources(observationID, repro_wd, erange, fileName)
 	regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName)
 else:
 	#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
 	if grating_check == False and magnetar == False:
 		regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName)
 	elif grating_check == False and magnetar == True:
-		magnetar_extraction2(observationID, repro_wd, src_coords, bkg_coords, fileName)
+		magnetar_extraction2(observationID, repro_wd, erange, src_coords, bkg_coords, fileName)
 
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.
@@ -111,8 +116,8 @@ elif grating_check == False and magnetar == True:
 
 #If the magnetar is bright, this step finds fraction of light that leaks into Sgr A* region.
 if magnetar == True:
-	leak_frac, q_mag = magnetar_correction(observationID, repro_wd, erange, fileName)
-
+	leak_frac, q_mag = magnetar_correction(observationID, repro_wd, erange, tbin, fileName)
+print(f'qmag is {q_mag}')
 #This step comptues the pileup correction and scales the lightcurves appropriately.
 if grating_check == False:
 	pileup_correction(observationID, repro_wd, erange, tbin, fileName)
@@ -121,7 +126,7 @@ if grating_check == False:
 plot_lightcurve(observationID, repro_wd, erange, tbin, fileName)
 
 #Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
-subprocess.call(f'python3 RUN.py {observationID} False {grating_check} {erange[0]} {erange[1]} {tbin}', shell=True)
+subprocess.call(f'python3 RUN.py {observationID} True {grating_check} {erange[0]} {erange[1]} {tbin}', shell=True)
 
 #Similarly, this step scales the quiescent bayesian blocks region if the magnetar has contaminated.
 if magnetar == True:
