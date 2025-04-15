@@ -22,7 +22,7 @@ from astropy.io import fits
 from barycenter import barycenter_corr
 from wcs import wcs_correct
 from regions import regions_search, regions_search_manual_select
-from pileup import pileup_correction
+from pileup import pileup_correction, pileup_correction_magnetar, pileup_correction_eff, pileup_correction_contam
 from plotcurve import plot_lightcurve
 from searchsources import find_sources
 from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar
@@ -88,7 +88,7 @@ else:
 
 find_sources(observationID, repro_wd, erange, fileName)
 
-
+#We need to create smoothed images of the observations to find the sources and reference catalogues in the WCS correction.
 subprocess.call(f'fluximage acisf{observationID}_{fileName}_evt2.fits {observationID} bin=1 band=broad clobber=yes', shell=True, cwd=repro_wd)
 subprocess.call(f'cp {repro_wd}/{observationID}_broad_thresh.img {repro_wd}/{observationID}_broad_thresh_img.fits', shell=True, cwd=repro_wd)
 
@@ -114,22 +114,27 @@ if grating_check == False and magnetar == False:
 elif grating_check == False and magnetar == True:
 	extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
 
-#If the magnetar is bright, this step finds fraction of light that leaks into Sgr A* region.
-if magnetar == True:
-	leak_frac, q_mag = magnetar_correction(observationID, repro_wd, erange, tbin, fileName)
-print(f'qmag is {q_mag}')
 #This step comptues the pileup correction and scales the lightcurves appropriately.
-if grating_check == False:
+if magnetar == False:
 	pileup_correction(observationID, repro_wd, erange, tbin, fileName)
+elif magnetar == True:
+	pileup_correction_magnetar(observationID, repro_wd, erange, tbin, fileName)
+	pileup_correction_eff(observationID, repro_wd, erange, tbin, fileName)
+	pileup_correction_contam(observationID, repro_wd, erange, tbin, fileName)
 
 #Plots the light curve
-plot_lightcurve(observationID, repro_wd, erange, tbin, fileName)
+#plot_lightcurve(observationID, repro_wd, erange, tbin, fileName)
+
+if magnetar == True:
+	leak_frac, q_mag = magnetar_correction(observationID, repro_wd, erange, tbin, fileName)
+else:
+	leak_frac = 0
 
 #Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
-subprocess.call(f'python3 RUN.py {observationID} True {grating_check} {erange[0]} {erange[1]} {tbin}', shell=True)
+subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac}', shell=True)
 
-#Similarly, this step scales the quiescent bayesian blocks region if the magnetar has contaminated.
-if magnetar == True:
-	quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag)
+#This step scales the quiescent bayesian blocks region given how much of the signal from the magnetar leaks in to the Sgr A*.
+#if magnetar == True:
+#	quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag)
 
 print('The lightcurve pipeline is complete.')

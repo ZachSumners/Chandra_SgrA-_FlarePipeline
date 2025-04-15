@@ -72,88 +72,145 @@ while i < maxi-1:
     erange_high = sys.argv[i+5]
     tbin = sys.argv[i+6]
     erange = [erange_low,erange_high]
-    
-    #create string for datafile directories: (input)
-    #lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV" + "_lc{tbin}.fits")
-    evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
-    
-    
-    
-    #OUTPUTs directories:
-    
-    filename = "./"  + str(obsid) + "/repro/Results/" 
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    
-    bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
-    plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
-    table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
-    
-    #Do the pileup correction in xblocks.py if no grating. If there is a grating, countOrders.py takes care of the pileup so DONT do it here.
+    leak_frac = float(sys.argv[i+7])
 
-    if grating == 'False':
-    	pileup_correction = True
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
-    	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
-    	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra_pileupcorr.png" #plot 
-    	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
-    	rate_header = 'RATE_PILEUP'
-    	rate_err_header = 'PILEUP_ERR'
-    #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
-    elif grating == 'True':
-    	pileup_correction = False
-    	lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
-    	bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
-    	plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
-    	table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
-    	rate_header = 'COUNT_RATE'
-    	rate_err_header = 'COUNT_RATE_ERR'
-
-    print("running code for ObsID " + str(obsid))
-    #run bayesian block: 
-    bb.process(evt, bb_info, pileup_correction)
-    
-    #Create the plot: 
-    fig = plt.figure()
-    bb.plot_bb(bb_info) 
-    bb.plot_lc(lc, rate_header, rate_err_header) 
-    plt.xlabel("Time (days)")
-    plt.ylabel("Count Rate")
-    #plt.ylim(-0.002, 0.1)
-    plt.title("ObsID " + str(obsid))
-    fig.savefig(plot)
-    
-    #Get flare information for database: 
-    bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header)
-    
-    #run this on the magnetar, if magnetar = true: 
     if magnetar == 'True':
         pileup_correction = True
-        #create string for datafile directories: (input)
-        lc_m = "./"  + str(obsid) + "/repro/" + (str(obsid) + f"_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
-        evt_m = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_magnetar_{erange[0]}-{erange[1]}keV_evt.fits")
+
+        filename = "./"  + str(obsid) + "/repro/Results/" 
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+        #Input lightcurves and event files for each component of the magnetar observations (magnetar, effective region, contamination region, magnetar subtracted Sgr A*)
+        lc_mag = "./" + str(obsid) + "/repro/" + f'{obsid}_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits'
+        evt_mag = "./" + str(obsid) + "/repro/" + f"acisf{obsid}_magnetar_{erange[0]}-{erange[1]}keV_evt.fits"
+
+        lc_contam = "./" + str(obsid) + "/repro/" + f'{obsid}_contam_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits'
+        evt_contam = "./" + str(obsid) + "/repro/" + f"acisf{obsid}_contam_{erange[0]}-{erange[1]}keV_evt.fits"
+
+        lc_eff = "./" + str(obsid) + "/repro/" + f'{obsid}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits'
+        evt_eff = "./" + str(obsid) + "/repro/" + f"acisf{obsid}_eff_{erange[0]}-{erange[1]}keV_evt.fits"
+
+        lc_sgra = "./" + str(obsid) + "/repro/" + f'{obsid}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits'
     
         #OUTPUTs directories:
-        bb_info_m = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_bayesianBlocks_info.txt" #block info 
-        plot_m = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_magnetar.png" #plot 
-        table_res_m = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_TABLE_RESULTS.txt" #info for flare table
-        print(evt_m)
-        #run bayesian block: 
-        bb.process(evt_m, bb_info_m, pileup_correction)
-    
-        #Create the plot: 
+        bb_info_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_eff_bayesianBlocks_info.txt" #block info 
+        bb_info_mag = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_magnetar_bayesianBlocks_info.txt" #block info 
+
+        bb.process(evt_eff, bb_info_eff, pileup_correction)
+        bb.process(evt_mag, bb_info_mag, pileup_correction)
+
+        with open(bb_info_mag, "r") as f:
+            lines = f.readlines()
+
+            # Find the first non-comment line (the data line)
+            for line in lines:
+                if not line.strip().startswith("#"):
+                    values = line.strip().split()
+                    mag_block = float(values[4])
+                    break
+
+        print(mag_block, leak_frac)
+        
+        bb_info_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + f"{obsid}_sgra_bayesianBlocks_info.txt"
+        column_index = 4  # Zero-based index for the column with 1052.933
+
+        new_rows = []
+
+        with open(bb_info_eff, "r") as f:
+            lines = f.readlines()
+
+        for line in lines:
+            if line.strip().startswith("#") or not line.strip():
+                new_rows.append(line)  # Keep comment and empty lines unchanged
+            else:
+                parts = line.strip().split()
+                # Convert, subtract, and reformat
+                original_value = float(parts[column_index])
+                parts[column_index] = f"{original_value - leak_frac*mag_block:.6f}"
+                new_rows.append(" ".join(parts) + "\n")
+
+        # Optionally save to new file
+        with open(bb_info_sgra, "w") as f:
+            f.writelines(new_rows)
+
+        rate_header = 'RATE_PILEUP'
+        rate_err_header = 'PILEUP_ERR'
+
+        plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_PLOT.png" #plot
+
         fig = plt.figure()
-        bb.plot_bb(bb_info_m) 
-        bb.plot_lc(lc_m) 
+        bb.plot_bb(bb_info_sgra) 
+        bb.plot_lc(lc_sgra, rate_header, rate_err_header) 
         plt.xlabel("Time (days)")
         plt.ylabel("Count Rate")
-        plt.title("ObsID " + str(obsid) + " - magnetar")
-        fig.savefig(plot_m)
-        print('here2', plot_m)
-    
-        #Get flare information for database: 
-        bb.getInfo(evt_m , lc_m , bb_info_m, table_res_m)
+        plt.title("ObsID " + str(obsid))
+        fig.savefig(plot)
+
+
+        table_res_mag = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_MAGNETAR_TABLE_RESULTS.txt" #info for flare table
+        table_res_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_EFF_TABLE_RESULTS.txt" #info for flare table
+        table_res_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
+
+        bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, table_res_sgra, rate_header, rate_err_header)
+
         
-    i = i + 7 #update value of i 
+
+
+    elif magnetar == 'False':
+        #create string for datafile directories: (input)
+        #lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV" + "_lc{tbin}.fits")
+        evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
+        
+        
+        
+        #OUTPUTs directories:
+        
+        filename = "./"  + str(obsid) + "/repro/Results/" 
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        
+        bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
+        plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
+        table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
+        
+        #Do the pileup correction in xblocks.py if no grating. If there is a grating, countOrders.py takes care of the pileup so DONT do it here.
+
+        if grating == 'False':
+            pileup_correction = True
+            lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
+            bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
+            plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra_pileupcorr.png" #plot 
+            table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
+            rate_header = 'RATE_PILEUP'
+            rate_err_header = 'PILEUP_ERR'
+        #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
+        elif grating == 'True':
+            pileup_correction = False
+            lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
+            bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
+            plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid) + "_PLOT_sgra.png" #plot 
+            table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
+            rate_header = 'COUNT_RATE'
+            rate_err_header = 'COUNT_RATE_ERR'
+
+        print("running code for ObsID " + str(obsid))
+        #run bayesian block: 
+        print(evt)
+        bb.process(evt, bb_info, pileup_correction)
+        
+        #Create the plot: 
+        fig = plt.figure()
+        bb.plot_bb(bb_info) 
+        bb.plot_lc(lc, rate_header, rate_err_header) 
+        plt.xlabel("Time (days)")
+        plt.ylabel("Count Rate")
+        #plt.ylim(-0.002, 0.1)
+        plt.title("ObsID " + str(obsid))
+        fig.savefig(plot)
+        
+        #Get flare information for database: 
+        bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header)
+        
+    i = i + 8 #update value of i 
  
     
 

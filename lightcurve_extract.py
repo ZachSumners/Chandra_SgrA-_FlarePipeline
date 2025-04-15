@@ -37,21 +37,21 @@ def extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
 
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	#The double quotes in the name ARE necessary because the "" is actually sent to the command line.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 	
 	#Magnetar lightcurve extraction as given by the Guide to Analyzing Flares.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(mag.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(mag.reg)][bin time=::{tbin}]"', f'"{observationID}_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 	
 	#Contamination region lightcurve extraction as given by the Guide to Analyzing Flares.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam.reg)][bin time=::{tbin}]"', f'"{observationID}_contam_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 	
 	#Copies events used in Sgr A* lightcurve to new file.
-	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)	
+	#subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
+	#subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
+	#subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	#subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
+	#subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
+	#subprocess.call('dmcopy', shell=True, cwd=repro_wd)	
 
 
 def extract_lightcurve(observationID, repro_wd, erange, tbin, fileName):
@@ -72,11 +72,4 @@ def extract_lightcurve(observationID, repro_wd, erange, tbin, fileName):
 
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
-	
-	#Copies events used in Sgr A* lightcurve to new file.
-	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+

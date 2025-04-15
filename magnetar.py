@@ -46,8 +46,10 @@ def magnetar_extraction2(observationID, repro_wd, erange, src_coords, bkg_coords
 	contam_f.close()
 
 	#Also extract the events from the magnetar region
-	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(mag.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="{observationID}_magnetar_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes', shell=True, cwd=repro_wd)
-
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(mag.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="acisf{observationID}_magnetar_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="acisf{observationID}_eff_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(contam.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="acisf{observationID}_contam_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes', shell=True, cwd=repro_wd)
+	
 	
 	
 
@@ -56,44 +58,36 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
  	It does this by analyzing the lightcurves. Also outlined in Bouffard (2019).'''
 
 	#Open the Sgr A*, magnetar and contamination lightcurves.
-	eff = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits')
-	magnetar = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_magnetar.fits')
-	contam = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_contam.fits')
+	eff = fits.open(f'{repro_wd}/{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits')
+	magnetar = fits.open(f'{repro_wd}/{observationID}_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits')
+	contam = fits.open(f'{repro_wd}/{observationID}_contam_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits')
 
 	#Calculate the fraction of flux that leaks out of the magnetar region into the contamination regions.
-	contamin = contam[1].data['NET_RATE']
-	contamin_err = contam[1].data['ERR_RATE']
+	contamin = contam[1].data['RATE_PILEUP']
+	contamin_err = contam[1].data['PILEUP_ERR']
 
-	magn = magnetar[1].data['NET_RATE']
-	magn_err = magnetar[1].data['ERR_RATE']
+	magn = magnetar[1].data['RATE_PILEUP']
+	magn_err = magnetar[1].data['PILEUP_ERR']
 	leak_frac = np.nanmean(contamin)/(3*np.nanmean(magn))
 	print(f'leak frac {leak_frac}')
-	
-
-	#Error of the leakage fraction
-	#leak_frac_err = np.sqrt( (1/contamin)**2 * contamin_err**2 + (contamin/magn**2)**2 * magn_err**2 )
-	#leak_frac_err = np.abs(contamin/magn) * np.sqrt((contamin_err/contamin)**2 + (magn_err/magn)**2)
 
 	#Calculate the real lightcurve of Sgr A* based on contamination factor from magnetar (Bouffard 2019).
-	effective = eff[1].data['NET_RATE']
+	effective = eff[1].data['RATE_PILEUP']
 	print(f'Q_eff is {np.mean(effective)}')
-	#effective_err = eff[1].data['ERR_RATE']
+	#Correction
 	sgr_lightcurve = effective - leak_frac*magn
 
-	#sgr_err = np.sqrt( effective_err**2 + leak_frac**2 * magn_err**2 + magn**2 * leak_frac_err**2 )
+	# Open the original file
+	with fits.open(f"{repro_wd}/{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits", mode='readonly') as hdul:
+		# Make a copy of the HDU list in memory
+		new_hdul = hdul.copy()
 
-	#print(f'contam error is {contamin_err}, magn error is {magn_err}, leak_frac error is {leak_frac_err}')
-	#Making a new copy of _eff and overwriting the flux with the corrected rate.
-	#The NET_RATE column of the file without _eff is the magnetar corrected flux
-	with fits.open(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_eff.fits", mode="update") as hdul:
-		table_hdu = hdul[1]
+		# Modify a column (example: overwrite column 'FLUX' with random data)
+		data = new_hdul[1].data  # Assuming the table is in the first extension (index 1)
+		data['RATE_PILEUP'] = sgr_lightcurve  # Replace with your logic
 
-		# Overwrite the column with new data
-		table_hdu.data['NET_RATE'] = sgr_lightcurve
-		#table_hdu.data['ERR_RATE'] = sgr_err
-		hdul.writeto(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits", overwrite=True)
-
-	print('here')
+		# Save to new file
+		new_hdul.writeto(f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits", overwrite=True)
 
 	#Return this value for later.
 	return np.nanmean(leak_frac), np.nanmean(magn)
