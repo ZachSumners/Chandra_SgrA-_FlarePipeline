@@ -30,7 +30,7 @@ from magnetar import magnetar_correction, quiescent_correction, magnetar_extract
 
 #============================#
 #Change the observation ID.
-observationID = 15041
+observationID = 16508
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.
@@ -53,7 +53,7 @@ bkg_coords = [28.455285,40.650407]
 
 #Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
 #we can define a range of IDs that need magnetar care.
-if observationID > 14703 and observationID < 18731:
+if observationID >= 14702 and observationID < 18731:
 	magnetar = True
 else:
 	magnetar = False
@@ -132,9 +132,5 @@ else:
 
 #Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac}', shell=True)
-
-#This step scales the quiescent bayesian blocks region given how much of the signal from the magnetar leaks in to the Sgr A*.
-#if magnetar == True:
-#	quiescent_correction(observationID, repro_wd, fileName, leak_frac, q_mag)
 
 print('The lightcurve pipeline is complete.')

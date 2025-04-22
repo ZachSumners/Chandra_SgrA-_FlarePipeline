@@ -148,10 +148,12 @@ while i < maxi-1:
 
 
         table_res_mag = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_MAGNETAR_TABLE_RESULTS.txt" #info for flare table
-        table_res_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_EFF_TABLE_RESULTS.txt" #info for flare table
         table_res_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
+        table_res_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid) + "_EFF_TABLE_RESULTS.txt" #info for flare table
 
         bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, table_res_sgra, rate_header, rate_err_header)
+        bb.getInfo(evt_mag, lc_mag, bb_info_mag, table_res_mag, rate_header, rate_err_header)
+        bb.getInfo(evt_eff, lc_eff, bb_info_eff, table_res_eff, rate_header, rate_err_header)
 
         
 
