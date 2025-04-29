@@ -32,6 +32,7 @@ def regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()
 
+
 def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName):
 	'''
 	This function allows the user to visually select which region corresponds to Sgr A* and extracts the Sgr A* region at the center of the 
@@ -93,3 +94,35 @@ def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fi
 	#bkg_f.write(f'annulus({sgra[0]},{sgra[1]},28.455285,40.650407)')
 	bkg_f.write(f'annulus({sgra[0]},{sgra[1]},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()
+
+
+
+
+def regions_search_grating(observationID, repro_wd, src_coords, bkg_coords, fileName):
+	'''This function defines the zeroth and first order regions for Chandra HETG grating observations, as given by the region slice of the evt2 HDUL fits file.'''
+
+
+	#Open file that gives the zeroth and first order region from the reprocessing.
+	hetg_region_file = fits.open(f'{repro_wd}/acisf{observationID}_tgmask.fits')
+	regions = hetg_region_file[1].data
+
+	#Radius of Sgr A* (zeroth order) region.
+	sgra_rad = 2.5406504
+	
+	#Create the zeroth order region.
+	order0_f = open(f'{repro_wd}/order0.reg', 'w')
+	order0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
+	order0_f.close()
+
+	#Write the first order regions.
+	order1_f = open(f'{repro_wd}/order1.reg', 'w')
+	order1_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	order1_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+	order1_f.close()
+
+	#Write a region file with both orders
+	order1and0_f = open(f'{repro_wd}/order1and0.reg', 'w')
+	order1and0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
+	order1and0_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	order1and0_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+	order1and0_f.close()

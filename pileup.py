@@ -33,7 +33,27 @@ def pileup_calc(table, f, exptime):
 	return hdu1
 
 
+def pileup_calc_grating(table, f, exptime):
+	'''This function does the actual calculation of the pileup rate.'''
+	#Convert count rates to counts per frame.
+	count_rate = table['NET_RATE']*exptime
+	count_error = table['ERR_RATE']*exptime
 
+	#Additional factor so no division by 0.
+	dividezero_epsilon = 1e-8
+
+	pileup_rate = count_rate /(0.94*1.04)
+	pileup_error = 1/(0.94 * 1.04) * count_error
+
+	table.add_column(pileup_rate, index=21, name='RATE_PILEUP')
+	table.add_column(pileup_error, index=22, name='PILEUP_ERR')
+
+	#Save this data into a new fits file.
+	# Create new HDU with updated table
+	hdu1 = BinTableHDU(data=table, header=f[1].header)
+	hdu1.header['MJDREF'] = 5.08140000000000E+04  # Add/update MJDREF
+
+	return hdu1
 
 
 def pileup_correction(observationID, repro_wd, erange, tbin, fileName):
@@ -113,4 +133,21 @@ def pileup_correction_eff(observationID, repro_wd, erange, tbin, fileName):
 	# Assemble final file with original PRIMARY and GTI extensions
 	hdul = fits.HDUList([f[0], hdu1, f[2]])
 	hdul.writeto(f'{repro_wd}/{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
+
+
+def pileup_correction_grating(observationID, repro_wd, erange, tbin, fileName):
+	'''Pileup correction '''
+	#Open the lightcurve.
+	f = fits.open(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
+	table = Table(f[1].data)
+
+	#Open the event files to get the exposure time of the observation.
+	f_evt = fits.open(f'{repro_wd}/acisf{observationID}_{fileName}_evt2.fits')
+	exptime = float(f_evt[1].header['EXPTIME'])
+
+	hdu1 = pileup_calc(table, f, exptime)
+
+	# Assemble final file with original PRIMARY and GTI extensions
+	hdul = fits.HDUList([f[0], hdu1, f[2]])
+	hdul.writeto(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
 

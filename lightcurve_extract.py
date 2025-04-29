@@ -10,7 +10,8 @@ def general_lightcurve_extraction(infile, outfile, bkg, repro_wd):
 	subprocess.call('punlearn dmextract', shell=True, cwd=repro_wd)
 	subprocess.call(f'pset dmextract infile={infile}', shell=True, cwd=repro_wd)
 	subprocess.call(f'pset dmextract outfile={outfile}', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract bkg={bkg}', shell=True, cwd=repro_wd)
+	if bkg != None:
+		subprocess.call(f'pset dmextract bkg={bkg}', shell=True, cwd=repro_wd)
 	subprocess.call('pset dmextract opt="ltc1"', shell=True, cwd=repro_wd)
 	subprocess.call('pset dmextract clobber = yes', shell=True, cwd=repro_wd)
 	subprocess.call('dmextract', shell=True, cwd=repro_wd)
@@ -73,3 +74,14 @@ def extract_lightcurve(observationID, repro_wd, erange, tbin, fileName):
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 
+def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
+	'''This function extracts a lightcurve for Sgr A* order 0 and order 1 combined in the HETG observations.'''
+		#Open the events files and prepare for lightcurve extraction. Calculates which events belong to Sgr A* and which to the background.
+	#All events need to fall on the same CCD (this is assumed for now).
+	subprocess.call('punlearn dmextract', shell=True, cwd=repro_wd)
+	p = subprocess.run(f'dmstat "acisf{observationID}_{fileName}_evt2.fits[sky=region(order1and0.reg)][cols ccd_id]"', shell=True, cwd=repro_wd, capture_output=True)
+	result = p.stdout.decode("utf-8")
+	sgra_ccd_id = result[16]
+
+	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1and0.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)

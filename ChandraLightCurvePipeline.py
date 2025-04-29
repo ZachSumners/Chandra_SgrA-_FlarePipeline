@@ -21,16 +21,16 @@ from astropy.io import fits
 #Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
 from wcs import wcs_correct
-from regions import regions_search, regions_search_manual_select
-from pileup import pileup_correction, pileup_correction_magnetar, pileup_correction_eff, pileup_correction_contam
+from regions import regions_search, regions_search_manual_select, regions_search_grating
+from pileup import pileup_correction, pileup_correction_magnetar, pileup_correction_eff, pileup_correction_contam, pileup_correction_grating
 from plotcurve import plot_lightcurve
 from searchsources import find_sources
-from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar
+from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar, extract_lightcurve_grating
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
 
 #============================#
 #Change the observation ID.
-observationID = 16508
+observationID = 14460
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.
@@ -72,10 +72,10 @@ repro_wd = f'{wd}/repro'
 f_evt2 = fits.open(f'{repro_wd}/acisf{observationID}_repro_evt2.fits')
 grating = f_evt2[1].header['GRATING'].strip()
 if grating != 'NONE':
-	print('Chandra observations with gratings are not supported at this time.')
-	sys.exit()
 	grating_check = True
-	magnetar = False
+	if magnetar == True:
+		print('Chandra observations with gratings and the magnetar are not supported at this time.')
+		sys.exit()
 else:
 	grating_check = False
 	
@@ -97,30 +97,42 @@ subprocess.call(f'cp {repro_wd}/{observationID}_broad_thresh.img {repro_wd}/{obs
 if wcsCorrect == True:
 	wcs_correct(fp, observationID, repro_wd, erange, fileName)
 
-if search == True:
-	#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
-	regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName)
-else:
-	#This step identifies the Sgr A* source region, defines a background region and finds the first order region if using a HETG grating.
-	if grating_check == False and magnetar == False:
-		regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName)
-	elif grating_check == False and magnetar == True:
-		magnetar_extraction2(observationID, repro_wd, erange, src_coords, bkg_coords, fileName)
+if grating_check == True:
+	#Identifies zero and first order source regions for HETG grating observations and stores them in .reg files.
+	regions_search_grating(observationID, repro_wd, src_coords, bkg_coords, fileName)
+elif grating_check == False:
+	if search == True:
+		#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
+		regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName)
+	else:
+		#This step identifies the Sgr A* source region, defines a background region.
+		if magnetar == False:
+			regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName)
+		elif magnetar == True:
+			#Identifies the special regions for magnetar observations (see Bouffard 2019)
+			magnetar_extraction2(observationID, repro_wd, erange, src_coords, bkg_coords, fileName)
+	
 
 #Finds the CCD in use and extracts a light curve based on the regions we just defined. We need to store the light curve of the zeroth and first order
 #regions separately for pileup correction later on.
-if grating_check == False and magnetar == False:
-	extract_lightcurve(observationID, repro_wd, erange, tbin, fileName)
-elif grating_check == False and magnetar == True:
-	extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
+if grating_check == False:
+	if magnetar == False:
+		extract_lightcurve(observationID, repro_wd, erange, tbin, fileName)
+	elif magnetar == True:
+		extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
+elif grating_check == True:
+	extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName)
 
-#This step comptues the pileup correction and scales the lightcurves appropriately.
-if magnetar == False:
-	pileup_correction(observationID, repro_wd, erange, tbin, fileName)
-elif magnetar == True:
-	pileup_correction_magnetar(observationID, repro_wd, erange, tbin, fileName)
-	pileup_correction_eff(observationID, repro_wd, erange, tbin, fileName)
-	pileup_correction_contam(observationID, repro_wd, erange, tbin, fileName)
+#This step comptues the pileup correction and scales the lightcurves appropriately. Applies to 3 lightcurves if magnetar is present.
+if grating_check == False:
+	if magnetar == False:
+		pileup_correction(observationID, repro_wd, erange, tbin, fileName)
+	elif magnetar == True:
+		pileup_correction_magnetar(observationID, repro_wd, erange, tbin, fileName)
+		pileup_correction_eff(observationID, repro_wd, erange, tbin, fileName)
+		pileup_correction_contam(observationID, repro_wd, erange, tbin, fileName)
+elif grating_check == True:
+	pileup_correction_grating(observationID, repro_wd, erange, tbin, fileName)
 
 #Plots the light curve
 #plot_lightcurve(observationID, repro_wd, erange, tbin, fileName)
