@@ -85,3 +85,11 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1and0.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+
+	#Copies events used in Sgr A* lightcurve to new file.
+	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order1and0.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
+	subprocess.call('dmcopy', shell=True, cwd=repro_wd)

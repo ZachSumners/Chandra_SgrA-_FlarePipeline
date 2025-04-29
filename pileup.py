@@ -36,8 +36,8 @@ def pileup_calc(table, f, exptime):
 def pileup_calc_grating(table, f, exptime):
 	'''This function does the actual calculation of the pileup rate.'''
 	#Convert count rates to counts per frame.
-	count_rate = table['NET_RATE']*exptime
-	count_error = table['ERR_RATE']*exptime
+	count_rate = table['COUNT_RATE']*exptime
+	count_error = table['COUNT_RATE_ERR']*exptime
 
 	#Additional factor so no division by 0.
 	dividezero_epsilon = 1e-8
@@ -145,7 +145,7 @@ def pileup_correction_grating(observationID, repro_wd, erange, tbin, fileName):
 	f_evt = fits.open(f'{repro_wd}/acisf{observationID}_{fileName}_evt2.fits')
 	exptime = float(f_evt[1].header['EXPTIME'])
 
-	hdu1 = pileup_calc(table, f, exptime)
+	hdu1 = pileup_calc_grating(table, f, exptime)
 
 	# Assemble final file with original PRIMARY and GTI extensions
 	hdul = fits.HDUList([f[0], hdu1, f[2]])
