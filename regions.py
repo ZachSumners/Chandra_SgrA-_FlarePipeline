@@ -101,6 +101,11 @@ def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fi
 def regions_search_grating(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	'''This function defines the zeroth and first order regions for Chandra HETG grating observations, as given by the region slice of the evt2 HDUL fits file.'''
 
+	#Open the image created earlier and selects which pixel is the center of Sgr A* based on its literature position.
+	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
+	#converts coordinates in degrees to pixel coordinates
+	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', src_coords[0], src_coords[1])
+
 
 	#Open file that gives the zeroth and first order region from the reprocessing.
 	hetg_region_file = fits.open(f'{repro_wd}/acisf{observationID}_tgmask.fits')
@@ -111,18 +116,24 @@ def regions_search_grating(observationID, repro_wd, src_coords, bkg_coords, file
 	
 	#Create the zeroth order region.
 	order0_f = open(f'{repro_wd}/order0.reg', 'w')
-	order0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
+	order0_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
+	#order0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
 	order0_f.close()
 
 	#Write the first order regions.
 	order1_f = open(f'{repro_wd}/order1.reg', 'w')
-	order1_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
-	order1_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+	order1_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	order1_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[2][4][0])},5,{regions[2][5]})')
+	#order1_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	#order1_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
 	order1_f.close()
 
 	#Write a region file with both orders
 	order1and0_f = open(f'{repro_wd}/order1and0.reg', 'w')
-	order1and0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
-	order1and0_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
-	order1and0_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+	order1and0_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})\n')
+	order1and0_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	order1and0_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[2][4][0])},5,{regions[2][5]})')
+	#order1and0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})\n')
+	#order1and0_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+	#order1and0_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
 	order1and0_f.close()

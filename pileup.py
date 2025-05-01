@@ -42,8 +42,8 @@ def pileup_calc_grating(table, f, exptime):
 	#Additional factor so no division by 0.
 	dividezero_epsilon = 1e-8
 
-	pileup_rate = count_rate /(0.94*1.04)
-	pileup_error = 1/(0.94 * 1.04) * count_error
+	pileup_rate = count_rate #/(0.94*1.04)
+	pileup_error = count_error#1/(0.94 * 1.04) * count_error
 
 	table.add_column(pileup_rate, index=21, name='RATE_PILEUP')
 	table.add_column(pileup_error, index=22, name='PILEUP_ERR')
@@ -148,6 +148,6 @@ def pileup_correction_grating(observationID, repro_wd, erange, tbin, fileName):
 	hdu1 = pileup_calc_grating(table, f, exptime)
 
 	# Assemble final file with original PRIMARY and GTI extensions
-	hdul = fits.HDUList([f[0], hdu1, f[2]])
+	hdul = fits.HDUList([f[0], hdu1])
 	hdul.writeto(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
 

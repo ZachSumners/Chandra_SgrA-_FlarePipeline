@@ -237,8 +237,14 @@ def plot_lc(file, rate_header, rate_err_header):
     #obtain the mjdref from the primary header file : 
     #obtain the timezero correction from primary header: 
     primary = f[0].header
-    mjdref = primary['MJDREF']
-    timezero = primary['TIMEZERO']
+
+    try:
+        mjdref = primary['MJDREF']
+        timezero = primary['TIMEZERO']
+    except KeyError:
+        primary = f[1].header
+        mjdref = primary['MJDREF']
+        timezero = primary['TIMEZERO']
     
     #obtain necessary data for plotting: 
     data = Table.read(f, hdu=1)

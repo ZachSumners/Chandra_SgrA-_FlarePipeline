@@ -74,6 +74,14 @@ def extract_lightcurve(observationID, repro_wd, erange, tbin, fileName):
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
 
+	#Copies events used in Sgr A* lightcurve to new file.
+	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
+	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+
 def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 	'''This function extracts a lightcurve for Sgr A* order 0 and order 1 combined in the HETG observations.'''
 		#Open the events files and prepare for lightcurve extraction. Calculates which events belong to Sgr A* and which to the background.
@@ -83,13 +91,66 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 	result = p.stdout.decode("utf-8")
 	sgra_ccd_id = result[16]
 
-	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1and0.reg)][bin time=::{tbin}]"', f'"{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+	#Sgr A* order 0 lightcurve extraction.
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order0.reg)][tg_m=0][bin time=::{tbin}]"', f'"{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+	#Sgr A* order 1 lightcurve extraction.
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1.reg)][tg_m=-1,1][bin time=::{tbin}]"', f'"{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+
+	# Input lightcurve files
+	lc0_file = f"{repro_wd}/{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"
+	lc1_file = f"{repro_wd}/{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"
+	combined_file = f"{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"
+
+	# Open FITS files
+	with fits.open(lc0_file) as lc0, fits.open(lc1_file) as lc1:
+		lc0_data = lc0[1].data
+		lc1_data = lc1[1].data
+
+		# Check time alignment
+		if not np.allclose(lc0_data['TIME'], lc1_data['TIME']):
+			raise ValueError("Lightcurves are not time-aligned. Rebin or align them first.")
+
+		# Add count rates and errors
+		combined_rate = lc0_data['COUNT_RATE'] + lc1_data['COUNT_RATE']
+		combined_error = np.sqrt(lc0_data['COUNT_RATE_ERR']**2 + lc1_data['COUNT_RATE_ERR']**2)
+
+		# Create a new table with the combined data
+		new_cols = [
+			fits.Column(name='TIME', array=lc0_data['TIME'], format='D'),
+			fits.Column(name='COUNTS', array=lc0_data['COUNTS'] + lc1_data['COUNTS'], format='D'),
+			fits.Column(name='COUNT_RATE', array=combined_rate, format='E'),
+			fits.Column(name='COUNT_RATE_ERR', array=combined_error, format='E'),
+		]
+		# Create a new table with the combined data and preserve header
+		hdu = fits.BinTableHDU.from_columns(new_cols, header=lc0[1].header)
+
+		# Write to a new file
+		hdu.writeto(combined_file, overwrite=True)
 
 	#Copies events used in Sgr A* lightcurve to new file.
+
+	# Step 1: Extract tg_m=0 from order0 region
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order1and0.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order0.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=0]"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy option=all', shell=True, cwd=repro_wd)
 	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+
+	# Step 2: Extract tg_m=±1 from order1 region
+	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order1.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=-1,1]"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmcopy option=all', shell=True, cwd=repro_wd)
+	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+
+	# Step 3: Merge both event files
+	subprocess.call('punlearn dmmerge', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmmerge infile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits, {observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
+	subprocess.call(f'pset dmmerge outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt_unsorted.fits"', shell=True, cwd=repro_wd)
+	subprocess.call('pset dmmerge clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call('dmmerge', shell=True, cwd=repro_wd)
+
+	# Step 4: Sort merged events by time
+	subprocess.call(f'dmsort "{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt_unsorted.fits[EVENTS]" {observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits keys=TIME', shell=True, cwd=repro_wd)
