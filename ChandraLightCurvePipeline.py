@@ -30,7 +30,7 @@ from magnetar import magnetar_correction, quiescent_correction, magnetar_extract
 
 #============================#
 #Change the observation ID.
-observationID = 14460
+observationID = 16218
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.
@@ -61,8 +61,9 @@ else:
 #The data needs to be reprocessed by the latest Chandra calibration files.
 subprocess.call('punlearn ardlib', shell=True, cwd=wd)
 if reprocess == True:
-	#input('========= Press any key to start CIAO reprocessing. =========')
-	subprocess.call('chandra_repro', shell=True, cwd=wd)
+	input('========= Press any key to start CIAO reprocessing. =========')
+	subprocess.call('chandra_repro indir=./ outdir=', shell=True, cwd=wd)
+	print('CIAO reprocessing success.\n')
 
 subprocess.call('punlearn ardlib', shell=True, cwd=wd)
 

@@ -109,7 +109,7 @@ while i < maxi-1:
                     mag_block = float(values[4])
                     break
         
-        print(f'The leak fraction is {leak_frac}.')
+        #print(f'The leak fraction is {leak_frac}.')
         
         bb_info_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + f"{obsid}_sgra_bayesianBlocks_info.txt"
         column_index = 4  # Zero-based index for the column with 1052.933

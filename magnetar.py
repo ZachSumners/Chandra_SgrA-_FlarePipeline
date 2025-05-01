@@ -69,7 +69,7 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	magn = magnetar[1].data['RATE_PILEUP']
 	magn_err = magnetar[1].data['PILEUP_ERR']
 	leak_frac = np.nanmean(contamin)/(3*np.nanmean(magn))
-	print(f'leak frac {leak_frac}')
+	print(f'Leak_frac is {leak_frac}')
 
 	#Calculate the real lightcurve of Sgr A* based on contamination factor from magnetar (Bouffard 2019).
 	effective = eff[1].data['RATE_PILEUP']
