@@ -8,13 +8,10 @@ def general_lightcurve_extraction(infile, outfile, bkg, repro_wd):
 
 	#Extract a general lightcurve given some file names.
 	subprocess.call('punlearn dmextract', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract infile={infile}', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmextract outfile={outfile}', shell=True, cwd=repro_wd)
 	if bkg != None:
-		subprocess.call(f'pset dmextract bkg={bkg}', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmextract opt="ltc1"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmextract clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('dmextract', shell=True, cwd=repro_wd)
+		subprocess.call(f'dmextract infile={infile} outfile={outfile} bkg={bkg} opt="ltc1" clobber = yes', shell=True, cwd=repro_wd)
+	else:
+		subprocess.call(f'dmextract infile={infile} outfile={outfile} opt="ltc1" clobber = yes', shell=True, cwd=repro_wd)
 
 def extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName):
 	'''This function extracts the light curve from the specific region for observations where the magnetar is present. This requires special treatment
@@ -76,11 +73,7 @@ def extract_lightcurve(observationID, repro_wd, erange, tbin, fileName):
 
 	#Copies events used in Sgr A* lightcurve to new file.
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber = yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option="all"', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(sgra.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes option=all', shell=True, cwd=repro_wd)
 
 def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 	'''This function extracts a lightcurve for Sgr A* order 0 and order 1 combined in the HETG observations.'''
@@ -131,26 +124,15 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 
 	# Step 1: Extract tg_m=0 from order0 region
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order0.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=0]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber=yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option=all', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order0.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=0]" outfile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes option=all', shell=True, cwd=repro_wd)
 
 	# Step 2: Extract tg_m=±1 from order1 region
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order1.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=-1,1]"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmcopy outfile="{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy clobber=yes', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmcopy option=all', shell=True, cwd=repro_wd)
-	subprocess.call('dmcopy', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][sky=region(order1.reg)][energy={int(erange[0])*1000}:{int(erange[1])*1000}][tg_m=-1,1]" outfile="{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits" clobber=yes option=all', shell=True, cwd=repro_wd)
 
 	# Step 3: Merge both event files
 	subprocess.call('punlearn dmmerge', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmmerge infile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits, {observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits"', shell=True, cwd=repro_wd)
-	subprocess.call(f'pset dmmerge outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt_unsorted.fits"', shell=True, cwd=repro_wd)
-	subprocess.call('pset dmmerge clobber=yes', shell=True, cwd=repro_wd)
-	subprocess.call('dmmerge', shell=True, cwd=repro_wd)
+	subprocess.call(f'dmmerge infile="{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_evt.fits, {observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_evt.fits" outfile="{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt_unsorted.fits" clobber=yes', shell=True, cwd=repro_wd)
 
 	# Step 4: Sort merged events by time
 	subprocess.call(f'dmsort "{observationID}_sgra_{erange[0]}-{erange[1]}keV_evt_unsorted.fits[EVENTS]" {observationID}_sgra_{erange[0]}-{erange[1]}keV_evt.fits keys=TIME', shell=True, cwd=repro_wd)

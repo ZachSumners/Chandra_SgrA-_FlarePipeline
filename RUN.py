@@ -108,8 +108,8 @@ while i < maxi-1:
                     values = line.strip().split()
                     mag_block = float(values[4])
                     break
-
-        print(mag_block, leak_frac)
+        
+        print(f'The leak fraction is {leak_frac}.')
         
         bb_info_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + f"{obsid}_sgra_bayesianBlocks_info.txt"
         column_index = 4  # Zero-based index for the column with 1052.933
@@ -196,7 +196,6 @@ while i < maxi-1:
 
         print("running code for ObsID " + str(obsid))
         #run bayesian block: 
-        print(evt)
         bb.process(evt, bb_info, pileup_correction)
         
         #Create the plot: 

@@ -13,12 +13,12 @@ def wcs_correct(fp, observationID, repro_wd, erange, fileName):
 
 	#With that matching, update the wcs information in various files.
 	subprocess.call(f'wcs_update infile=pcadf{observationID}_000N001_asol1.fits outfile=pcadf{observationID}_000N001_asol1_corrected.fits transformfile={observationID}_xfm.fits wcsfile={observationID}_broad_thresh.img', shell=True, cwd=repro_wd)
-	subprocess.call(f'wcs_update infile=acisf{observationID}_{fileName}_evt2.fits outfile=', shell=True, cwd=repro_wd)
-	subprocess.call(f'wcs_update infile={observationID}_repro_{erange[0]}-{erange[1]}keV_img.fits outfile=', shell=True, cwd=repro_wd)
+	subprocess.call(f'wcs_update infile=acisf{observationID}_{fileName}_evt2.fits transformfile={observationID}_xfm.fits outfile=', shell=True, cwd=repro_wd)
+	subprocess.call(f'wcs_update infile={observationID}_repro_{erange[0]}-{erange[1]}keV_img.fits transformfile={observationID}_xfm.fits outfile=', shell=True, cwd=repro_wd)
 	subprocess.call(f'dmhedit acisf{observationID}_{fileName}_evt2.fits file= op=add key=ASOLFILE value=pcadf{observationID}_000N001_asol1_corrected.fits', shell=True, cwd=repro_wd)
 	subprocess.call(f'dmhedit {observationID}_repro_{erange[0]}-{erange[1]}keV_img.fits file= op=add key=ASOLFILE value=pcadf{observationID}_000N001_asol1_corrected.fits', shell=True, cwd=repro_wd)
 
 	#Make a copy of the image and update the WCS information in it.
 	
-	subprocess.call(f'wcs_update infile={observationID}_broad_thresh_img.fits outfile= clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'wcs_update infile={observationID}_broad_thresh_img.fits transformfile={observationID}_xfm.fits outfile= clobber=yes', shell=True, cwd=repro_wd)
 	subprocess.call(f'dmhedit {observationID}_broad_thresh_img.fits file= op=add key=ASOLFILE value=pcadf{observationID}_000N001_asol1_corrected.fits', shell=True, cwd=repro_wd)
