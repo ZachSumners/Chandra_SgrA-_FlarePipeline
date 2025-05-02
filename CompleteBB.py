@@ -81,6 +81,7 @@ def process(infile, outfile, pileup_correction, p0=0.05):
 
     timesys = f[0].header['timesys']
     mjdref = f[0].header['mjdref']
+    
     timeunit = f[0].header['timeunit']
     timezero = f[0].header['timezero']
     tstart = f[0].header['tstart']
@@ -105,7 +106,10 @@ def process(infile, outfile, pileup_correction, p0=0.05):
     if eventhdu is None:
         die('input "%s" has no EVENTS sections')
 
-    ccdid = 7#eventhdu.data.ccd_id.min ()
+    values, counts = np.unique(eventhdu.data.ccd_id, return_counts=True)
+    most_common_ccd = values[np.argmax(counts)]
+    
+    ccdid = most_common_ccd#eventhdu.data.ccd_id.min ()
     #if eventhdu.data.ccd_id.max () != ccdid:
     #    die ('can\'t handle data from multiple CCDs in input "%s"')
 
@@ -378,7 +382,7 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
         
             #the maximum count rate can be found for times between indices min(lower) and max(upper)
             #then the maximum count rate is: 
-            ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)])
+            ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)+1])
             ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
         
             '''Picking out Luminosity & Energy emitted by each flare: '''
