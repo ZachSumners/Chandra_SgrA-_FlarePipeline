@@ -64,9 +64,19 @@ def pileup_calc_grating(table, f, exptime):
 			result = root_scalar(intersection, bracket=[0.00001, 2], method='brentq')
 			pileup_rate[i] = result.root
 
+	pileup_error = np.zeros(len(count_error))
+	for i, count_error_point in enumerate(count_error):
+		if count_error_point < 0.06:
+			pileup_error[i] = count_error_point
+		else:
+			intersection = lambda x: grating_equation(x) - count_error_point
+
+			result = root_scalar(intersection, bracket=[0.00001, 2], method='brentq')
+			pileup_error[i] = result.root
+
 	#Need to derive pileup error rate
 	pileup_rate = pileup_rate*1/exptime
-	pileup_error = count_error*1/exptime
+	pileup_error = pileup_error*1/exptime
 
 	table.add_column(pileup_rate, index=21, name='RATE_PILEUP')
 	table.add_column(pileup_error, index=22, name='PILEUP_ERR')
