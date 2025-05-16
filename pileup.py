@@ -3,6 +3,7 @@ import numpy as np
 from astropy.io import fits
 from astropy.table import Table	
 from astropy.io.fits import BinTableHDU
+from scipy.optimize import root_scalar
 
 def pileup_calc(table, f, exptime):
 	'''This function does the actual calculation of the pileup rate.'''
@@ -32,6 +33,17 @@ def pileup_calc(table, f, exptime):
 
 	return hdu1
 
+def grating_equation(x):
+	K = 0.94
+	alpha = 1
+	beta = 0.52
+
+	y = x * (1 + K/(alpha * x)*(np.exp(alpha*x) - 1)*np.exp(-x))*(beta)
+
+	return y
+
+def intersection(x):
+	return grating_equation(x) - count_rate_equation(x)
 
 def pileup_calc_grating(table, f, exptime):
 	'''This function does the actual calculation of the pileup rate.'''
@@ -42,8 +54,19 @@ def pileup_calc_grating(table, f, exptime):
 	#Additional factor so no division by 0.
 	dividezero_epsilon = 1e-8
 
-	pileup_rate = count_rate #/(0.94*1.04)
-	pileup_error = count_error#1/(0.94 * 1.04) * count_error
+	pileup_rate = np.zeros(len(count_rate))
+	for i, count_rate_point in enumerate(count_rate):
+		if count_rate_point < 0.06:
+			pileup_rate[i] = count_rate_point
+		else:
+			intersection = lambda x: grating_equation(x) - count_rate_point
+
+			result = root_scalar(intersection, bracket=[0.00001, 2], method='brentq')
+			pileup_rate[i] = result.root
+
+	#Need to derive pileup error rate
+	pileup_rate = pileup_rate*1/exptime
+	pileup_error = count_error*1/exptime
 
 	table.add_column(pileup_rate, index=21, name='RATE_PILEUP')
 	table.add_column(pileup_error, index=22, name='PILEUP_ERR')
@@ -148,6 +171,6 @@ def pileup_correction_grating(observationID, repro_wd, erange, tbin, fileName):
 	hdu1 = pileup_calc_grating(table, f, exptime)
 
 	# Assemble final file with original PRIMARY and GTI extensions
-	hdul = fits.HDUList([f[0], hdu1])
+	hdul = fits.HDUList([f[0], hdu1, f[2]])
 	hdul.writeto(f'{repro_wd}/{observationID}_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
 

@@ -116,9 +116,18 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 		]
 		# Create a new table with the combined data and preserve header
 		hdu = fits.BinTableHDU.from_columns(new_cols, header=lc0[1].header)
+		hdu.name = 'LIGHTCURVE'
 
-		# Write to a new file
-		hdu.writeto(combined_file, overwrite=True)
+		# Copy GTI extension from lc0 or lc1 (they should be identical)
+		gti_hdu = fits.BinTableHDU(data=lc0['GTI'].data, header=lc0['GTI'].header)
+		gti_hdu.name = 'GTI'
+
+		# Primary HDU (required for valid FITS format)
+		primary = fits.PrimaryHDU()
+
+		# Write out all HDUs
+		hdul = fits.HDUList([primary, hdu, gti_hdu])
+		hdul.writeto(combined_file, overwrite=True)
 
 	#Copies events used in Sgr A* lightcurve to new file.
 

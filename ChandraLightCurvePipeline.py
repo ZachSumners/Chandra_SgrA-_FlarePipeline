@@ -30,7 +30,7 @@ from magnetar import magnetar_correction, quiescent_correction, magnetar_extract
 
 #============================#
 #Change the observation ID.
-observationID = 10556
+observationID = 13838
 #Set directory filepath. Defaults to the current working directory.
 fp = os.getcwd()
 #Change your working directory to the observation subfolder.
