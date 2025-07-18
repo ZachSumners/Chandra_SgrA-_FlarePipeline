@@ -77,6 +77,10 @@ def magnetar_correction(observationID, repro_wd, erange, tbin, fileName):
 	#Correction
 	sgr_lightcurve = effective - leak_frac*magn
 
+	with open(f'./{observationID}/repro/MagnetarProperties.txt', 'w') as f:
+		f.write(f"Leak fraction is {leak_frac:.6f}\n")
+		f.write(f"Q_eff is {np.mean(effective):.6f}\n")
+	
 	# Open the original file
 	with fits.open(f"{repro_wd}/{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits", mode='readonly') as hdul:
 		# Make a copy of the HDU list in memory

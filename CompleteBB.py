@@ -39,7 +39,7 @@ from astropy.table import Table
 
 import xbblocks #this is a set of functions written by Eli Bouffard
 
-def process(infile, outfile, pileup_correction, p0=0.05):
+def process(infile, outfile, pileup_correction, p0=0.09):
     
     ''' 
     Generates the bayesian blocks and creates file with results 
@@ -140,21 +140,95 @@ def process(infile, outfile, pileup_correction, p0=0.05):
     exptime = float(f[1].header['exptime'])
     info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=p0, nbootstrap=256)
 
+
+    ######### Drops blocks with 0 count and if they are too thin ##########
+    MIN_DURATION = 300/86400  # seconds
+    keep = [True] * info.nblocks  # a boolean flag per block
+    merged_counts = info.counts.copy()
+    merged_exposure = [info.widths[i] for i in range(info.nblocks)]
+    # note: if info.widths is already exposure in seconds, use that. 
+    # Otherwise, convert lengths to actual exposure sums if needed.
+
+    # First round: mark any block that is too thin
+    for i in range(info.nblocks):
+        if info.widths[i] < MIN_DURATION:
+            keep[i] = False
+        if info.counts[i] == 0:
+            keep[i] = False
+
+    # Second round: for each block i that is “too thin,” merge its counts/widths into the closest neighbor
+    for i in range(info.nblocks):
+        if not keep[i]:
+            # Decide whether to merge with block to the left (i-1) or right (i+1).
+            left_exists  = (i-1 >= 0) and keep[i-1]
+            right_exists = (i+1 < info.nblocks) and keep[i+1]
+
+            if left_exists and right_exists:
+                # Compare rates to decide which neighbor is “closer”
+                left_rate  = info.counts[i-1] / info.widths[i-1]
+                right_rate = info.counts[i+1] / info.widths[i+1]
+                this_rate  = info.counts[i] / info.widths[i]
+
+                # Merge into the neighbor whose rate is closer to this block’s rate
+                if abs(left_rate - this_rate) <= abs(right_rate - this_rate):
+                    merged_counts[i-1] += info.counts[i]
+                    merged_exposure[i-1] += info.widths[i]
+                else:
+                    merged_counts[i+1] += info.counts[i]
+                    merged_exposure[i+1] += info.widths[i]
+
+            elif left_exists:
+                merged_counts[i-1] += info.counts[i]
+                merged_exposure[i-1] += info.widths[i]
+            elif right_exists:
+                merged_counts[i+1] += info.counts[i]
+                merged_exposure[i+1] += info.widths[i]
+            # If neither neighbor “exists” (edge case), just leave it—dropping will happen later.
+
     print('# p0 = %g' % p0, file=o)
     print('# timesys =', timesys, file=o)
     print('# tstarts =', ' '.join ('%.5f' % t for t in tstarts), file=o)
     print('#tstops  =', ' '.join ('%.5f' % t for t in tstops), file=o)
     print('# n = %d' % times.size, file=o)
-    for i in range (info.nblocks):
-        #s = '%.5f %.5f %4d %g %g %g' % (info.ledges[i], info.redges[i],
-                                        #info.counts[i], info.widths[i],
-                                        #info.rates[i], info.bsrstds[i])
-        s = '%.10f %.10f %10f %10f %10f %10f' % (info.ledges[i], info.redges[i],
-                                                 info.counts[i], info.widths[i],
-                                                 info.rates[i], info.bsrstds[i])
-        
+
+    # Finally, print only those blocks where keep[i] == True, using the merged stats:
+    for i in range(info.nblocks):
+        if not keep[i]:
+            continue
+
+        # The “merged” block has:
+        #    counts = merged_counts[i]
+        #    exposure (seconds) = merged_exposure[i]
+        # so the rate becomes merged_counts[i] / merged_exposure[i].
+        merged_rate = merged_counts[i] / merged_exposure[i]
+
+        s = '%.10f %.10f %10d %10f %10f %10f' % (
+            info.ledges[i],
+            info.redges[i],
+            merged_counts[i],        # total counts (including any merged‐in bits)
+            merged_exposure[i],      # total duration in seconds
+            merged_rate,             # updated rate
+            info.bsrstds[i]          # you can either leave the old block STD or recompute
+        )
         print(s, file=o)
+
     o.close()
+
+    #print('# p0 = %g' % p0, file=o)
+    #print('# timesys =', timesys, file=o)
+    #print('# tstarts =', ' '.join ('%.5f' % t for t in tstarts), file=o)
+    #print('#tstops  =', ' '.join ('%.5f' % t for t in tstops), file=o)
+    #print('# n = %d' % times.size, file=o)
+    #for i in range (info.nblocks):
+    #    #s = '%.5f %.5f %4d %g %g %g' % (info.ledges[i], info.redges[i],
+    #                                    #info.counts[i], info.widths[i],
+    #                                    #info.rates[i], info.bsrstds[i])
+    #    s = '%.10f %.10f %10f %10f %10f %10f' % (info.ledges[i], info.redges[i],
+    #                                             info.counts[i], info.widths[i],
+    #                                             info.rates[i], info.bsrstds[i])
+        
+    #    print(s, file=o)
+    #o.close()
 
 
 
@@ -271,7 +345,7 @@ def plot_lc(file, rate_header, rate_err_header):
 
 
     
-def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, countmin=8, amp_crit=3):
+def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, countmin=8, amp_crit=2):
     ''' 
     Generate a document that contains all the data required for the flare
     table database. 
@@ -381,9 +455,14 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
         
         
             #the maximum count rate can be found for times between indices min(lower) and max(upper)
-            #then the maximum count rate is: 
-            ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)+1])
-            ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
+            #then the maximum count rate is:
+
+            if (np.min(lower) == np.max(upper)+1):
+                ct_max = np.max(count_rate_lc[np.min(lower)])
+                ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
+            else:
+                ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)+1])
+                ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
         
             '''Picking out Luminosity & Energy emitted by each flare: '''
             #According to Eli's paper there is a proportionality between 

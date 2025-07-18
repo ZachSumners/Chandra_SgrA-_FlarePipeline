@@ -177,8 +177,16 @@ def binbblock (widths, counts, exptime, pileup_correction, p0=0.06):
 
 def block_pileup_correction(info, exptime):
     rate = (info.counts/info.widths)/86400 * exptime
-    fd = 1-(((np.exp(rate)-1)*np.exp(-rate))/rate)
-    pileup_rate = (rate/(1-fd)) * 86400 * 1/exptime
+    
+    # Compute the “raw” fd expression under an errstate that ignores divide-by-zero
+    with np.errstate(divide='ignore', invalid='ignore'):
+        fd_raw = 1.0 - ((np.exp(rate) - 1.0) * np.exp(-rate) / rate)
+
+    # Now mask: wherever rate == 0, force fd = 0; otherwise use fd_raw
+    fd = np.where(rate != 0, fd_raw, 0.0)
+
+    #Compute again only where rate != 0
+    pileup_rate = np.where(rate != 0, (rate / (1.0 - fd)) * (86400.0 / exptime), 0.005)
     return pileup_rate
 
 

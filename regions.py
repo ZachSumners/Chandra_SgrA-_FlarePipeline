@@ -50,7 +50,7 @@ def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fi
 	src_list_np = np.array(src_list)
 
 	#Create a smoothed image of the source extraction region for visualization
-	subprocess.call(f'csmooth {repro_wd}/{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits outfile={repro_wd}/{observationID}_smoothed_image.fits outsigfile={repro_wd}/{observationID}_smoothed_sig.fits outsclfile={repro_wd}/{observationID}_smoothed_scl.fits sigmin=2 clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'csmooth {repro_wd}/{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits outfile={repro_wd}/{observationID}_smoothed_image.fits outsigfile={repro_wd}/{observationID}_smoothed_sig.fits outsclfile={repro_wd}/{observationID}_smoothed_scl.fits sigmin=2 clobber=yes sclmap= conmeth=fft conkerneltype=gauss sclmode=compute sigmax=5 sclmin=INDEF sclmax=INDEF', shell=True, cwd=repro_wd)
 
 	#Open the smoothed fits file.
 	hdu_list = fits.open(f'{repro_wd}/{observationID}_smoothed_image.fits')
