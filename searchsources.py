@@ -11,8 +11,8 @@ def find_sources(observationID, repro_wd, erange, fileName):
 	subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
 	subprocess.call(f'dmcopy infile="acisf{observationID}_{fileName}_evt2.fits[EVENTS][bin x=3992.71:4174.71:1,y=3991.24:4173.24:1][energy={int(erange[0])*1000}:{int(erange[1])*1000}]" outfile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits" clobber=yes', shell=True, cwd=repro_wd)
 	subprocess.call('punlearn mkpsfmap', shell=True, cwd=repro_wd)
-	subprocess.call(f'mkpsfmap infile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits" outfile="{observationID}_repro_{erange[0]}-{erange[1]}keV_psfmap.fits" energy=3.8 ecf=0.393 clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'mkpsfmap infile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits" outfile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_psfmap.fits" energy=3.8 ecf=0.393 clobber=yes', shell=True, cwd=repro_wd)
 
 	#Search for sources in image and save detections to text file.
 	subprocess.call('punlearn wavdetect', shell=True, cwd=repro_wd)
-	subprocess.call(f'wavdetect infile="{observationID}_{fileName}_2-8keV_cropped.fits" psffile="{observationID}_repro_2-8keV_psfmap.fits" outfile="src.fits" scellfile="{observationID}_repro_2-8keV_scell.fits" imagefile="{observationID}_repro_2-8keV_img.fits" defnbkgfile="{observationID}_repro_2-8keV_nbkg.fits" regfile="src.reg" scales="1.0 2.0 4.0 8.0 16.0" sigthresh=1.e-06 clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'wavdetect infile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits" psffile="{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_psfmap.fits" outfile="src.fits" scellfile="{observationID}_repro_{erange[0]}-{erange[1]}keV_scell.fits" imagefile="{observationID}_repro_{erange[0]}-{erange[1]}keV_img.fits" defnbkgfile="{observationID}_repro_{erange[0]}-{erange[1]}keV_nbkg.fits" regfile="src.reg" scales="1.0 2.0 4.0 8.0 16.0" sigthresh=1e-06 mode=h clobber=yes', shell=True, cwd=repro_wd)

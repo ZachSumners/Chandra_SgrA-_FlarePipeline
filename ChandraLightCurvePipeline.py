@@ -28,6 +28,7 @@ from plotcurve import plot_lightcurve
 from searchsources import find_sources
 from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar, extract_lightcurve_grating
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
+from marx_pileup_simulation import marx_pileup_estimation, marx_pileup_interpolation
 
 def pipeline(observationID):
 	#============================#
@@ -42,6 +43,7 @@ def pipeline(observationID):
 	wcsCorrect = True
 	reprocess = True
 	search = False
+	marx = True
 	#============================#
 	#defining other input variables
 	#Chandra energy range: list w/lower and upper limits
@@ -154,16 +156,29 @@ def pipeline(observationID):
 
 	#This step comptues the pileup correction and scales the lightcurves appropriately. Applies to 3 lightcurves if magnetar is present.
 	#input('\n========= Press Enter to start pileup correction. =========\n')
-	if grating_check == False:
-		if magnetar == False:
-			pileup_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
-		elif magnetar == True:
-			pileup_correction_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
-			pileup_correction_eff(observationID_5digit, repro_wd, erange, tbin, fileName)
-			pileup_correction_contam(observationID_5digit, repro_wd, erange, tbin, fileName)
-	elif grating_check == True:
-		pileup_correction_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
-	print('Pileup correction complete.\n')
+	
+	if marx == True:
+		print('Running MARX pileup estimation. This may take a while.\n')
+		if magnetar == True:
+			marx_observed_flux, marx_true_flux = marx_pileup_estimation(observationID, repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'magnetar', repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam', repro_wd)
+		else:
+			marx_observed_flux, marx_true_flux = marx_pileup_estimation(observationID, repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'sgra', repro_wd)
+		print('MARX pileup estimation complete.\n')
+	else:
+		if grating_check == False:
+			if magnetar == False:
+				pileup_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
+			elif magnetar == True:
+				pileup_correction_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
+				pileup_correction_eff(observationID_5digit, repro_wd, erange, tbin, fileName)
+				pileup_correction_contam(observationID_5digit, repro_wd, erange, tbin, fileName)
+		elif grating_check == True:
+			pileup_correction_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
+		print('Analytical pileup correction complete.\n')
 
 	if magnetar == True:
 		leak_frac, q_mag = magnetar_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
@@ -176,7 +191,12 @@ def pipeline(observationID):
 
 	#input('\n========= Press Enter to start bayesian blocks fitting. =========\n')
 	#Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
-	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac}', shell=True)
+	if marx == True:
+		pileup_correction = 'marx'
+	else:
+		pileup_correction = 'analytical'
+	
+	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction} {repro_wd} {grating_check}', shell=True)
 	print('Bayesian blocks complete.\n')
 
 
@@ -184,7 +204,7 @@ def pipeline(observationID):
 
 
 #obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-obs_ids = [28232]#[242, 1561, 13851]
+obs_ids = [23739]
 
 
 for i, observation in enumerate(obs_ids):

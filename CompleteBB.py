@@ -32,14 +32,41 @@ import numpy as np
 import numpy.ma as ma
 import math
 
-
+from astropy.time import Time
+from datetime import datetime, timedelta
+import matplotlib.dates as mdates
 
 from astropy.io import fits
 from astropy.table import Table
 
 import xbblocks #this is a set of functions written by Eli Bouffard
+from marx_pileup_simulation import marx_pileup_interpolation_block
 
-def process(infile, outfile, pileup_correction, p0=0.09):
+def block_pileup_correction(rate, exptime):
+    rate = rate/86400 * exptime
+    
+    # Compute the “raw” fd expression under an errstate that ignores divide-by-zero
+    with np.errstate(divide='ignore', invalid='ignore'):
+        fd_raw = 1.0 - ((np.exp(rate) - 1.0) * np.exp(-rate) / rate)
+
+    # Now mask: wherever rate == 0, force fd = 0; otherwise use fd_raw
+    fd = np.where(rate != 0, fd_raw, 0.0)
+
+    #Compute again only where rate != 0
+    pileup_rate = np.where(rate != 0, (rate / (1.0 - fd)) * (86400.0 / exptime), 0.005)
+    return pileup_rate
+
+def block_pileup_correction_marx(rate, exptime, repro_wd):
+    rate = rate/86400
+
+    marx_conversions = np.loadtxt(f"{repro_wd}/marx_pileup_conversion.txt")
+    marx_observed_flux = marx_conversions[:, 0]
+    marx_true_flux = marx_conversions[:, 1]
+    pileup_rate = marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, rate)
+
+    return pileup_rate * 86400
+
+def process(infile, outfile, pileup_correction, repro_wd, p0=0.05):
     
     ''' 
     Generates the bayesian blocks and creates file with results 
@@ -138,7 +165,7 @@ def process(infile, outfile, pileup_correction, p0=0.09):
 
 
     exptime = float(f[1].header['exptime'])
-    info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=p0, nbootstrap=256)
+    info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, repro_wd, p0=p0, nbootstrap=256)
 
 
     ######### Drops blocks with 0 count and if they are too thin ##########
@@ -202,6 +229,13 @@ def process(infile, outfile, pileup_correction, p0=0.09):
         # so the rate becomes merged_counts[i] / merged_exposure[i].
         merged_rate = merged_counts[i] / merged_exposure[i]
 
+        if pileup_correction == 'analytic':
+            merged_rate = block_pileup_correction(merged_rate, exptime)
+            merged_counts[i] = merged_rate*merged_exposure[i]
+        elif pileup_correction == 'marx':
+            merged_rate = block_pileup_correction_marx(np.array([merged_rate]), exptime, repro_wd)
+            merged_counts[i] = merged_rate*merged_exposure[i]
+
         s = '%.10f %.10f %10d %10f %10f %10f' % (
             info.ledges[i],
             info.redges[i],
@@ -237,59 +271,64 @@ def process(infile, outfile, pileup_correction, p0=0.09):
 
 
 
-def plot_bb(file):
-	'''
-	Plot Bayesian Blocks onto a plot
+def plot_bb(file, ax):
+    '''
+    Plot Bayesian Blocks onto a plot
 
-	Parameters
-	----------   
+    Parameters
+    ----------   
     file     : string
-		location and name of Bayesian Blocks results
+        location and name of Bayesian Blocks results
 
-	time_start : float
-		MJD start of observation in days
+    time_start : float
+        MJD start of observation in days
 
-	time_end : float
-		MJD end of observation in days
+    time_end : float
+        MJD end of observation in days
 
-	Returns
-	-------
-		nothing, plots the bayesian blocks. 
+    Returns
+    -------
+        nothing, plots the bayesian blocks. 
 
-	'''
+    '''
 
-	### read Bayesian Blocks data in 
-	ledges, redges, counts, widths, rates, bsrstds = np.transpose(np.loadtxt(file))
+    ### read Bayesian Blocks data in 
+    ledges, redges, counts, widths, rates, bsrstds = np.transpose(np.loadtxt(file))
 
-	bstart = ledges ### rename
-	bend = redges ### rename
-	rates = rates/86400.0 #convert from counts/day to counts/s
+    bstart = ledges ### rename
+    bend = redges ### rename
+    rates = rates/86400.0 #convert from counts/day to counts/s
 
-	#####
-	### Recasting Bblocks results into arrays that are easier for plotting
-	### x = time array
-	### rates = the levels of blocks
-	#####
-	if hasattr(rates, "__len__"):
-		### If there is more than one Bblock
-		x = [bstart[0]]
-		for j in range(0,len(rates)):
-			x= np.concatenate([x,[bstart[j]]])
-		x= np.concatenate([x,[max(bend)]])
-		rates = np.concatenate([[0],rates,[0]])
-	else:
-		### If there's only one Bblock
-		x = np.array([bstart,bstart,(bend)])
+    #####
+    ### Recasting Bblocks results into arrays that are easier for plotting
+    ### x = time array
+    ### rates = the levels of blocks
+    #####
+    if hasattr(rates, "__len__"):
+        ### If there is more than one Bblock
+        x = [bstart[0]]
+        for j in range(0,len(rates)):
+            x= np.concatenate([x,[bstart[j]]])
+        x= np.concatenate([x,[max(bend)]])
+        rates = np.concatenate([[0],rates,[0]])
+    else:
+        ### If there's only one Bblock
+        x = np.array([bstart,bstart,(bend)])
 
-		rates = np.array([rates])
-		rates = np.concatenate([[0],rates,[0]])
+        rates = np.array([rates])
+        rates = np.concatenate([[0],rates,[0]])
 
-	##x_utc = Time(x, format='mjd', scale='utc') ## convert time array into UTC format
+    dt = Time(x, format='mjd')
+    datetime_block = dt.datetime
 
-	###plotting
-	plt.plot(x,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with MJD axis - timestart
-	# plt.plot(x_utc.datetime,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with UTC axis
- 
+    ##x_utc = Time(x, format='mjd', scale='utc') ## convert time array into UTC format
+
+    ###plotting
+
+
+    ax.plot(datetime_block,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with MJD axis - timestart
+    # plt.plot(x_utc.datetime,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with UTC axis
+    return ax
 
 
 '''___________________________________________________________________
@@ -297,7 +336,7 @@ def plot_bb(file):
 
 
 
-def plot_lc(file, rate_header, rate_err_header):
+def plot_lc(file, rate_header, rate_err_header, ax):
     ''' Plot the lightcurve file 
     
     Parameters
@@ -333,9 +372,13 @@ def plot_lc(file, rate_header, rate_err_header):
     
     
     #plot : 
-    
-    plt.errorbar(time, counts, yerr=err, marker=".", color="blue", mfc="black",mec="black", ecolor="navy")
-    
+    dt = Time(time, format='mjd')
+    datetime_ct = dt.datetime
+    ax.spines['right'].set_position(('outward', 80))
+
+    plt.errorbar(datetime_ct, counts, yerr=err, marker=".", color="blue", mfc="black",mec="black", ecolor="navy")
+    myFmt = mdates.DateFormatter('%H:%M')
+    ax.xaxis.set_major_formatter(myFmt)
 
 
 
@@ -345,7 +388,7 @@ def plot_lc(file, rate_header, rate_err_header):
 
 
     
-def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, countmin=8, amp_crit=2):
+def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, gratingtype, countmin=8, amp_crit=2):
     ''' 
     Generate a document that contains all the data required for the flare
     table database. 
@@ -476,15 +519,20 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
             ct_quies_sub = ct_mean - (l[0][0]/86400.0) #quiescence subtracted countrates
             dur = b[3][i]*86400.0 #duration of flare in s 
         
-        
-            #Determining values
-            luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
-            energy = luminosity * dur  #erg
-        
-        
-            #Error propagation
-            lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.013)
-            energy_err = energy * np.sqrt((lum_err/luminosity)**2)
+            if gratingtype == 'False':
+                #Determining values
+                luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
+                energy = luminosity * dur  #erg
+                #Error propagation
+                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.010866)
+                energy_err = energy * np.sqrt((lum_err/luminosity)**2)
+            elif gratingtype == 'True':
+                #Determining values
+                luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
+                energy = luminosity * dur  #erg
+                #Error propagation
+                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.005506)
+                energy_err = energy * np.sqrt((lum_err/luminosity)**2)
             
         
             #Finding the Flux of each flare: 

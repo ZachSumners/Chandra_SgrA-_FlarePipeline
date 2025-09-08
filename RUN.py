@@ -73,11 +73,14 @@ while i < maxi-1:
     tbin = sys.argv[i+6]
     erange = [erange_low,erange_high]
     leak_frac = float(sys.argv[i+7])
+    pileup_correction = sys.argv[i+8]
+    repro_wd = sys.argv[i+9]
+    gratingtype = sys.argv[i+10]
 
     obsid_5digit = str(obsid).zfill(5)
 
     if magnetar == 'True':
-        pileup_correction = True
+        #pileup_correction = True
 
         filename = "./"  + str(obsid) + "/repro/Results/" 
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -98,8 +101,8 @@ while i < maxi-1:
         bb_info_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_eff_bayesianBlocks_info.txt" #block info 
         bb_info_mag = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_magnetar_bayesianBlocks_info.txt" #block info 
 
-        bb.process(evt_eff, bb_info_eff, pileup_correction)
-        bb.process(evt_mag, bb_info_mag, pileup_correction)
+        bb.process(evt_eff, bb_info_eff, pileup_correction, repro_wd)
+        bb.process(evt_mag, bb_info_mag, pileup_correction, repro_wd)
 
         with open(bb_info_mag, "r") as f:
             lines = f.readlines()
@@ -140,10 +143,10 @@ while i < maxi-1:
 
         plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_PLOT.png" #plot
 
-        fig = plt.figure()
-        bb.plot_bb(bb_info_sgra) 
-        bb.plot_lc(lc_sgra, rate_header, rate_err_header) 
-        plt.xlabel("Time (days)")
+        fig, ax = plt.subplots()
+        ax = bb.plot_bb(bb_info_sgra, ax) 
+        ax = bb.plot_lc(lc_sgra, rate_header, rate_err_header, ax) 
+        plt.xlabel("Time")
         plt.ylabel("Count Rate")
         plt.title("obsid " + str(obsid_5digit))
         fig.savefig(plot)
@@ -153,9 +156,9 @@ while i < maxi-1:
         table_res_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
         table_res_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_EFF_TABLE_RESULTS.txt" #info for flare table
 
-        bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, table_res_sgra, rate_header, rate_err_header)
-        bb.getInfo(evt_mag, lc_mag, bb_info_mag, table_res_mag, rate_header, rate_err_header)
-        bb.getInfo(evt_eff, lc_eff, bb_info_eff, table_res_eff, rate_header, rate_err_header)
+        bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, table_res_sgra, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt_mag, lc_mag, bb_info_mag, table_res_mag, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt_eff, lc_eff, bb_info_eff, table_res_eff, rate_header, rate_err_header, gratingtype)
 
         
 
@@ -179,7 +182,7 @@ while i < maxi-1:
         #Do the pileup correction in xblocks.py if no grating. If there is a grating, countOrders.py takes care of the pileup so DONT do it here.
 
         if grating == 'False':
-            pileup_correction = True
+            #pileup_correction = True
             lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
             bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
             plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra_pileupcorr.png" #plot 
@@ -188,7 +191,7 @@ while i < maxi-1:
             rate_err_header = 'PILEUP_ERR'
         #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
         elif grating == 'True':
-            pileup_correction = False
+            #pileup_correction = False
             lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
             bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info.txt" #block info 
             plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra.png" #plot 
@@ -198,22 +201,22 @@ while i < maxi-1:
 
         print("running code for ObsID " + str(obsid_5digit))
         #run bayesian block: 
-        bb.process(evt, bb_info, pileup_correction)
+        bb.process(evt, bb_info, pileup_correction, repro_wd)
         
         #Create the plot: 
-        fig = plt.figure()
-        bb.plot_bb(bb_info) 
-        bb.plot_lc(lc, rate_header, rate_err_header) 
-        plt.xlabel("Time (days)")
+        fig, ax = plt.subplots()
+        bb.plot_bb(bb_info, ax) 
+        bb.plot_lc(lc, rate_header, rate_err_header, ax) 
+        plt.xlabel("Time")
         plt.ylabel("Count Rate")
         #plt.ylim(-0.002, 0.1)
         plt.title("Obsid " + str(obsid_5digit))
         fig.savefig(plot)
         
         #Get flare information for database: 
-        bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header)
+        bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header, gratingtype)
         
-    i = i + 8 #update value of i 
+    i = i + 11 #update value of i 
  
     
 

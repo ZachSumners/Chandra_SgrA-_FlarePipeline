@@ -14,6 +14,7 @@ uncertainties on the block heights (ditto).
 """
 
 import numpy as np
+from marx_pileup_simulation import marx_pileup_interpolation_block
 
 __all__ = ['nlogn binbblock ttbblock bsttbblock']
 
@@ -71,7 +72,7 @@ def nlogn (n, dt):
     return np.where (mask, 0, r)
 
 
-def binbblock (widths, counts, exptime, pileup_correction, p0=0.06):
+def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.06):
     widths = np.asarray (widths)
     counts = np.asarray (counts)
     ncells = widths.size
@@ -112,6 +113,13 @@ def binbblock (widths, counts, exptime, pileup_correction, p0=0.06):
             # This incrementally penalizes partitions with more blocks:
             tmp = fit_vec - ncp_prior
             tmp[1:] += best[:r]
+
+            # ---- NEW: enforce minimum size constraints ----
+            valid = np.ones_like(tmp, dtype=bool)
+            valid &= (tk >= float(10/86400))
+
+            # disallow invalid candidates by sending them to -inf
+            tmp[~valid] = -np.inf
 
             imax = np.argmax (tmp)
             last[r] = imax
@@ -168,29 +176,11 @@ def binbblock (widths, counts, exptime, pileup_correction, p0=0.06):
         info.widths[iblk] = widths[cellstart:cellend+1].sum ()
         info.counts[iblk] = counts[cellstart:cellend+1].sum ()
 
-    #Pileup correction on blocks.
-    if pileup_correction == True:
-    	info.rates = block_pileup_correction(info, exptime)
-    else:
-    	info.rates = info.counts / info.widths
+
+    info.rates = info.counts / info.widths
     return info
 
-def block_pileup_correction(info, exptime):
-    rate = (info.counts/info.widths)/86400 * exptime
-    
-    # Compute the “raw” fd expression under an errstate that ignores divide-by-zero
-    with np.errstate(divide='ignore', invalid='ignore'):
-        fd_raw = 1.0 - ((np.exp(rate) - 1.0) * np.exp(-rate) / rate)
-
-    # Now mask: wherever rate == 0, force fd = 0; otherwise use fd_raw
-    fd = np.where(rate != 0, fd_raw, 0.0)
-
-    #Compute again only where rate != 0
-    pileup_rate = np.where(rate != 0, (rate / (1.0 - fd)) * (86400.0 / exptime), 0.005)
-    return pileup_rate
-
-
-def ttbblock (tstarts, tstops, times, exptime, pileup_correction, p0=0.05):
+def ttbblock (tstarts, tstops, times, exptime, pileup_correction, repro_wd, p0=0.05):
     tstarts = np.asarray (tstarts)
     tstops = np.asarray (tstops)
     times = np.asarray (times)
@@ -266,7 +256,7 @@ def ttbblock (tstarts, tstops, times, exptime, pileup_correction, p0=0.05):
             redges = np.concatenate ((redges, gtedges[1:]))
 
     assert counts.size == widths.size
-    info = binbblock (widths, counts, exptime, pileup_correction, p0=p0)
+    info = binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=p0)
     info.ledges = ledges[info.blockstarts]
     # The right edge of the i'th block is the right edge of its rightmost
     # bin, which is the bin before the leftmost bin of the (i+1)'th block:
@@ -275,7 +265,7 @@ def ttbblock (tstarts, tstops, times, exptime, pileup_correction, p0=0.05):
     return info
 
 
-def bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=0.05, nbootstrap=512):
+def bsttbblock (times, tstarts, tstops, exptime, pileup_correction, repro_wd, p0=0.05, nbootstrap=512):
     np.seterr ('raise')
     times = np.asarray (times)
     tstarts = np.asarray (tstarts)
@@ -285,7 +275,7 @@ def bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=0.05, nbo
     if nevents < 1:
         raise ValueError ('must be given at least 1 event')
 
-    info = ttbblock (tstarts, tstops, times, exptime, pileup_correction, p0)
+    info = ttbblock (tstarts, tstops, times, exptime, pileup_correction, repro_wd, p0)
 
     # Now bootstrap resample to assess uncertainties on the bin heights. This
     # is the approach recommended by Scargle+.
@@ -296,7 +286,7 @@ def bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=0.05, nbo
     for _ in range (nbootstrap):
         bstimes = times[np.random.randint (0, times.size, times.size)]
         bstimes.sort ()
-        bsinfo = ttbblock (tstarts, tstops, bstimes, exptime, pileup_correction, p0)
+        bsinfo = ttbblock (tstarts, tstops, bstimes, exptime, pileup_correction, repro_wd, p0)
         blocknums = np.minimum (np.searchsorted (bsinfo.redges, info.midpoints),
                                 bsinfo.nblocks - 1)
         samprates = bsinfo.rates[blocknums]
