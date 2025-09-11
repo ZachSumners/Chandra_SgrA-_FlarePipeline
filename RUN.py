@@ -181,30 +181,30 @@ while i < maxi-1:
         
         #Do the pileup correction in xblocks.py if no grating. If there is a grating, countOrders.py takes care of the pileup so DONT do it here.
 
-        if grating == 'False':
+        #if grating == 'False':
             #pileup_correction = True
-            lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
-            bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
-            plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra_pileupcorr.png" #plot 
-            table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
-            rate_header = 'RATE_PILEUP'
-            rate_err_header = 'PILEUP_ERR'
+        lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
+        #bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info_pileupcorr.txt" #block info 
+        #plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra_pileupcorr.png" #plot 
+        #table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS_pileupcorr.txt" #info for flare table  
+        rate_header = 'RATE_PILEUP'
+        rate_err_header = 'PILEUP_ERR'
         #The result of BB will be the unpiled 0th and 1st order combined results. No background subtraction has taken place so use count_rate.
-        elif grating == 'True':
+        #elif grating == 'True':
             #pileup_correction = False
-            lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
-            bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info.txt" #block info 
-            plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra.png" #plot 
-            table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
-            rate_header = 'COUNT_RATE'
-            rate_err_header = 'COUNT_RATE_ERR'
+            #lc = "./" +  str(obsid) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}.fits")
+            #bb_info = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info.txt" #block info 
+            #plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_PLOT_sgra.png" #plot 
+            #table_res = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
+            #rate_header = 'COUNT_RATE'
+            #rate_err_header = 'COUNT_RATE_ERR'
 
         print("running code for ObsID " + str(obsid_5digit))
         #run bayesian block: 
         bb.process(evt, bb_info, pileup_correction, repro_wd)
         
         #Create the plot: 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(8, 10))
         bb.plot_bb(bb_info, ax) 
         bb.plot_lc(lc, rate_header, rate_err_header, ax) 
         plt.xlabel("Time")

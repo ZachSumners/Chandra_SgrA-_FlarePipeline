@@ -31,7 +31,7 @@ def regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
 	
 	#bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
-	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},15.455285,25.650407)')
+	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
 	bkg_f.close()
 
 

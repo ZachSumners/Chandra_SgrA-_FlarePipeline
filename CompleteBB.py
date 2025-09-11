@@ -374,7 +374,7 @@ def plot_lc(file, rate_header, rate_err_header, ax):
     #plot : 
     dt = Time(time, format='mjd')
     datetime_ct = dt.datetime
-    ax.spines['right'].set_position(('outward', 80))
+    #ax.spines['right'].set_position(('outward', 80))
 
     plt.errorbar(datetime_ct, counts, yerr=err, marker=".", color="blue", mfc="black",mec="black", ecolor="navy")
     myFmt = mdates.DateFormatter('%H:%M')
@@ -524,14 +524,14 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, grat
                 luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
                 energy = luminosity * dur  #erg
                 #Error propagation
-                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.010866)
+                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.01211)
                 energy_err = energy * np.sqrt((lum_err/luminosity)**2)
             elif gratingtype == 'True':
                 #Determining values
                 luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
                 energy = luminosity * dur  #erg
                 #Error propagation
-                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.005506)
+                lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.008546875)
                 energy_err = energy * np.sqrt((lum_err/luminosity)**2)
             
         

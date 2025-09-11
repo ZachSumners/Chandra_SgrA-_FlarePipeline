@@ -7,8 +7,8 @@
 #----------------------------------------------------------------------------
 NumRays,i,a,10000000,,,"TOTAL number of rays to generate (if negative, to num to detect)"
 dNumRays,i,a,100000,1,100000,"number of rays per iteration"
-TStart,r,a,2021.575314251838,1999.56,,"year of observation"
-ExposureTime,r,a,23762.10288476944,,,"exposure time (0.0 for none)"
+TStart,r,a,2024.263127620857,1999.56,,"year of observation"
+ExposureTime,r,a,27461.31649887562,,,"exposure time (0.0 for none)"
 OutputDir,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/MARX_SupportFiles/output",,,"output directory name"
 DataDirectory,s,h,"$MARX_DATA_DIR",,,"directory for input data"
 OutputVectors,s,h,"ETXYZ123DxyMPOabcdSrB",,,"output data columns (one or more of ETXYZ123DxyMPOabcd)"
@@ -120,7 +120,7 @@ S-SIMPUT-Library,f,a,"/melkor/d1/guenther/soft/simput/lib/libsimput.so",,,"Path 
 #
 #---------------------------------------------------------------------------
 DitherModel,s,a,"FILE",NONE|INTERNAL|FILE,,"Dither Model"
-DitherFile,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23739/repro/pcadf23739_000N001_asol1_corrected.fits",,,"ASPSOL File"
+DitherFile,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/28230/repro/pcadf28230_000N001_asol1_corrected.fits",,,"ASPSOL File"
 AspectBlur,r,a,0.07,,,"aspect blur (sigma -- arcsec)"
 #
 # Internal Dither Model Parameters: 
@@ -131,9 +131,9 @@ AspectBlur,r,a,0.07,,,"aspect blur (sigma -- arcsec)"
 #
 #         Value = DitherRoll + Amp * sin (2*PI*t/Period + Phase)
 #
-RA_Nom,r,a,266.41468610324,,,"RA_NOM for dither (degrees)"
-Dec_Nom,r,a,-29.006335197067,,,"DEC_NOM for dither (degrees)"
-Roll_Nom,r,a,275.42187640699,,,"ROLL_NOM for dither (degrees)"
+RA_Nom,r,a,266.41813287316,,,"RA_NOM for dither (degrees)"
+Dec_Nom,r,a,-29.011726392789,,,"DEC_NOM for dither (degrees)"
+Roll_Nom,r,a,86.631620043596,,,"ROLL_NOM for dither (degrees)"
 #
 DitherAmp_RA,r,a,8,0,,"Amplitude for RA dither (arcsec)"
 DitherAmp_Dec,r,a,8,0,,"Amplitude for Dec dither (arcsec)"
@@ -394,7 +394,7 @@ DetExtendFlag,b,h,no,,,"Should off-detector coordinates be computed?"
 # ACIS setup
 #
 #---------------------------------------------------------------------------
-ACIS_Exposure_Time,r,h,0.6,0,,"ACIS exposure time (sec)"
+ACIS_Exposure_Time,r,h,0.5,0,,"ACIS exposure time (sec)"
 ACIS_Frame_Transfer_Time,r,h,0.041,0,,"ACIS frame transfer time (sec)"
 #ACIS_Frame_Transfer_Time,r,h,0.0,0,,"ACIS frame transfer time (sec)"
 ACIS_Gain_Map_File,f,h,"acis/acisD1999-12-10gain_marxN0001_110.fits",,,"ACIS gain map file"

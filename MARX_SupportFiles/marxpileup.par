@@ -1,6 +1,6 @@
 MarxOutputDir,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/MARX_SupportFiles/output",,,"Enter MARX output directory"
 Alpha,r,a,0.5,,,"Enter grade migration factor"
-FrameTime,r,a,0.6,0,,"Enter frame time"
+FrameTime,r,a,0.5,0,,"Enter frame time"
 FrameTransferTime,r,h,0.041,0,,"Enter ACIS frame transfer time (sec)"
 Verbose,i,h,0,,,"Enter verbosity level"
 mode,s,hl,"hl","ql|hl|q|h",,"Enter mode for parameter file."

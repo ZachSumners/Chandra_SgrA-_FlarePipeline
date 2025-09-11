@@ -272,18 +272,19 @@ def marx_pileup_estimation(observationID, repro_wd):
     pileup_conversion = np.column_stack((np.array(observed_fluxes), np.array(true_fluxes)))
     np.savetxt(f"{repro_wd}/marx_pileup_conversion.txt", pileup_conversion, fmt="%.8f", delimiter="\t")
 
-    plt.savefig(f'PILEUP_DIFFERENCES_{observationID}.png')
+    plt.savefig(f'{repro_wd}/PILEUP_DIFFERENCES_{observationID}.png')
 
     return np.array(observed_fluxes), np.array(true_fluxes)
 
 def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, region_name, repro_wd):
     #Open the lightcurve.
-
-    f = fits.open(f'{repro_wd}/{observationID}_{region_name}_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
+    log = False
+    observationID_5digit = str(observationID).zfill(5)
+    f = fits.open(f'{repro_wd}/{observationID_5digit}_{region_name}_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
     table = Table(f[1].data)
 
 	#Open the event files to get the exposure time of the observation.
-    f_evt = fits.open(f'{repro_wd}/acisf{observationID}_{fileName}_evt2.fits')
+    f_evt = fits.open(f'{repro_wd}/acisf{observationID_5digit}_{fileName}_evt2.fits')
     exptime = float(f_evt[1].header['EXPTIME'])
 
     count_rate = table['COUNT_RATE']
@@ -297,15 +298,35 @@ def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID,
 
     ts = np.linspace(t[0], t[-1], 10000)
     
+    tol = 1e-7
     for flux in count_rate:
         find_t = spl_x(ts) - flux
-        t0 = np.where(find_t == find_t[find_t > 0].min())[0][0]
+
+        if flux <= marx_observed_flux[0]:
+            true_flux.append(flux)
+            continue
+
+        cross_idx = np.where(np.diff(np.sign(find_t)) != 0)[0] + 1
         
-        x0 = spl_x(ts[t0])
-        y0 = spl_y(ts[t0])
+        roots_t = []
+        for i in cross_idx:
+            g0, g1 = find_t[i], find_t[i+1]
+            if np.abs(g1 - g0) < tol:           # avoid divide-by-zero; skip if flat
+                continue
+            # linear interpolation for root within [ts[i], ts[i+1]]
+            dt = ts[i+1] - ts[i]
+            t_root = ts[i] - g0 * dt / (g1 - g0)
+            roots_t.append(t_root)
 
-        true_flux.append(y0)
+        roots_t = np.array(roots_t)
 
+        if len(roots_t) > 1:
+            true_flux.append(spl_y(roots_t)[0])
+            log = True
+        else:
+            true_flux.append(spl_y(roots_t)[0])
+    if log == True:
+        print('Two pileup solutions were identified for the observed flux values. The true value reported is assumed to be the lower solution.')
 
     table.add_column(np.asarray(true_flux), index=21, name='RATE_PILEUP')
     table.add_column(count_error, index=22, name='PILEUP_ERR')
@@ -317,27 +338,48 @@ def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID,
 
 	# Assemble final file with original PRIMARY and GTI extensions
     hdul = fits.HDUList([f[0], hdu1, f[2]])
-    hdul.writeto(f'{repro_wd}/{observationID}_{region_name}_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
+    hdul.writeto(f'{repro_wd}/{observationID_5digit}_{region_name}_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits', overwrite=True)
 
 
 def marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, count_rate):  
     #The curve is possibly non monotomic (turn over at burnout) so we need to parameterize the interpolation splines
+    log = False
     true_flux = []
     t = np.arange(len(marx_observed_flux))
     spl_x = CubicSpline(t, marx_observed_flux)
     spl_y = CubicSpline(t, marx_true_flux)
 
     ts = np.linspace(t[0], t[-1], 10000)
+    
+    tol = 1e-7
     for flux in count_rate:
-        #print(flux)
         find_t = spl_x(ts) - flux
-        try:
-            t0 = np.where(find_t == find_t[find_t > 0].min())[0][0]
-            x0 = spl_x(ts[t0])
-            y0 = spl_y(ts[t0])
-        except:
-            y0 = flux
 
-        true_flux.append(y0)
+        if flux <= marx_observed_flux[0]:
+            true_flux.append(flux)
+            continue
+
+        cross_idx = np.where(np.diff(np.sign(find_t)) != 0)[0] + 1
+        
+        roots_t = []
+        for i in cross_idx:
+            g0, g1 = find_t[i], find_t[i+1]
+            if np.abs(g1 - g0) < tol:           # avoid divide-by-zero; skip if flat
+                continue
+            # linear interpolation for root within [ts[i], ts[i+1]]
+            dt = ts[i+1] - ts[i]
+            t_root = ts[i] - g0 * dt / (g1 - g0)
+            roots_t.append(t_root)
+
+        roots_t = np.array(roots_t)
+
+        if len(roots_t) > 1:
+            true_flux.append(spl_y(roots_t)[0])
+            log = True
+        else:
+            true_flux.append(spl_y(roots_t)[0])
 
     return np.asarray(true_flux)
+
+
+marx_pileup_interpolation([0.00367331, 0.06391235, 0.10413439, 0.12948545, 0.14529831, 0.15178275,0.1551664, 0.155066, 0.14920743, 0.14426202, 0.13595942, 0.12897761, 0.12286439, 0.11255835, 0.10835001, 0.10306951, 0.09732083, 0.09197337, 0.08669843, 0.08354371, 0.07840034, 0.0743032,  0.07335621, 0.07093382, 0.06814814, 0.06698335, 0.0650998,  0.06458346, 0.06308976, 0.06155284, 0.06005258], [0.00371218, 0.07706411, 0.15131057, 0.22522251, 0.29612084, 0.36990333, 0.44800482, 0.52714443, 0.58990423, 0.6613933, 0.73829771, 0.80702177, 0.88448388, 0.97095919, 1.03329396, 1.10352308, 1.17377087, 1.25255879, 1.32665522, 1.39682975, 1.4732293, 1.53975597, 1.61741574, 1.68797898, 1.76404892, 1.83809861, 1.91699356, 1.97953305, 2.0559417, 2.12663264, 2.20391391],4684, [2, 8], 300, 'bary', 'sgra', '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/4684/repro')

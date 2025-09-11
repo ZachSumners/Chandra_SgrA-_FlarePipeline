@@ -29,6 +29,7 @@ from searchsources import find_sources
 from lightcurve_extract import extract_lightcurve, extract_lightcurve_magnetar, extract_lightcurve_grating
 from magnetar import magnetar_correction, quiescent_correction, magnetar_extraction2
 from marx_pileup_simulation import marx_pileup_estimation, marx_pileup_interpolation
+from obs_summary import observation_summary_figure
 
 def pipeline(observationID):
 	#============================#
@@ -195,16 +196,17 @@ def pipeline(observationID):
 		pileup_correction = 'marx'
 	else:
 		pileup_correction = 'analytical'
-	
+
 	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction} {repro_wd} {grating_check}', shell=True)
 	print('Bayesian blocks complete.\n')
 
+	observation_summary_figure(observationID, repro_wd, observationID_5digit, erange, tbin, grating_check)
 
 	print('\n=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=\n')
 
 
 #obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-obs_ids = [23739]
+obs_ids = [28230]
 
 
 for i, observation in enumerate(obs_ids):
