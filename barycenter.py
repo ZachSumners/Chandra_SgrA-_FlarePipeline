@@ -9,7 +9,7 @@ def barycenter_corr(wd, observationID, repro_wd, fileName):
 
    	The barycenter corrected event file (output of this function) will have "bary" in its name. Further calibration should use that file.
 
-    	Steps of this correction are from the Chandra CIAO documentation (https://cxc.cfa.harvard.edu/ciao/threads/axbary/)
+    Steps of this correction are from the Chandra CIAO documentation (https://cxc.cfa.harvard.edu/ciao/threads/axbary/)
  	'''
 
 	#Find the RA and Dec of the target from the fits header.
@@ -20,18 +20,11 @@ def barycenter_corr(wd, observationID, repro_wd, fileName):
 
 	#Run the barycenter correction on the command line.
 	subprocess.call('punlearn axbary', shell=True, cwd=repro_wd)
-	#Define the input file (the reprocessed event file)
-	subprocess.call(f'pset axbary infile="acisf{observationID}_repro_evt2.fits"', shell=True, cwd=repro_wd)
 	#Unzip the eph file if not done already.
 	if not glob.glob(f"{wd}/primary/*eph1.fits"):
 		subprocess.call(f'gunzip {wd}/primary/*eph1.fits.gz', shell=True, cwd=repro_wd)
 	#Copy the eph file originally in the "primary" folder to the repro folder.
 	subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
-	#Define which file contains the barycenter correction parameters.
-	subprocess.call(f'pset axbary orbitfile="orbit_eph0.fits"', shell=True, cwd=repro_wd)
-	#The name of the output file (this will contain "bary" in the name).
-	subprocess.call(f'pset axbary outfile="acisf{observationID}_{fileName}_evt2.fits"', shell=True, cwd=repro_wd)
-	#Set the RA and Dec of the target for the axbary method to use.
-	subprocess.call(f'pset axbary ra={ra} dec={dec}', shell=True, cwd=repro_wd)
-	#Run the barycenter correction. This outputs an event file.
-	subprocess.call(f'axbary', shell=True, cwd=repro_wd)
+
+	#Run the barycenter correction with the evt2.fits infile and various other files describing the barycenter calculation.
+	subprocess.call(f'axbary infile="acisf{observationID}_repro_evt2.fits" orbitfile="orbit_eph0.fits" outfile="acisf{observationID}_{fileName}_evt2.fits" ra={ra} dec={dec}', shell=True, cwd=repro_wd)

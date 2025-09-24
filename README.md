@@ -10,6 +10,8 @@ If you would like to run a version of the code where no user inputs to the termi
 You will also need to install CIAO and obtain the associated CALDB files. Instructions for installing the latest release of CIAO can be found 
 [here](https://cxc.cfa.harvard.edu/ciao/threads/ciao_install_tool/). Optionally, if you would like to enable remote CALDB access (so you don't need to always re-download the latest files), follow the instructions [here](https://heasarc.gsfc.nasa.gov/docs/heasarc/caldb/caldb_remote_access.html).
 
+Advanced pileup correction requires the installation of MARX found [here](https://space.mit.edu/asc/marx/index.html).
+
 ## Setup
 
 Before running the pipeline, you will need to go to the Chandra Data Archive [CDA](https://cxc.harvard.edu/cda/), download your observation data folder(s) and put them in the **same directory** as the flare pipeline scripts. 
