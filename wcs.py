@@ -26,11 +26,17 @@ def wcs_correct(fp, observationID, repro_wd, erange, fileName):
 
 	num_sources = count_sources(f'{repro_wd}/src.reg')
 
-	
 	#Match the sources in it with a catalogue.
 	if num_sources > 3:
 		subprocess.call(f'cp {fp}/csc_catalogue.fits {repro_wd}/csc_catalogue.fits', shell=True, cwd=repro_wd)
 		subprocess.call(f'wcs_match infile="src.fits" refsrcfile="csc_catalogue.fits[cols ra=RA,dec=DEC,ra_err=RA_ERR,dec_err=DEC_ERR]" outfile="{observationID}_xfm.fits" wcsfile={observationID}_broad_thresh.img radius=1 clob+', shell=True, cwd=repro_wd)
+		
+		corrected_pattern = os.path.join(repro_wd, f"pcadf{observationID}_*_asol1_corrected.fits")
+		corrected_matches = glob.glob(corrected_pattern)
+		if len(corrected_matches) == 0:
+			print('Initial WCS correction failed. Attempting again with lower order solution and larger radius. The WCS solution will not be as accurate and you may want to manually place the region centroid.')
+			subprocess.call(f'cp {fp}/csc_catalogue.fits {repro_wd}/csc_catalogue.fits', shell=True, cwd=repro_wd)
+			subprocess.call(f'wcs_match infile="src.fits" refsrcfile="csc_catalogue.fits[cols ra=RA,dec=DEC,ra_err=RA_ERR,dec_err=DEC_ERR]" outfile="{observationID}_xfm.fits" wcsfile={observationID}_broad_thresh.img radius=2 clob+', shell=True, cwd=repro_wd)
 	else:
 		subprocess.call(f'cp {fp}/csc_catalogue.fits {repro_wd}/csc_catalogue.fits', shell=True, cwd=repro_wd)
 		subprocess.call(f'wcs_match infile="src.fits" refsrcfile="csc_catalogue.fits[cols ra=RA,dec=DEC,ra_err=RA_ERR,dec_err=DEC_ERR]" outfile="{observationID}_xfm.fits" wcsfile={observationID}_broad_thresh.img radius=1 method=trans clob+', shell=True, cwd=repro_wd)

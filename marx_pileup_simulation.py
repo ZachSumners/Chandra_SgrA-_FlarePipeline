@@ -131,6 +131,9 @@ def marx_pileup_estimation(observationID, repro_wd):
     folder = repro_wd
     pattern = os.path.join(folder, "*corrected.fits")
     files = glob.glob(pattern)
+    if len(files) == 0:
+        pattern = os.path.join(folder, "*_asol1.fits")
+        files = glob.glob(pattern)
     ditherfile = files[0]
 
     acis_exposure_time = header['EXPTIME']
@@ -139,6 +142,10 @@ def marx_pileup_estimation(observationID, repro_wd):
     ra_nom = header['RA_NOM']
     dec_nom = header['DEC_NOM']
     roll_nom = header['ROLL_NOM']
+
+    if observationID == 14702 or observationID == 14703:
+        sourcera = 266.416667
+        sourcedec = -29.007806
 
     if detectortype == 'ACIS-I':
         detoffsetx = -0.78234819833843 - float(header['SIM_X'])
@@ -240,8 +247,16 @@ def marx_pileup_estimation(observationID, repro_wd):
         plt.plot([4.8E-3, 9.4E-3, 4.3E-2, 7.66E-2, 1.225E-1, 1.485E-1, 1.618E-1, 1.675E-1, 1.689E-1, 1.683E-1, 1.671E-1, 1.661E-1, 1.658E-1], [0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], label='WebPIMMS')
 
     #Plot where the brightest count rate of the ObsID is to give sense of maxima.
-    #obs_lc_hdul = fits.open(f"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/{observationID}/repro/{observationID_5digit}_sgra_2-8keV_lc300_pileup.fits")
-    #lc = obs_lc_hdul[1].data
+    obs_lc_hdul = fits.open(f"{repro_wd}/{observationID_5digit}_sgra_2-8keV_lc300.fits")
+    lc = obs_lc_hdul[1].data
+    try:
+        max_count = np.max(lc['NET_RATE'])
+    except:
+        max_count = np.max(lc['COUNT_RATE'])
+
+    flags = []
+    if max_count > 0.8*np.max(np.array(observed_fluxes)):
+        flags.append('Pileup Turnover')
 
     #try:
     #    plt.axvline(x=np.max(lc['NET_RATE']), color='black', linestyle='--', linewidth=2, label='Max Count Rate of ObsID')
@@ -274,7 +289,7 @@ def marx_pileup_estimation(observationID, repro_wd):
 
     plt.savefig(f'{repro_wd}/PILEUP_DIFFERENCES_{observationID}.png')
 
-    return np.array(observed_fluxes), np.array(true_fluxes)
+    return np.array(observed_fluxes), np.array(true_fluxes), flags
 
 def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, region_name, repro_wd):
     #Open the lightcurve.
@@ -381,5 +396,3 @@ def marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, count_ra
 
     return np.asarray(true_flux)
 
-
-marx_pileup_interpolation([0.00367331, 0.06391235, 0.10413439, 0.12948545, 0.14529831, 0.15178275,0.1551664, 0.155066, 0.14920743, 0.14426202, 0.13595942, 0.12897761, 0.12286439, 0.11255835, 0.10835001, 0.10306951, 0.09732083, 0.09197337, 0.08669843, 0.08354371, 0.07840034, 0.0743032,  0.07335621, 0.07093382, 0.06814814, 0.06698335, 0.0650998,  0.06458346, 0.06308976, 0.06155284, 0.06005258], [0.00371218, 0.07706411, 0.15131057, 0.22522251, 0.29612084, 0.36990333, 0.44800482, 0.52714443, 0.58990423, 0.6613933, 0.73829771, 0.80702177, 0.88448388, 0.97095919, 1.03329396, 1.10352308, 1.17377087, 1.25255879, 1.32665522, 1.39682975, 1.4732293, 1.53975597, 1.61741574, 1.68797898, 1.76404892, 1.83809861, 1.91699356, 1.97953305, 2.0559417, 2.12663264, 2.20391391],4684, [2, 8], 300, 'bary', 'sgra', '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/4684/repro')

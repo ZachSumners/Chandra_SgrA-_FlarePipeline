@@ -72,7 +72,7 @@ def nlogn (n, dt):
     return np.where (mask, 0, r)
 
 
-def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.06):
+def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.05):
     widths = np.asarray (widths)
     counts = np.asarray (counts)
     ncells = widths.size

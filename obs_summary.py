@@ -26,7 +26,7 @@ def set_column_widths(tbl, col_widths):
     for cell in tbl.get_celld().values():
         cell.PAD = 0.05
 
-def observation_summary_figure(observationID, repro_wd, obsid_5digit, erange, tbin, grating_check):
+def observation_summary_figure(observationID, repro_wd, obsid_5digit, erange, tbin, grating_check, flags):
     fig = plt.figure(figsize=(15, 10), dpi=150)
     gs  = GridSpec(2, 2, height_ratios=[1.5, 1], width_ratios=[1, 2], hspace=0.1, wspace=0.2)
 
@@ -55,6 +55,11 @@ def observation_summary_figure(observationID, repro_wd, obsid_5digit, erange, tb
     circle = patches.Circle((physical_x - round(physical_x-20)-1, physical_y - round(physical_y-20)-1), 2.54, edgecolor="red", facecolor="none", linewidth=1)
     ax_img.add_patch(circle)
     ax_img.axis('off')
+
+    if len(flags) > 0:
+        ax_img.text(0.02, -0.07, f"FLAGS: {flags[0]}", ha='left', va='top', transform=ax_img.transAxes, fontsize=12, fontweight="bold")
+    else:
+        ax_img.text(0.02, -0.07, "FLAGS: NONE", ha='left', va='top', transform=ax_img.transAxes, fontsize=12, fontweight="bold")
 
 
     ax_lc = fig.add_subplot(gs[0, 1])

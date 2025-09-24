@@ -161,12 +161,12 @@ def pipeline(observationID):
 	if marx == True:
 		print('Running MARX pileup estimation. This may take a while.\n')
 		if magnetar == True:
-			marx_observed_flux, marx_true_flux = marx_pileup_estimation(observationID, repro_wd)
+			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'magnetar', repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam', repro_wd)
 		else:
-			marx_observed_flux, marx_true_flux = marx_pileup_estimation(observationID, repro_wd)
+			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'sgra', repro_wd)
 		print('MARX pileup estimation complete.\n')
 	else:
@@ -183,6 +183,10 @@ def pipeline(observationID):
 
 	if magnetar == True:
 		leak_frac, q_mag = magnetar_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
+		with open(f"{repro_wd}/magnetar_info.txt", "w") as f:
+			f.write(f"leak_frac = {leak_frac}")
+			f.write(f"q_mag = {q_mag}")
+
 
 	else:
 		leak_frac = 0
@@ -200,13 +204,13 @@ def pipeline(observationID):
 	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction} {repro_wd} {grating_check}', shell=True)
 	print('Bayesian blocks complete.\n')
 
-	observation_summary_figure(observationID, repro_wd, observationID_5digit, erange, tbin, grating_check)
+	observation_summary_figure(observationID, repro_wd, observationID_5digit, erange, tbin, grating_check, flags)
 
 	print('\n=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=\n')
 
 
 #obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-obs_ids = [28230]
+obs_ids = [31019]
 
 
 for i, observation in enumerate(obs_ids):
@@ -214,13 +218,26 @@ for i, observation in enumerate(obs_ids):
 	print(f'========= OBSERVATION ID {observation} =========')
 	print(f'COUNT: {i}')
 
-	#ry:
-	pipeline(observation)
-	#except:
-	#	print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
-
-
+	try:
+		pipeline(observation)
+	except:
+		print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
 '''
+obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
+count = 0
+for i, observation in enumerate(obs_ids):
+	fp = os.getcwd()
+	wd = f'{fp}/{observation}'
+	repro_wd = f'{wd}/repro/Results'
+	if os.path.isdir(repro_wd):
+		count += 1
+
+print(count)
+
+
+obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
+
+for i, observation in enumerate(obs_ids):
 	fp = os.getcwd()
 	wd = f'{fp}/{observation}'
 	repro_wd = f'{wd}/repro'
