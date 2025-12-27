@@ -1,0 +1,871 @@
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/obs_summary.py:30: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
+  fig = plt.figure(figsize=(15, 10), dpi=150)
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/magnetar.py:105: RuntimeWarning: invalid value encountered in scalar divide
+  leak_frac = np.nanmean(contamin)/(np.nanmean(magn))
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/magnetar.py:133: RuntimeWarning: Mean of empty slice
+  return np.nanmean(leak_frac), np.nanmean(magn)
+['13841', '13846', '16508', '16966', '28231', '14438', '13848', '18058', '26757', '7559', '14462', '16597', '6644', '19726', '26759', '18056', '6643', '13016', '7557', '14465', '14439', '13849', '28230', '13847', '13840', '13017', '7556', '6642', '26760', '6645', '14463', '26758', '18057', '19727', '7558', '2952', '20347', '16215', '16212', '9174', '21455', '9173', '242', '2954', '20346', '2953', '14941', '14946', '6363', '21454', '9172', '21453', '16213', '16214', '10556', '18732', '4683', '4684', '15041', '5950', '11843', '9169', '22230', '31022', '5951', '23665', '13838', '20446', '20040', '13853', '13854', '19703', '25300', '19704', '20447', '13839', '15568', '13855', '20041', '13852', '14414', '14413', '14468', '6640', '22594', '14466', '7554', '14461', '22593', '18055', '13845', '13842', '3392', '14432', '16965', '28232', '22592', '6646', '14460', '7555', '6641', '22595', '15570', '22937', '16964', '16963', '13843', '22707', '3393', '13844', '16211', '16216', '21456', '9170', '16218', '14943', '25297', '29496', '14944', '25299', '23738', '20344', '2951', '9171', '16217', '16210', '22288', '25298', '23739', '20345', '14945', '14942', '23737', '15045', '5953', '15042', '5954', '2943', '14394', '14393', '14703', '31020', '20750', '1561', '18731', '3663', '14702', '31021', '22604', '14392', '31019', '15043', '15044', '5952', '3665', '6113', '20751', '28229', '14427', '13857', '6639', '13850', '3549', '23666', '23668', '13851', '13856', '23295', '23667'] 169
+========= OBSERVATION ID 16508 =========
+COUNT: 2
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.013804425537610663
+Q_eff is 0.010122138308759906
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16966 =========
+COUNT: 3
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.026814475599815788
+Q_eff is 0.012408302864918015
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 18058 =========
+COUNT: 7
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.016404347766272514
+Q_eff is 0.0050203724065794675
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16597 =========
+COUNT: 11
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.01363091264673166
+Q_eff is 0.008485841062584367
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 18056 =========
+COUNT: 15
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is -0.6467829764740166
+Q_eff is 0.008841519502188372
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 18057 =========
+COUNT: 32
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.05573287307328058
+Q_eff is 0.004888202163322124
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16215 =========
+COUNT: 37
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.017912970444408646
+Q_eff is 0.00722057447540493
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16212 =========
+COUNT: 38
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.014925412496581985
+Q_eff is 0.007580061369356879
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14941 =========
+COUNT: 46
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is nan
+Q_eff is 0.0036409911347484616
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14946 =========
+COUNT: 47
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.016307731546020315
+Q_eff is 0.00953476157176902
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16213 =========
+COUNT: 52
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.015087224080276185
+Q_eff is 0.006887833043701734
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16214 =========
+COUNT: 53
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.02034813565882916
+Q_eff is 0.006850893568417068
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 15041 =========
+COUNT: 58
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.015518132581429976
+Q_eff is 0.011888336304749302
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 18055 =========
+COUNT: 89
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is -0.674156335957672
+Q_eff is 0.022031030552267572
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16965 =========
+COUNT: 94
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.03174056431352644
+Q_eff is 0.006523086376599141
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16964 =========
+COUNT: 104
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.032397819102279006
+Q_eff is 0.006226208241311807
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16963 =========
+COUNT: 105
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.02572992475121927
+Q_eff is 0.007559384168887407
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16211 =========
+COUNT: 110
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.012684785104956499
+Q_eff is 0.007886055598803393
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16216 =========
+COUNT: 111
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.01829972491083351
+Q_eff is 0.005871383709341058
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16218 =========
+COUNT: 114
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.018153950523176424
+Q_eff is 0.029404216698948053
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14943 =========
+COUNT: 115
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.02327293815109326
+Q_eff is 0.007373135256419813
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14944 =========
+COUNT: 118
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.019064303133933678
+Q_eff is 0.008920717771915188
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16217 =========
+COUNT: 124
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.02072314799351796
+Q_eff is 0.008294859815242115
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 16210 =========
+COUNT: 125
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.01696651498452751
+Q_eff is 0.006888702595763868
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14945 =========
+COUNT: 130
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.012052369586904728
+Q_eff is 0.011382879268837784
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14942 =========
+COUNT: 131
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is nan
+Q_eff is 0.004060660958721985
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 15045 =========
+COUNT: 133
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.01333411100021931
+Q_eff is 0.011708061575379148
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 15042 =========
+COUNT: 135
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.014862378830173254
+Q_eff is 0.011935839587038602
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14703 =========
+COUNT: 140
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.015272612634922208
+Q_eff is 0.010752635791231355
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 14702 =========
+COUNT: 146
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.013498738973713805
+Q_eff is 0.01220857392865116
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 15043 =========
+COUNT: 151
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.015693817973636826
+Q_eff is 0.09913382813453323
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 15044 =========
+COUNT: 152
+CIAO reprocessing complete.
+
+Barycenter correction complete.
+
+Source location complete.
+
+Image creation complete.
+
+WCS correction complete.
+
+Magnetar region creation complete.
+
+Magnetar lightcurve extraction complete.
+
+Running MARX pileup estimation. This may take a while.
+
+MARX pileup estimation complete.
+
+Leak_frac is 0.017122025002909484
+Q_eff is 0.00890659755623
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+

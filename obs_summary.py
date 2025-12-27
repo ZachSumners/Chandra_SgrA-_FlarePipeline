@@ -11,6 +11,45 @@ import re
 import math
 import CompleteBB as bb
 
+
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "sans-serif",
+
+    # Tell LaTeX which font to use:
+    "text.latex.preamble": r"""
+        \usepackage{helvet}         % Helvetica / TeX Gyre Heros
+        \renewcommand{\familydefault}{\sfdefault}
+        \usepackage{sfmath}         % match math to sans serif
+        \boldmath                   % make math bold by default
+    """,
+
+    "font.weight": "bold",
+    "axes.labelweight": "bold",
+    "axes.titleweight": "bold",
+})
+
+mult = 1.5
+plt.rcParams['axes.labelsize'] = 12*mult
+plt.rcParams['xtick.labelsize'] = 10*mult
+plt.rcParams['ytick.labelsize'] = 10*mult
+plt.rcParams['legend.fontsize'] = 10*mult
+plt.rcParams['axes.titlesize'] = 10*mult
+plt.rcParams['xtick.major.size'] = 8*mult
+plt.rcParams['xtick.minor.size'] = 5*mult
+plt.rcParams['ytick.major.size'] = 8*mult
+plt.rcParams['ytick.minor.size'] = 5*mult
+
+
+
+fontsize = 14 
+markersize = 6
+capsize = 2
+capthick = 0.6
+elinewidth= 0.6
+edgewidth = 0.6
+
+
 def set_column_widths(tbl, col_widths):
     """
     col_widths: dict {col_index: width_fraction}
@@ -28,7 +67,7 @@ def set_column_widths(tbl, col_widths):
 
 def observation_summary_figure(observationID, repro_wd, obsid_5digit, erange, tbin, grating_check, flags):
     fig = plt.figure(figsize=(15, 10), dpi=150)
-    gs  = GridSpec(2, 2, height_ratios=[1.5, 1], width_ratios=[1, 2], hspace=0.1, wspace=0.2)
+    gs  = GridSpec(2, 2, height_ratios=[1.5, 1], width_ratios=[1, 2], hspace=0.2, wspace=0.2)
 
     ax_img = fig.add_subplot(gs[0, 0])
     image_hdul = fits.open(f'{repro_wd}/{obsid_5digit}_bary_2-8keV_cropped.fits')
@@ -63,10 +102,10 @@ def observation_summary_figure(observationID, repro_wd, obsid_5digit, erange, tb
 
 
     ax_lc = fig.add_subplot(gs[0, 1])
-    bb.plot_bb("./"  + str(observationID) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info.txt", ax_lc) 
+    bb.plot_bb("./"  + str(observationID) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info_pileup.txt", ax_lc) 
     bb.plot_lc("./" +  str(observationID) + "/repro/" + (str(obsid_5digit) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits"), 'RATE_PILEUP', 'PILEUP_ERR', ax_lc) 
-    ax_lc.set_xlabel("Time (UTC)")
-    ax_lc.set_ylabel("Count Rate")
+    ax_lc.set_xlabel("Time (UTC)", fontsize=20)
+    ax_lc.set_ylabel("Count Rate (ct/s)", fontsize=20)
     #ax_lc.plot()
 
     #ax_lc = fig.add_subplot(gs[0, 1])

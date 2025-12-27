@@ -5,7 +5,7 @@ from astropy.time import Time
 
 df = pd.read_csv('flare_properties.csv')
 
-#df_q = pd.read_csv('quiescent_rates.csv')
+df_q = pd.read_csv('quiescent_rates.csv')
 
 mean_rate = df['rate_mean']
 mean_rate_err = df['rate_mean_err']
@@ -22,41 +22,45 @@ print("Q1 =", q1)   # 25th percentile
 print("Q2 =", q2)   # 50th percentile (median)
 print("Q3 =", q3)   # 75th percentile
 
-#quiescent = df_q['quiescent_rate']
-#quiescent_err = df_q['quiescent_rate_err']
-#obs_date = df_q['obs_date']
+quiescent = df_q['quiescent_rate']
+quiescent_err = df_q['quiescent_rate_err']
+obs_date = df_q['obs_date']
 
 # ── Read your CSV as before ─────────────────────────────────────────────
-#df_q = pd.read_csv("quiescent_rates.csv")
+df_q = pd.read_csv("quiescent_rates.csv")
 
 # ── 1) Drop any rows where obs_date is null ─────────────────────────────
-#df_q = df_q.dropna(subset=["obs_date"])
+df_q = df_q.dropna(subset=["obs_date"])
 
 # ── 2) Let pandas parse the ISO-strings into datetimes ──────────────────
 #    We specify the exact format so that any malformed string becomes NaT.
-#df_q["dt"] = pd.to_datetime(
-#    df_q["obs_date"],
-#    format="%Y-%m-%dT%H:%M:%S",
-#    errors="coerce"
-#)
+df_q["dt"] = pd.to_datetime(
+    df_q["obs_date"],
+    format="%Y-%m-%dT%H:%M:%S",
+    errors="coerce"
+)
 
 # ── 3) Drop any rows that failed parsing (dt == NaT) ────────────────────
-#df_q = df_q.dropna(subset=["dt"])
+df_q = df_q.dropna(subset=["dt"])
 
 # ── 4) Convert that datetime64[ns] array into Astropy Time → get MJD ───
 #    Astropy can directly consume a numpy array of datetime64[ns] with format="datetime64"
-#t = Time(df_q["dt"].values, format="datetime64", scale="utc")
-#df_q["quiescent_mjd"] = t.mjd
+t = Time(df_q["dt"].values, format="datetime64", scale="utc")
+df_q["quiescent_mjd"] = t.mjd
 
 # ── 5) (Optional) If you still want to inspect the first few rows: ──────
+quiescent_numpy = df_q['quiescent_rate'].to_numpy()
+quiescent_numpy 
 
-#plt.errorbar(df_q['quiescent_mjd'], quiescent/1000, yerr=quiescent_err/1000, fmt='o', ecolor="black", alpha=0.8)
-#plt.xlabel('MJD')
-#plt.ylabel('Quiescent Count Rate (ct/s)')
-#plt.ylim(0, 0.02)
-#plt.grid()
-#plt.title('Quiescent Rate over Time')
-#plt.show()
+print(np.median(quiescent_numpy)/1000, np.std(quiescent_numpy)/1000)
+
+plt.errorbar(df_q['quiescent_mjd'], quiescent/1000, yerr=quiescent_err/1000, fmt='o', ecolor="black", alpha=0.8)
+plt.xlabel('MJD')
+plt.ylabel('Quiescent Count Rate (ct/s)')
+plt.ylim(0, 0.02)
+plt.grid()
+plt.title('Quiescent Rate over Time')
+plt.show()
 
 
 print(df['duration_s'], df['rate_max'], df['obs_id'])
@@ -99,7 +103,8 @@ plt.show()
 #plt.tight_layout()
 #plt.show()
 
-mask = fluence > 200
+mask = fluence > 500
 candidates = df[['obs_id', 'fluence_ct']][mask]
 
-print(candidates, len(candidates))
+print(candidates['obs_id'].to_numpy(), len(candidates))
+

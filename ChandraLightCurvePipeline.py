@@ -18,6 +18,7 @@ import os
 import sys
 from astropy.io import fits
 import shutil
+import numpy as np
 
 #Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
@@ -58,10 +59,11 @@ def pipeline(observationID):
 
 	#Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
 	#we can define a range of IDs that need magnetar care.
-	if observationID >= 14702 and observationID < 18731 and observationID != 15570 and observationID != 15568:
+	if observationID >= 14702 and observationID < 18731 and observationID != 15570 and observationID != 15568 and observationID != 14941 and observationID != 14942 and observationID != 18055 and observationID != 18056:
 		magnetar = True
 	else:
 		magnetar = False
+
 
 	observationID_5digit = str(observationID).zfill(5)
 
@@ -69,7 +71,7 @@ def pipeline(observationID):
 	subprocess.call('punlearn ardlib', shell=True, cwd=wd)
 	if reprocess == True:
 		#input('========= Press any key to start CIAO reprocessing. =========')
-		subprocess.call('chandra_repro indir=./ outdir= clobber=yes', shell=True, cwd=wd)
+		#subprocess.call('chandra_repro indir=./ outdir= clobber=yes', shell=True, cwd=wd)
 		print('CIAO reprocessing complete.\n')
 
 	subprocess.call('punlearn ardlib', shell=True, cwd=wd)
@@ -93,49 +95,49 @@ def pipeline(observationID):
 	if barycentric == True:
 		#input('\n========= Press Enter to start barycenter correction. =========\n')
 		fileName = 'bary'
-		barycenter_corr(wd, observationID_5digit, repro_wd, fileName)
+		#barycenter_corr(wd, observationID_5digit, repro_wd, fileName)
 		print('Barycenter correction complete.\n')
 	else:
 		fileName='repro'
 
 	#input('\n========= Press Enter to start source location. =========\n')
-	find_sources(observationID_5digit, repro_wd, erange, fileName)
+	#find_sources(observationID_5digit, repro_wd, erange, fileName)
 	print('Source location complete.\n')
 
 	#input('\n========= Press Enter to start image creation. =========\n')
 	#We need to create smoothed images of the observations to find the sources and reference catalogues in the WCS correction.
-	subprocess.call(f'fluximage acisf{observationID_5digit}_{fileName}_evt2.fits {observationID_5digit} bin=1 band=broad clobber=yes', shell=True, cwd=repro_wd)
-	subprocess.call(f'cp {repro_wd}/{observationID_5digit}_broad_thresh.img {repro_wd}/{observationID_5digit}_broad_thresh_img.fits', shell=True, cwd=repro_wd)
+	#subprocess.call(f'fluximage acisf{observationID_5digit}_{fileName}_evt2.fits {observationID_5digit} bin=1 band=broad clobber=yes', shell=True, cwd=repro_wd)
+	#subprocess.call(f'cp {repro_wd}/{observationID_5digit}_broad_thresh.img {repro_wd}/{observationID_5digit}_broad_thresh_img.fits', shell=True, cwd=repro_wd)
 	print('Image creation complete.\n')
 
 	#Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
 	#region should go.
 	if wcsCorrect == True:
 		#input('\n========= Press Enter to start WCS correction. =========\n')
-		wcs_correct(fp, observationID_5digit, repro_wd, erange, fileName)
+		#wcs_correct(fp, observationID_5digit, repro_wd, erange, fileName)
 		print('WCS correction complete.\n')
 
 	if grating_check == True:
 		#Identifies zero and first order source regions for HETG grating observations and stores them in .reg files.
 		#input('\n========= Press Enter to start grating region creation. =========\n')
-		regions_search_grating(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
+		#regions_search_grating(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
 		print('Grating region creation complete.\n')
 	elif grating_check == False:
 		if search == True:
 			#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
 			#input('\n========= Press Enter to start manual Sgr A* selection and region creation. =========\n')
-			regions_search_manual_select(observationID_5digit, repro_wd, erange, bkg_coords, fileName)
+			#regions_search_manual_select(observationID_5digit, repro_wd, erange, bkg_coords, fileName)
 			print('Manual Sgr A* selection and region creation complete.\n')
 		else:
 			#This step identifies the Sgr A* source region, defines a background region.
 			if magnetar == False:
 				#input('\n========= Press Enter to start standard region creation. =========\n')
-				regions_search(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
+				#regions_search(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
 				print('Standard region creation complete.\n')
 			elif magnetar == True:
 				#input('\n========= Press Enter to start magnetar region creation. =========\n')
 				#Identifies the special regions for magnetar observations (see Bouffard 2019)
-				magnetar_extraction2(observationID_5digit, repro_wd, erange, src_coords, bkg_coords, fileName)
+				#magnetar_extraction2(observationID_5digit, repro_wd, erange, src_coords, bkg_coords, fileName)
 				print('Magnetar region creation complete.\n')
 		
 
@@ -144,47 +146,54 @@ def pipeline(observationID):
 	if grating_check == False:
 		if magnetar == False:
 			#input('\n========= Press Enter to start standard lightcurve extraction. =========\n')
-			extract_lightcurve(observationID_5digit, repro_wd, erange, tbin, fileName)
+			#extract_lightcurve(observationID_5digit, repro_wd, erange, tbin, fileName)
 			print('Standard lightcurve extraction complete.\n')
 		elif magnetar == True:
 			#input('\n========= Press Enter to start magnetar lightcurve extraction. =========\n')
-			extract_lightcurve_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
+			#extract_lightcurve_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
 			print('Magnetar lightcurve extraction complete.\n')
 	elif grating_check == True:
 		#input('\n========= Press Enter to start grating lightcurve extraction. =========\n')
-		extract_lightcurve_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
+		#extract_lightcurve_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
 		print('Grating lightcurve extraction complete.\n')
 
 	#This step comptues the pileup correction and scales the lightcurves appropriately. Applies to 3 lightcurves if magnetar is present.
 	#input('\n========= Press Enter to start pileup correction. =========\n')
 	
+	flags = []
 	if marx == True:
 		print('Running MARX pileup estimation. This may take a while.\n')
-		if magnetar == True:
-			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
-			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
-			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'magnetar', repro_wd)
-			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam', repro_wd)
-		else:
-			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
-			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'sgra', repro_wd)
+		#data = np.loadtxt(f"{repro_wd}/marx_pileup_conversion.txt")
+		#marx_observed_flux = data[:, 0]
+		#marx_true_flux = data[:, 1]
+		#if magnetar == True:
+			#marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'magnetar', repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam1', repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam2', repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam3', repro_wd)
+		#else:
+			#marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
+			#marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'sgra', repro_wd)
 		print('MARX pileup estimation complete.\n')
 	else:
-		if grating_check == False:
-			if magnetar == False:
-				pileup_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
-			elif magnetar == True:
-				pileup_correction_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
-				pileup_correction_eff(observationID_5digit, repro_wd, erange, tbin, fileName)
-				pileup_correction_contam(observationID_5digit, repro_wd, erange, tbin, fileName)
-		elif grating_check == True:
-			pileup_correction_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
+		#if grating_check == False:
+		flags = []
+			#if magnetar == False:
+			#	pileup_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
+			#elif magnetar == True:
+			#	pileup_correction_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
+			#	pileup_correction_eff(observationID_5digit, repro_wd, erange, tbin, fileName)
+			#	pileup_correction_contam(observationID_5digit, repro_wd, erange, tbin, fileName)
+		#elif grating_check == True:
+			#pileup_correction_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
 		print('Analytical pileup correction complete.\n')
 
 	if magnetar == True:
 		leak_frac, q_mag = magnetar_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
 		with open(f"{repro_wd}/magnetar_info.txt", "w") as f:
-			f.write(f"leak_frac = {leak_frac}")
+			f.write(f"leak_frac = {leak_frac}\n")
 			f.write(f"q_mag = {q_mag}")
 
 
@@ -197,11 +206,11 @@ def pipeline(observationID):
 	#input('\n========= Press Enter to start bayesian blocks fitting. =========\n')
 	#Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 	if marx == True:
-		pileup_correction = 'marx'
+		pileup_correction_type = 'marx'
 	else:
-		pileup_correction = 'analytical'
-
-	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction} {repro_wd} {grating_check}', shell=True)
+		pileup_correction_type = 'analytical'
+	
+	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction_type} {repro_wd} {grating_check}', shell=True)
 	print('Bayesian blocks complete.\n')
 
 	observation_summary_figure(observationID, repro_wd, observationID_5digit, erange, tbin, grating_check, flags)
@@ -210,18 +219,30 @@ def pipeline(observationID):
 
 
 #obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-obs_ids = [31019]
+#obs_ids = [18055]
+
+obs_ids = [15042]
+
+print(obs_ids, len(obs_ids))
+
+#ObsID 14463 got a special 1200 second minimum block length. (line 118 of xbblocks.py)
+#ncp_prior got set to 6 for obs 13849
 
 
 for i, observation in enumerate(obs_ids):
-	observation = int(observation)
-	print(f'========= OBSERVATION ID {observation} =========')
-	print(f'COUNT: {i}')
 
-	try:
+	if int(observation) != 15651 and int(observation) != 15040 and int(observation) != 15654:
+
+		observation = int(observation)
+
+		print(f'========= OBSERVATION ID {observation} =========')
+		print(f'COUNT: {i}')
+
+		#try:
 		pipeline(observation)
-	except:
-		print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+		#except:
+		#	print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+
 '''
 obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
 count = 0

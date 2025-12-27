@@ -1,0 +1,1880 @@
+========= OBSERVATION ID 6643 =========
+COUNT: 0
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6643'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6643/repro/acisf06643_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6643/repro/acisf06643_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6643/repro/axaff06643N003_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6643/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf06643_repro_evt2.fits -o acisf06643_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 0 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 1 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 2 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 3 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 4 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 5 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 270657026.463880, TSTOP = 270663830.926700
+axBary: HDU 6 TSTART = 270657408.927559, TSTOP = 270664212.980314 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf06643_001N001_asol1.fits found.
+Bad-pixel file acisf06643_repro_bpix1.fits found.
+Mask file acisf06643_001N003_msk1.fits found.
+
+The output images will have 3655 by 2279 pixels, pixel size of 0.492 arcsec,
+    and cover x=1631.5:5286.5:1,y=2911.5:5190.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 6643
+Creating 5 instrument maps for obsid 6643
+Creating 5 exposure maps for obsid 6643
+Combining 5 exposure maps for obsid 6643
+Thresholding data for obsid 6643
+Exposure-correcting image for obsid 6643
+
+The following files were created:
+
+ The clipped counts image is:
+     06643_broad_thresh.img
+
+ The observation FOV is:
+     06643.fov
+
+ The clipped exposure map is:
+     06643_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     06643_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 06643
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 7558 =========
+COUNT: 1
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/7558'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/7558/repro/acisf07558_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/7558/repro/acisf07558_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/7558/repro/axaff07558N003_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/7558/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf07558_repro_evt2.fits -o acisf07558_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 0 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 1 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 2 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 3 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 4 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 5 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 305151581.676960, TSTOP = 305157832.127260
+axBary: HDU 6 TSTART = 305151725.473091, TSTOP = 305157975.356967 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf07558_000N001_asol1.fits found.
+Bad-pixel file acisf07558_repro_bpix1.fits found.
+Mask file acisf07558_000N003_msk1.fits found.
+
+The output images will have 3477 by 2281 pixels, pixel size of 0.492 arcsec,
+    and cover x=1728.5:5205.5:1,y=2829.5:5110.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 7558
+Creating 5 instrument maps for obsid 7558
+Creating 5 exposure maps for obsid 7558
+Combining 5 exposure maps for obsid 7558
+Thresholding data for obsid 7558
+Exposure-correcting image for obsid 7558
+
+The following files were created:
+
+ The clipped counts image is:
+     07558_broad_thresh.img
+
+ The observation FOV is:
+     07558.fov
+
+ The clipped exposure map is:
+     07558_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     07558_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 07558
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 242 =========
+COUNT: 2
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/242'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Output from acis_process_events:
+# acis_process_events (CIAO 4.16.0): WARNING: problem reading ctifile, cti adjustment will not be applied. Changing apply_cti=yes to apply_cti=no.
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/242/repro/acisf00242_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/242/repro/acisf00242_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/242/repro/axaff00242N002_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/242/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf00242_repro_evt2.fits -o acisf00242_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 0 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 1 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 2 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 3 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 4 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 5 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 6 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: bary stuff initialized in HDU 7
+axBary: HDU 7 TSTART = 54268980.349702, TSTOP = 54320722.864059
+axBary: HDU 7 TSTART = 54268974.408831, TSTOP = 54320711.773274 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf00242_000N001_asol1.fits found.
+Bad-pixel file acisf00242_repro_bpix1.fits found.
+Mask file acisf00242_000N004_msk1.fits found.
+
+The output images will have 3496 by 2359 pixels, pixel size of 0.492 arcsec,
+    and cover x=1724.5:5220.5:1,y=2766.5:5125.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 6 aspect histograms for obsid 242
+Creating 6 instrument maps for obsid 242
+Creating 6 exposure maps for obsid 242
+Combining 6 exposure maps for obsid 242
+Thresholding data for obsid 242
+Exposure-correcting image for obsid 242
+
+The following files were created:
+
+ The clipped counts image is:
+     00242_broad_thresh.img
+
+ The observation FOV is:
+     00242.fov
+
+ The clipped exposure map is:
+     00242_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     00242_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 00242
+Traceback (most recent call last):
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/RUN.py", line 201, in <module>
+    bb.process(evt, bb_info, pileup_correction)
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/CompleteBB.py", line 141, in process
+    info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=p0, nbootstrap=256)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/xbblocks.py", line 280, in bsttbblock
+    info = ttbblock (tstarts, tstops, times, exptime, pileup_correction, p0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/xbblocks.py", line 261, in ttbblock
+    info = binbblock (widths, counts, exptime, pileup_correction, p0=p0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/xbblocks.py", line 173, in binbblock
+    info.rates = block_pileup_correction(info, exptime)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/xbblocks.py", line 180, in block_pileup_correction
+    fd = 1-(((np.exp(rate)-1)*np.exp(-rate))/rate)
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+FloatingPointError: invalid value encountered in divide
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 25300 =========
+COUNT: 3
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25300'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25300/repro/acisf25300_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25300/repro/acisf25300_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25300/repro/axaff25300N001_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25300/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf25300_repro_evt2.fits -o acisf25300_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 764580155.328920, TSTOP = 764607273.243110
+axBary: HDU 0 TSTART = 764580218.872250, TSTOP = 764607339.440909 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 764580155.328920, TSTOP = 764607273.243110
+axBary: HDU 1 TSTART = 764580218.872250, TSTOP = 764607339.440909 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 764580155.328920, TSTOP = 764607273.243110
+axBary: HDU 2 TSTART = 764580218.872250, TSTOP = 764607339.440909 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 764580155.328920, TSTOP = 764607273.243110
+axBary: HDU 3 TSTART = 764580218.872250, TSTOP = 764607339.440909 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf25300_000N001_asol1.fits found.
+Bad-pixel file acisf25300_repro_bpix1.fits found.
+Mask file acisf25300_000N001_msk1.fits found.
+
+The output images will have 427 by 2114 pixels, pixel size of 0.492 arcsec,
+    and cover x=3930.5:4357.5:1,y=3265.5:5379.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 2 aspect histograms for obsid 25300
+Creating 2 instrument maps for obsid 25300
+Creating 2 exposure maps for obsid 25300
+Combining 2 exposure maps for obsid 25300
+Thresholding data for obsid 25300
+Exposure-correcting image for obsid 25300
+
+The following files were created:
+
+ The clipped counts image is:
+     25300_broad_thresh.img
+
+ The observation FOV is:
+     25300.fov
+
+ The clipped exposure map is:
+     25300_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     25300_broad_flux.img
+
+Image creation complete.
+
+# wcs_match (CIAO 4.16.0): ERROR: Cannot find at least 3 source matches between reference and duplicate source files (method=rst).
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 25300
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 6640 =========
+COUNT: 4
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6640'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6640/repro/acisf06640_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6640/repro/acisf06640_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6640/repro/axaff06640N003_VV002_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6640/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf06640_repro_evt2.fits -o acisf06640_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 0 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 1 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 2 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 3 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 4 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 5 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 263082386.809690, TSTOP = 263089449.060020
+axBary: HDU 6 TSTART = 263082747.836469, TSTOP = 263089810.595440 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf06640_000N001_asol1.fits found.
+Bad-pixel file acisf06640_repro_bpix1.fits found.
+Mask file acisf06640_000N003_msk1.fits found.
+
+The output images will have 3535 by 2696 pixels, pixel size of 0.492 arcsec,
+    and cover x=2870.5:6405.5:1,y=2962.5:5658.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 6640
+Creating 5 instrument maps for obsid 6640
+Creating 5 exposure maps for obsid 6640
+Combining 5 exposure maps for obsid 6640
+Thresholding data for obsid 6640
+Exposure-correcting image for obsid 6640
+
+The following files were created:
+
+ The clipped counts image is:
+     06640_broad_thresh.img
+
+ The observation FOV is:
+     06640.fov
+
+ The clipped exposure map is:
+     06640_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     06640_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 06640
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 6641 =========
+COUNT: 5
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6641'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6641/repro/acisf06641_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6641/repro/acisf06641_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6641/repro/axaff06641N003_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6641/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf06641_repro_evt2.fits -o acisf06641_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 0 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 1 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 2 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 3 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 4 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 5 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 265565272.100540, TSTOP = 265571867.463350
+axBary: HDU 6 TSTART = 265565754.649547, TSTOP = 265572350.211679 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf06641_000N001_asol1.fits found.
+Bad-pixel file acisf06641_repro_bpix1.fits found.
+Mask file acisf06641_000N003_msk1.fits found.
+
+The output images will have 3538 by 3339 pixels, pixel size of 0.492 arcsec,
+    and cover x=2688.5:6226.5:1,y=2772.5:6111.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 6641
+Creating 5 instrument maps for obsid 6641
+Creating 5 exposure maps for obsid 6641
+Combining 5 exposure maps for obsid 6641
+Thresholding data for obsid 6641
+Exposure-correcting image for obsid 6641
+
+The following files were created:
+
+ The clipped counts image is:
+     06641_broad_thresh.img
+
+ The observation FOV is:
+     06641.fov
+
+ The clipped exposure map is:
+     06641_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     06641_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 06641
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 22707 =========
+COUNT: 6
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22707'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22707/repro/acisf22707_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22707/repro/acisf22707_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22707/repro/axaff22707N002_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22707/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf22707_repro_evt2.fits -o acisf22707_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 0 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 1 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 2 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 3 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 4 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 710076904.464790, TSTOP = 710105282.104020
+axBary: HDU 5 TSTART = 710077391.211740, TSTOP = 710105768.122191 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf22707_000N002_asol1.fits found.
+Bad-pixel file acisf22707_repro_bpix1.fits found.
+Mask file acisf22707_000N002_msk1.fits found.
+
+The output images will have 2694 by 2692 pixels, pixel size of 0.492 arcsec,
+    and cover x=2783.5:5477.5:1,y=2693.5:5385.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 4 aspect histograms for obsid 22707
+Creating 4 instrument maps for obsid 22707
+Creating 4 exposure maps for obsid 22707
+Combining 4 exposure maps for obsid 22707
+Thresholding data for obsid 22707
+Exposure-correcting image for obsid 22707
+
+The following files were created:
+
+ The clipped counts image is:
+     22707_broad_thresh.img
+
+ The observation FOV is:
+     22707.fov
+
+ The clipped exposure map is:
+     22707_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     22707_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 22707
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 25297 =========
+COUNT: 7
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25297'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25297/repro/acisf25297_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25297/repro/acisf25297_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25297/repro/axaff25297N001_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25297/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf25297_repro_evt2.fits -o acisf25297_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 764139900.376390, TSTOP = 764168465.590680
+axBary: HDU 0 TSTART = 764139920.331869, TSTOP = 764168488.349289 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 764139900.376390, TSTOP = 764168465.590680
+axBary: HDU 1 TSTART = 764139920.331869, TSTOP = 764168488.349289 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 764139900.376390, TSTOP = 764168465.590680
+axBary: HDU 2 TSTART = 764139920.331869, TSTOP = 764168488.349289 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 764139900.376390, TSTOP = 764168465.590680
+axBary: HDU 3 TSTART = 764139920.331869, TSTOP = 764168488.349289 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf25297_000N001_asol1.fits found.
+Bad-pixel file acisf25297_repro_bpix1.fits found.
+Mask file acisf25297_000N001_msk1.fits found.
+
+The output images will have 340 by 2110 pixels, pixel size of 0.492 arcsec,
+    and cover x=3926.5:4266.5:1,y=3272.5:5382.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 2 aspect histograms for obsid 25297
+Creating 2 instrument maps for obsid 25297
+Creating 2 exposure maps for obsid 25297
+Combining 2 exposure maps for obsid 25297
+Thresholding data for obsid 25297
+Exposure-correcting image for obsid 25297
+
+The following files were created:
+
+ The clipped counts image is:
+     25297_broad_thresh.img
+
+ The observation FOV is:
+     25297.fov
+
+ The clipped exposure map is:
+     25297_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     25297_broad_flux.img
+
+Image creation complete.
+
+# wcs_match (CIAO 4.16.0): ERROR: Cannot find at least 3 source matches between reference and duplicate source files (method=rst).
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 25297
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 25299 =========
+COUNT: 8
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25299'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25299/repro/acisf25299_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25299/repro/acisf25299_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25299/repro/axaff25299N001_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25299/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf25299_repro_evt2.fits -o acisf25299_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 764407618.605630, TSTOP = 764432409.257180
+axBary: HDU 0 TSTART = 764407665.050668, TSTOP = 764432458.104979 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 764407618.605630, TSTOP = 764432409.257180
+axBary: HDU 1 TSTART = 764407665.050668, TSTOP = 764432458.104979 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 764407618.605630, TSTOP = 764432409.257180
+axBary: HDU 2 TSTART = 764407665.050668, TSTOP = 764432458.104979 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 764407618.605630, TSTOP = 764432409.257180
+axBary: HDU 3 TSTART = 764407665.050668, TSTOP = 764432458.104979 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf25299_000N001_asol1.fits found.
+Bad-pixel file acisf25299_repro_bpix1.fits found.
+Mask file acisf25299_000N001_msk1.fits found.
+
+The output images will have 312 by 2115 pixels, pixel size of 0.492 arcsec,
+    and cover x=3944.5:4256.5:1,y=3269.5:5384.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 2 aspect histograms for obsid 25299
+Creating 2 instrument maps for obsid 25299
+Creating 2 exposure maps for obsid 25299
+Combining 2 exposure maps for obsid 25299
+Thresholding data for obsid 25299
+Exposure-correcting image for obsid 25299
+
+The following files were created:
+
+ The clipped counts image is:
+     25299_broad_thresh.img
+
+ The observation FOV is:
+     25299.fov
+
+ The clipped exposure map is:
+     25299_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     25299_broad_flux.img
+
+Image creation complete.
+
+# wcs_match (CIAO 4.16.0): ERROR: Cannot find at least 3 source matches between reference and duplicate source files (method=rst).
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 25299
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 25298 =========
+COUNT: 9
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25298'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25298/repro/acisf25298_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25298/repro/acisf25298_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25298/repro/axaff25298N001_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/25298/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf25298_repro_evt2.fits -o acisf25298_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 764317224.362480, TSTOP = 764344028.114160
+axBary: HDU 0 TSTART = 764317261.897730, TSTOP = 764344068.322975 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 764317224.362480, TSTOP = 764344028.114160
+axBary: HDU 1 TSTART = 764317261.897730, TSTOP = 764344068.322975 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 764317224.362480, TSTOP = 764344028.114160
+axBary: HDU 2 TSTART = 764317261.897730, TSTOP = 764344068.322975 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 764317224.362480, TSTOP = 764344028.114160
+axBary: HDU 3 TSTART = 764317261.897730, TSTOP = 764344068.322975 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf25298_000N001_asol1.fits found.
+Bad-pixel file acisf25298_repro_bpix1.fits found.
+Mask file acisf25298_000N001_msk1.fits found.
+
+The output images will have 413 by 2112 pixels, pixel size of 0.492 arcsec,
+    and cover x=3882.5:4295.5:1,y=3271.5:5383.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 2 aspect histograms for obsid 25298
+Creating 2 instrument maps for obsid 25298
+Creating 2 exposure maps for obsid 25298
+Combining 2 exposure maps for obsid 25298
+Thresholding data for obsid 25298
+Exposure-correcting image for obsid 25298
+
+The following files were created:
+
+ The clipped counts image is:
+     25298_broad_thresh.img
+
+ The observation FOV is:
+     25298.fov
+
+ The clipped exposure map is:
+     25298_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     25298_broad_flux.img
+
+Image creation complete.
+
+# wcs_match (CIAO 4.16.0): ERROR: Cannot find at least 3 source matches between reference and duplicate source files (method=rst).
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 25298
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 5953 =========
+COUNT: 10
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/5953'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/5953/repro/acisf05953_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/5953/repro/acisf05953_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/5953/repro/axaff05953N005_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/5953/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf05953_repro_evt2.fits -o acisf05953_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 0 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 1 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 2 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 3 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 4 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 5 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 239139511.152360, TSTOP = 239188352.404600
+axBary: HDU 6 TSTART = 239139892.239959, TSTOP = 239188730.404882 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf05953_001N002_asol1.fits found.
+Bad-pixel file acisf05953_repro_bpix1.fits found.
+Mask file acisf05953_001N005_msk1.fits found.
+
+The output images will have 3654 by 2276 pixels, pixel size of 0.492 arcsec,
+    and cover x=1632.5:5286.5:1,y=2912.5:5188.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 5953
+Creating 5 instrument maps for obsid 5953
+Creating 5 exposure maps for obsid 5953
+Combining 5 exposure maps for obsid 5953
+Thresholding data for obsid 5953
+Exposure-correcting image for obsid 5953
+
+The following files were created:
+
+ The clipped counts image is:
+     05953_broad_thresh.img
+
+ The observation FOV is:
+     05953.fov
+
+ The clipped exposure map is:
+     05953_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     05953_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 05953
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 1561 =========
+COUNT: 11
+
+Running chandra_repro
+version: 07 May 2024
+
+# chandra_repro (07 May 2024): ERROR Multiple evt1 files found in directory /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/1561.  Skipping it. If this is a multi-obi OBS_ID, try running the splitobs script first.
+
+CIAO reprocessing complete.
+
+***=========*** OBSERVATION ID 1561 FAILED ***=========***
+========= OBSERVATION ID 22604 =========
+COUNT: 12
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22604'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22604/repro/acisf22604_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22604/repro/acisf22604_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22604/repro/axaff22604N002_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/22604/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf22604_repro_evt2.fits -o acisf22604_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 701584967.263700, TSTOP = 701619825.465820
+axBary: HDU 0 TSTART = 701585040.181189, TSTOP = 701619901.705431 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 701584967.263700, TSTOP = 701619825.465820
+axBary: HDU 1 TSTART = 701585040.181189, TSTOP = 701619901.705431 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 701584967.263700, TSTOP = 701619825.465820
+axBary: HDU 2 TSTART = 701585040.181189, TSTOP = 701619901.705431 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf22604_000N002_asol1.fits found.
+Bad-pixel file acisf22604_repro_bpix1.fits found.
+Mask file acisf22604_000N002_msk1.fits found.
+
+The output images will have 251 by 1073 pixels, pixel size of 0.492 arcsec,
+    and cover x=4014.5:4265.5:1,y=3269.5:4342.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating aspect histogram for obsid 22604
+Creating instrument map for obsid 22604
+Creating exposure map for obsid 22604
+Thresholding data for obsid 22604
+Exposure-correcting image for obsid 22604
+
+The following files were created:
+
+ The clipped counts image is:
+     22604_broad_thresh.img
+
+ The observation FOV is:
+     22604.fov
+
+ The clipped exposure map is:
+     22604_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     22604_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 22604
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 6113 =========
+COUNT: 13
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6113'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6113/repro/acisf06113_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6113/repro/acisf06113_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6113/repro/axaff06113N004_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/6113/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf06113_repro_evt2.fits -o acisf06113_bary_evt2.fits -ra 266.416667 -dec -29.007778 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 0 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 1 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 2 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 3 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 4 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 5 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 225872764.885540, TSTOP = 225880165.898370
+axBary: HDU 6 TSTART = 225872611.575121, TSTOP = 225880013.307568 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf06113_000N001_asol1.fits found.
+Bad-pixel file acisf06113_repro_bpix1.fits found.
+Mask file acisf06113_000N004_msk1.fits found.
+
+The output images will have 3480 by 2290 pixels, pixel size of 0.492 arcsec,
+    and cover x=2985.5:6465.5:1,y=3081.5:5371.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 6113
+Creating 5 instrument maps for obsid 6113
+Creating 5 exposure maps for obsid 6113
+Combining 5 exposure maps for obsid 6113
+Thresholding data for obsid 6113
+Exposure-correcting image for obsid 6113
+
+The following files were created:
+
+ The clipped counts image is:
+     06113_broad_thresh.img
+
+ The observation FOV is:
+     06113.fov
+
+ The clipped exposure map is:
+     06113_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     06113_broad_flux.img
+
+Image creation complete.
+
+# wcs_match (CIAO 4.16.0): ERROR: Cannot find at least 3 source matches between reference and duplicate source files (method=rst).
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+# wcs_update (CIAO 4.16.0): ERROR: Cannot read transform data from file.
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 06113
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 13851 =========
+COUNT: 14
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running the destreak tool on the evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Output from acis_process_events:
+# acis_process_events (CIAO 4.16.0): The following error occurred 9 times:
+	dsAPEPULSEHEIGHTERR -- WARNING: pulse height is less than split threshold when performing serial CTI adjustment.
+Copy existing [REGION] block from evt2 file to use with tg_resolve_events
+Assign grating events to spectral orders with tg_resolve_events...
+The new evt1a file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro/acisf13851_evt1a.fits
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro/acisf13851_repro_evt2.fits
+Extracting a grating spectrum with tgextract...
+The new level=2 PHA file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro/acisf13851_repro_pha2.fits
+Creating grating response files
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro/acisf13851_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro/axaff13851N005_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/13851/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf13851_repro_evt2.fits -o acisf13851_bary_evt2.fits -ra 266.416667 -dec -29.007806 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 0 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 1 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 2 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 3 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 4 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 5 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 6
+axBary: HDU 6 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 6 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: bary stuff initialized in HDU 7
+axBary: HDU 7 TSTART = 466800592.699600, TSTOP = 466910484.493000
+axBary: HDU 7 TSTART = 466800370.744595, TSTOP = 466910252.713202 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Could not find a Time column in HDU 7
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf13851_000N001_asol1.fits found.
+Bad-pixel file acisf13851_repro_bpix1.fits found.
+Mask file acisf13851_000N003_msk1.fits found.
+
+The output images will have 1179 by 5245 pixels, pixel size of 0.492 arcsec,
+    and cover x=3479.5:4658.5:1,y=1763.5:7008.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 5 aspect histograms for obsid 13851
+Creating 5 instrument maps for obsid 13851
+Creating 5 exposure maps for obsid 13851
+Combining 5 exposure maps for obsid 13851
+Thresholding data for obsid 13851
+Exposure-correcting image for obsid 13851
+
+The following files were created:
+
+ The clipped counts image is:
+     13851_broad_thresh.img
+
+ The observation FOV is:
+     13851.fov
+
+ The clipped exposure map is:
+     13851_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     13851_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Grating region creation complete.
+
+Grating lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 13851
+Traceback (most recent call last):
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/RUN.py", line 214, in <module>
+    bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header)
+  File "/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/CompleteBB.py", line 385, in getInfo
+    ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)+1])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/ciao-4.16/lib/python3.11/site-packages/numpy/core/fromnumeric.py", line 2810, in max
+    return _wrapreduction(a, np.maximum, 'max', axis, None, out,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/ciao-4.16/lib/python3.11/site-packages/numpy/core/fromnumeric.py", line 86, in _wrapreduction
+    return reduction(axis=axis, out=out, **passkwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/ciao-4.16/lib/python3.11/site-packages/numpy/core/_methods.py", line 41, in _amax
+    return umr_maximum(a, axis, None, out, keepdims, initial, where)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: zero-size array to reduction operation maximum which has no identity
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+
+========= OBSERVATION ID 23295 =========
+COUNT: 15
+
+Running chandra_repro
+version: 07 May 2024
+
+
+Processing input directory '/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23295'
+
+No boresight correction update to asol file is needed.
+Resetting afterglow status bits in evt1.fits file...
+
+Running acis_build_badpix and acis_find_afterglow to create a new bad pixel file...
+
+Running acis_process_events to reprocess the evt1.fits file...
+Filtering the evt1.fits file by grade and status and time...
+Applying the good time intervals from the flt1.fits file...
+The new evt2.fits file is: /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23295/repro/acisf23295_repro_evt2.fits
+
+Updating the event file header with chandra_repro HISTORY record
+Creating FOV file...
+Setting observation-specific bad pixel file in local ardlib.par.
+
+Cleaning up intermediate files
+
+WARNING: Observation-specific bad pixel file set for session use:
+         /Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23295/repro/acisf23295_repro_bpix1.fits
+         Run 'punlearn ardlib' when analysis of this dataset completed.
+
+Any issues pertaining to data quality for this observation will be listed in the Comments section of the Validation and Verification report located in:
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23295/repro/axaff23295N002_VV001_vv2.pdf
+
+The data have been reprocessed.
+Start your analysis with the new products in
+/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/23295/repro
+
+CIAO reprocessing complete.
+
+ 
+axbary_ar -i orbit_eph0.fits -f acisf23295_repro_evt2.fits -o acisf23295_bary_evt2.fits -ra 266.416833 -dec -29.007825 -debug
+ 
+axBary: Principal HDU  -  TIERRELA = 0.000000, TIERABSO = 0.000050
+axBary: Clock correction 0.000000 -  TIERABSO = -1.000000
+axBary: bary stuff initialized in HDU 0
+axBary: HDU 0 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 0 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: bary stuff initialized in HDU 1
+axBary: HDU 1 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 1 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: bary stuff initialized in HDU 2
+axBary: HDU 2 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 2 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: bary stuff initialized in HDU 3
+axBary: HDU 3 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 3 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: bary stuff initialized in HDU 4
+axBary: HDU 4 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 4 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: bary stuff initialized in HDU 5
+axBary: HDU 5 TSTART = 710185703.096420, TSTOP = 710212467.385550
+axBary: HDU 5 TSTART = 710186187.481241, TSTOP = 710212951.048364 (corrected)
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+axBary: Using JPL Planetary Ephemeris DE-405
+Barycenter correction complete.
+
+Source location complete.
+
+Running fluximage
+Version: 04 November 2021
+
+Using CSC ACIS broad science energy band.
+Aspect solution pcadf23295_000N002_asol1.fits found.
+Bad-pixel file acisf23295_repro_bpix1.fits found.
+Mask file acisf23295_000N002_msk1.fits found.
+
+The output images will have 2692 by 2689 pixels, pixel size of 0.492 arcsec,
+    and cover x=2784.5:5476.5:1,y=2695.5:5384.5:1.
+
+Running tasks in parallel with 11 processors.
+Creating 4 aspect histograms for obsid 23295
+Creating 4 instrument maps for obsid 23295
+Creating 4 exposure maps for obsid 23295
+Combining 4 exposure maps for obsid 23295
+Thresholding data for obsid 23295
+Exposure-correcting image for obsid 23295
+
+The following files were created:
+
+ The clipped counts image is:
+     23295_broad_thresh.img
+
+ The observation FOV is:
+     23295.fov
+
+ The clipped exposure map is:
+     23295_broad_thresh.expmap
+
+ The exposure-corrected image is:
+     23295_broad_flux.img
+
+Image creation complete.
+
+WCS correction complete.
+
+Standard region creation complete.
+
+Standard lightcurve extraction complete.
+
+Pileup correction complete.
+
+running code for ObsID 23295
+Bayesian blocks complete.
+
+
+=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=
+

@@ -71,7 +71,6 @@ def nlogn (n, dt):
     r = n * (np.log (np.where (mask, 1, n)) - np.log (dt))
     return np.where (mask, 0, r)
 
-
 def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.05):
     widths = np.asarray (widths)
     counts = np.asarray (counts)
@@ -116,7 +115,7 @@ def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.05):
 
             # ---- NEW: enforce minimum size constraints ----
             valid = np.ones_like(tmp, dtype=bool)
-            valid &= (tk >= float(10/86400))
+            valid &= (tk >= float(300/86400))
 
             # disallow invalid candidates by sending them to -inf
             tmp[~valid] = -np.inf
@@ -176,8 +175,8 @@ def binbblock (widths, counts, exptime, pileup_correction, repro_wd, p0=0.05):
         info.widths[iblk] = widths[cellstart:cellend+1].sum ()
         info.counts[iblk] = counts[cellstart:cellend+1].sum ()
 
-
     info.rates = info.counts / info.widths
+
     return info
 
 def ttbblock (tstarts, tstops, times, exptime, pileup_correction, repro_wd, p0=0.05):

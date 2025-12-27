@@ -7,8 +7,8 @@
 #----------------------------------------------------------------------------
 NumRays,i,a,10000000,,,"TOTAL number of rays to generate (if negative, to num to detect)"
 dNumRays,i,a,100000,1,100000,"number of rays per iteration"
-TStart,r,a,2025.592479959621,1999.56,,"year of observation"
-ExposureTime,r,a,26861.66427004337,,,"exposure time (0.0 for none)"
+TStart,r,a,2019.632745912871,1999.56,,"year of observation"
+ExposureTime,r,a,29248.90311014652,,,"exposure time (0.0 for none)"
 OutputDir,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/MARX_SupportFiles/output",,,"output directory name"
 DataDirectory,s,h,"$MARX_DATA_DIR",,,"directory for input data"
 OutputVectors,s,h,"ETXYZ123DxyMPOabcdSrB",,,"output data columns (one or more of ETXYZ123DxyMPOabcd)"
@@ -29,7 +29,7 @@ DetIdeal,b,a,no,,,"Is Detector perfect (QE=1)?"
 #
 DetOffsetX,r,a,-0.001444942264670068,,,"Detector X offset from nominal (mm)"
 DetOffsetY,r,a,0,,,"Detector Y offset from nominal (mm)"
-DetOffsetZ,r,a,0.00754294587000004,,,"Detector Z offset from nominal (mm)"
+DetOffsetZ,r,a,0.01005726117000449,,,"Detector Z offset from nominal (mm)"
 #
 #  For HRC-S simulations:
 #
@@ -42,7 +42,7 @@ DetOffsetZ,r,a,0.00754294587000004,,,"Detector Z offset from nominal (mm)"
 # Source spectral parameters
 #
 #---------------------------------------------------------------------------
-SourceFlux,r,a,0.01202,,,"incoming ray flux (photons/sec/cm^2)"
+SourceFlux,r,a,0.02402,,,"incoming ray flux (photons/sec/cm^2)"
 SpectrumType,s,a,"FILE","FLAT|FILE",,"spectrum type"
 SpectrumFile,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/MARX_SupportFiles/literature_spectrum.dat",,,"input spectrum filename"
 #
@@ -55,8 +55,8 @@ MaxEnergy,r,a,12.0,0.03,12.0,"MAX ray energy (keV)"
 # Source position (center of source)
 #
 SourceDistance,r,a,0,,,"Source distance (meters) (0 if infinite)"
-SourceRA,r,a,266.416833,0,360,"Source RA (degrees)"
-SourceDEC,r,a,-29.007825,-90,90,"source DEC (degrees)"
+SourceRA,r,a,266.416667,0,360,"Source RA (degrees)"
+SourceDEC,r,a,-29.007833,-90,90,"source DEC (degrees)"
 #---------------------------------------------------------------------------
 #
 # Source spatial parameters
@@ -120,7 +120,7 @@ S-SIMPUT-Library,f,a,"/melkor/d1/guenther/soft/simput/lib/libsimput.so",,,"Path 
 #
 #---------------------------------------------------------------------------
 DitherModel,s,a,"FILE","NONE|INTERNAL|FILE",,"Dither Model"
-DitherFile,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/31019/repro/pcadf31019_000N001_asol1_corrected.fits",,,"ASPSOL File"
+DitherFile,f,a,"/Users/zachsumners/Desktop/Research/Chandra/Chandra_SgrA-_FlarePipelineNoGithub/20751/repro/pcadf20751_000N001_asol1_corrected.fits",,,"ASPSOL File"
 AspectBlur,r,a,0.07,,,"aspect blur (sigma -- arcsec)"
 #
 # Internal Dither Model Parameters: 
@@ -131,9 +131,9 @@ AspectBlur,r,a,0.07,,,"aspect blur (sigma -- arcsec)"
 #
 #         Value = DitherRoll + Amp * sin (2*PI*t/Period + Phase)
 #
-RA_Nom,r,a,266.41560965485,,,"RA_NOM for dither (degrees)"
-Dec_Nom,r,a,-29.004733821527,,,"DEC_NOM for dither (degrees)"
-Roll_Nom,r,a,274.13601836246,,,"ROLL_NOM for dither (degrees)"
+RA_Nom,r,a,266.41480928673,,,"RA_NOM for dither (degrees)"
+Dec_Nom,r,a,-29.006012900747,,,"DEC_NOM for dither (degrees)"
+Roll_Nom,r,a,277.15471008068,,,"ROLL_NOM for dither (degrees)"
 #
 DitherAmp_RA,r,a,8,0,,"Amplitude for RA dither (arcsec)"
 DitherAmp_Dec,r,a,8,0,,"Amplitude for Dec dither (arcsec)"
@@ -394,7 +394,7 @@ DetExtendFlag,b,h,no,,,"Should off-detector coordinates be computed?"
 # ACIS setup
 #
 #---------------------------------------------------------------------------
-ACIS_Exposure_Time,r,h,0.5,0,,"ACIS exposure time (sec)"
+ACIS_Exposure_Time,r,h,0.4,0,,"ACIS exposure time (sec)"
 ACIS_Frame_Transfer_Time,r,h,0.041,0,,"ACIS frame transfer time (sec)"
 #ACIS_Frame_Transfer_Time,r,h,0.0,0,,"ACIS frame transfer time (sec)"
 ACIS_Gain_Map_File,f,h,"acis/acisD1999-12-10gain_marxN0001_110.fits",,,"ACIS gain map file"

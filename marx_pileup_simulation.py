@@ -11,6 +11,25 @@ from scipy.interpolate import CubicSpline
 from astropy.table import Table	
 from astropy.io.fits import BinTableHDU
 
+plt.rcParams['axes.labelsize'] = 12
+plt.rcParams['xtick.labelsize'] = 10
+plt.rcParams['ytick.labelsize'] = 10
+plt.rcParams['legend.fontsize'] = 10
+plt.rcParams['axes.titlesize'] = 10
+plt.rcParams['xtick.major.size'] = 8
+plt.rcParams['xtick.minor.size'] = 5
+plt.rcParams['ytick.major.size'] = 8
+plt.rcParams['ytick.minor.size'] = 5
+
+plt.rcParams.update({'text.usetex' : True, 'font.family' : 'Computer Modern Roman'})
+
+fontsize = 14 
+markersize = 6
+capsize = 2
+capthick = 0.6
+elinewidth= 0.6
+edgewidth = 0.6
+
 def difference(name1, name2, flux, differences_oneflux, trueflux_oneflux, observedflux_oneflux, wd):
     marx_folder = os.getcwd()
     
@@ -85,7 +104,7 @@ def run_marx(flux, wd):
 def bouffard_version(acis_exposure_time):
     #Calculate and plot the Bouffard (2019)/Nowak (2012) pileup perscription
     alpha = 0.5
-    true_analytical_fluxes = np.linspace(0.005, 2, 100)
+    true_analytical_fluxes = np.linspace(0.005, 3, 100)
     fraction = 1 - ((np.exp(alpha*true_analytical_fluxes*acis_exposure_time) - 1)*np.exp(-true_analytical_fluxes*acis_exposure_time))/(alpha*true_analytical_fluxes*acis_exposure_time)
     observed_analytical_fluxes = true_analytical_fluxes * (1-fraction)
     plt.plot(observed_analytical_fluxes, true_analytical_fluxes, label='Bouffard (2019) Correction (from Nowak 2012)')
@@ -143,7 +162,8 @@ def marx_pileup_estimation(observationID, repro_wd):
     dec_nom = header['DEC_NOM']
     roll_nom = header['ROLL_NOM']
 
-    if observationID == 14702 or observationID == 14703:
+    #For observations not pointed at Sgr A*
+    if observationID == 14702 or observationID == 14703 or observationID == 14704:
         sourcera = 266.416667
         sourcedec = -29.007806
 
@@ -159,7 +179,7 @@ def marx_pileup_estimation(observationID, repro_wd):
         raise ValueError('Detector type not valid.')
 
     #This is the main loop that runs the simulation. For varying flux, find how much pileup there is.
-    for i in range(1, 602, 20):
+    for i in range(1, 1202, 30):
         #Set the flux (0.00005 is ~Sgr A* quiescense)
         flux = 0.00002*i
         fluxes.append(flux)
@@ -194,10 +214,11 @@ def marx_pileup_estimation(observationID, repro_wd):
         true_fluxes.append(np.mean(np.array(trueflux_oneflux)))
         observed_fluxes.append(np.mean(np.array(observedflux_oneflux)))
 
+
     observed_analytical_fluxes = np.linspace(0.005, 1.25, 300)
-    
+
     #Plot MARX results
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(5,4))
     plt.plot(np.array(observed_fluxes), np.array(true_fluxes), label='MARX Simulations')
 
     #Plot analytical solution for comparison
@@ -224,6 +245,7 @@ def marx_pileup_estimation(observationID, repro_wd):
         d = 1.11
     ponti_true_flux = ponti_version(a, b, c, d, observed_analytical_fluxes)
 
+
     #Plot WebPIMMS version of pileup for a given few observations (the brightest ObsID of the observing mode)
     if observationID == 23739:
         plt.plot([4.9E-3, 9.7E-3, 4.78E-2, 9.35E-2, 1.787E-1, 2.561E-1, 3.263E-1, 3.9E-1, 4.476E-1, 4.996E-1, 5.464E-1, 5.885E-1, 6.262E-1, 6.599E-1, 6.901E-1, 7.168E-1, 7.405E-1, 7.615E-1], [0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5], label='WebPIMMS')
@@ -245,9 +267,12 @@ def marx_pileup_estimation(observationID, repro_wd):
         plt.plot([4.8E-3, 9.5E-3, 4.33E-2, 7.71E-2, 1.231E-1, 1.489E-1, 1.621E-1, 1.676E-1, 1.689E-1, 1.683E-1, 1.67E-1, 1.661E-1, 1.658E-1], [0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], label='WebPIMMS')
     elif observationID == 13839:
         plt.plot([4.8E-3, 9.4E-3, 4.3E-2, 7.66E-2, 1.225E-1, 1.485E-1, 1.618E-1, 1.675E-1, 1.689E-1, 1.683E-1, 1.671E-1, 1.661E-1, 1.658E-1], [0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], label='WebPIMMS')
-
+    
     #Plot where the brightest count rate of the ObsID is to give sense of maxima.
-    obs_lc_hdul = fits.open(f"{repro_wd}/{observationID_5digit}_sgra_2-8keV_lc300.fits")
+    try:
+        obs_lc_hdul = fits.open(f"{repro_wd}/{observationID_5digit}_sgra_2-8keV_lc300.fits")
+    except:
+        obs_lc_hdul = fits.open(f"{repro_wd}/{observationID_5digit}_eff_2-8keV_lc300.fits")
     lc = obs_lc_hdul[1].data
     try:
         max_count = np.max(lc['NET_RATE'])
@@ -287,13 +312,15 @@ def marx_pileup_estimation(observationID, repro_wd):
     pileup_conversion = np.column_stack((np.array(observed_fluxes), np.array(true_fluxes)))
     np.savetxt(f"{repro_wd}/marx_pileup_conversion.txt", pileup_conversion, fmt="%.8f", delimiter="\t")
 
-    plt.savefig(f'{repro_wd}/PILEUP_DIFFERENCES_{observationID}.png')
+
+    plt.savefig(f'{repro_wd}/PILEUP_DIFFERENCES_{observationID}.png', dpi=300, bbox_inches='tight')
 
     return np.array(observed_fluxes), np.array(true_fluxes), flags
 
 def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, region_name, repro_wd):
     #Open the lightcurve.
     log = False
+
     observationID_5digit = str(observationID).zfill(5)
     f = fits.open(f'{repro_wd}/{observationID_5digit}_{region_name}_{erange[0]}-{erange[1]}keV_lc{tbin}.fits')
     table = Table(f[1].data)
@@ -316,10 +343,13 @@ def marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID,
     tol = 1e-7
     for flux in count_rate:
         find_t = spl_x(ts) - flux
+        #print(flux, np.max(marx_observed_flux))
 
         if flux <= marx_observed_flux[0]:
             true_flux.append(flux)
             continue
+        if flux > np.max(marx_observed_flux):
+            find_t = spl_x(ts) - (np.max(marx_observed_flux) - 0.001)
 
         cross_idx = np.where(np.diff(np.sign(find_t)) != 0)[0] + 1
         
@@ -369,6 +399,8 @@ def marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, count_ra
     tol = 1e-7
     for flux in count_rate:
         find_t = spl_x(ts) - flux
+
+        
 
         if flux <= marx_observed_flux[0]:
             true_flux.append(flux)
