@@ -18,10 +18,6 @@ q1, q2, q3 = np.quantile(duration, [0.25, 0.50, 0.75])
 # or, equivalently:
 # q1, q2, q3 = np.percentile(x, [25, 50, 75])
 
-print("Q1 =", q1)   # 25th percentile
-print("Q2 =", q2)   # 50th percentile (median)
-print("Q3 =", q3)   # 75th percentile
-
 #quiescent = df_q['quiescent_rate']
 #quiescent_err = df_q['quiescent_rate_err']
 #obs_date = df_q['obs_date']
@@ -57,9 +53,6 @@ print("Q3 =", q3)   # 75th percentile
 #plt.grid()
 #plt.title('Quiescent Rate over Time')
 #plt.show()
-
-
-print(df['duration_s'], df['rate_max'], df['obs_id'])
 
 plt.errorbar(duration, max_rate, yerr=max_rate_err, fmt='o', ecolor="black", alpha=0.8)
 plt.axhline(y=np.mean(max_rate), color="black", linestyle="--", linewidth=1.0, label="y = 0.5")
