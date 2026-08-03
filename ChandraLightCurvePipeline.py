@@ -32,10 +32,11 @@ from magnetar import magnetar_correction, quiescent_correction, magnetar_extract
 from marx_pileup_simulation import marx_pileup_estimation, marx_pileup_interpolation
 from obs_summary import observation_summary_figure
 
+#Change the observation ID.
+observationID = 15043
+
 def pipeline(observationID):
 	#============================#
-	#Change the observation ID.
-	#observationID = 28232
 	#Set directory filepath. Defaults to the current working directory.
 	fp = os.getcwd()
 	#Change your working directory to the observation subfolder.
@@ -163,9 +164,6 @@ def pipeline(observationID):
 	flags = []
 	if marx == True:
 		print('Running MARX pileup estimation. This may take a while.\n')
-		data = np.loadtxt(f"{repro_wd}/marx_pileup_conversion.txt")
-		marx_observed_flux = data[:, 0]
-		marx_true_flux = data[:, 1]
 		if magnetar == True:
 			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
@@ -218,17 +216,6 @@ def pipeline(observationID):
 	print('\n=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=\n')
 
 
-#obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-
-obs_ids = [3392]
-
-#ObsID 14463 got a special 1200 second minimum block length. (line 118 of xbblocks.py)
-#ncp_prior got set to 6 for obs 13849
-#13854 got a 1100 second minimum block length.
-#13851 got a 600 second minimum block length
-#3392 got 1200 second minimum block length
-
-
 for i, observation in enumerate(obs_ids):
 	if int(observation) != 15651 and int(observation) != 15040 and int(observation) != 15654:
 
@@ -241,30 +228,3 @@ for i, observation in enumerate(obs_ids):
 			pipeline(observation)
 		except:
 			print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
-
-'''
-obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-count = 0
-for i, observation in enumerate(obs_ids):
-	fp = os.getcwd()
-	wd = f'{fp}/{observation}'
-	repro_wd = f'{wd}/repro/Results'
-	if os.path.isdir(repro_wd):
-		count += 1
-
-print(count)
-
-
-obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-
-for i, observation in enumerate(obs_ids):
-	fp = os.getcwd()
-	wd = f'{fp}/{observation}'
-	repro_wd = f'{wd}/repro'
-	if os.path.isdir(repro_wd):
-		try:
-			shutil.rmtree(repro_wd)
-			print(f"Deleted folder {repro_wd}")
-		except Exception as e:
-			print(f"Failed to delete {repro_wd}: {e}")
-'''
