@@ -33,7 +33,7 @@ from marx_pileup_simulation import marx_pileup_estimation, marx_pileup_interpola
 from obs_summary import observation_summary_figure
 
 #Change the observation ID.
-observationID = 15043
+observation = 15043
 
 def pipeline(observationID):
 	#============================#
@@ -221,7 +221,6 @@ if int(observation) != 15651 and int(observation) != 15040 and int(observation) 
 	observation = int(observation)
 
 	print(f'========= OBSERVATION ID {observation} =========')
-	print(f'COUNT: {i}')
 
 	try:
 		pipeline(observation)
