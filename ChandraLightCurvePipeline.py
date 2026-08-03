@@ -222,7 +222,7 @@ if int(observation) != 15651 and int(observation) != 15040 and int(observation) 
 
 	print(f'========= OBSERVATION ID {observation} =========')
 
-	try:
-		pipeline(observation)
-	except:
-		print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+		try:
+			pipeline(observation)
+		except:
+			print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
