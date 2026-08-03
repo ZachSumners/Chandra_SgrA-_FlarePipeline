@@ -428,8 +428,6 @@ def marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, count_ra
 
         roots_t = np.array(roots_t)
 
-        print(flux, spl_y(roots_t)[0])
-
         if len(roots_t) > 1:
             true_flux.append(spl_y(roots_t)[0])
             log = True

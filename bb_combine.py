@@ -249,7 +249,6 @@ def getInfo(evtfile, lcfile, bbfile, outfile, countmin=8, amp_crit=2):
     amp_crit = 1
     d,b,l = get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amp_crit, countmin)
     #print(d, b, l)
-    print(b)
     
     print("Quiescent Count Rate (10^-3 ct/s):", np.around((l[0][0]/86400.0)/(10**(-3)), 3), "+/-", np.around((l[0][1]/86400.0)/(10**(-3)), 3), "\n", file=o)
    # print("Quiescent Count Rate (10^-3 ct/s):", np.around((269.678/86400.0)/(10**(-3)), 3), "+/-", np.around((131.224/86400.0)/(10**(-3)), 3), "\n", file=o)
