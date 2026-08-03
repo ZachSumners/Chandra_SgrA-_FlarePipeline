@@ -35,13 +35,15 @@ def extract_lightcurve_magnetar(observationID, repro_wd, erange, tbin, fileName)
 
 	#Sgr A* lightcurve extraction as given by the Guide to Analyzing Flares.
 	#The double quotes in the name ARE necessary because the "" is actually sent to the command line.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(sgra.reg)][bin time=::{tbin}]"', f'"{observationID}_eff_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
 	
 	#Magnetar lightcurve extraction as given by the Guide to Analyzing Flares.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(mag.reg)][bin time=::{tbin}]"', f'"{observationID}_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(mag.reg)][bin time=::{tbin}]"', f'"{observationID}_magnetar_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
 	
 	#Contamination region lightcurve extraction as given by the Guide to Analyzing Flares.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam.reg)][bin time=::{tbin}]"', f'"{observationID}_contam_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[ccd_id={bkg_ccd_id},sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam1.reg)][bin time=::{tbin}]"', f'"{observationID}_contam1_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam2.reg)][bin time=::{tbin}]"', f'"{observationID}_contam2_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(contam3.reg)][bin time=::{tbin}]"', f'"{observationID}_contam3_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
 	
 	#Copies events used in Sgr A* lightcurve to new file.
 	#subprocess.call('punlearn dmcopy', shell=True, cwd=repro_wd)
@@ -85,9 +87,9 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 	sgra_ccd_id = result[16]
 
 	#Sgr A* order 0 lightcurve extraction.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order0.reg)][tg_m=0][bin time=::{tbin}]"', f'"{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order0.reg)][tg_m=0][bin time=::{tbin}]"', f'"{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
 	#Sgr A* order 1 lightcurve extraction.
-	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1.reg)][tg_m=-1,1][bin time=::{tbin}]"', f'"{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', None, repro_wd)
+	general_lightcurve_extraction(f'"acisf{observationID}_{fileName}_evt2.fits[energy={int(erange[0])*1000}:{int(erange[1])*1000},sky=region(order1.reg)][tg_m=-1,1][bin time=::{tbin}]"', f'"{observationID}_sgra_order1_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"', f'"acisf{observationID}_{fileName}_evt2.fits[sky=region(bkg.reg)]"', repro_wd)
 
 	# Input lightcurve files
 	lc0_file = f"{repro_wd}/{observationID}_sgra_order0_{erange[0]}-{erange[1]}keV_lc{tbin}.fits"
@@ -104,13 +106,13 @@ def extract_lightcurve_grating(observationID, repro_wd, erange, tbin, fileName):
 			raise ValueError("Lightcurves are not time-aligned. Rebin or align them first.")
 
 		# Add count rates and errors
-		combined_rate = lc0_data['COUNT_RATE'] + lc1_data['COUNT_RATE']
-		combined_error = np.sqrt(lc0_data['COUNT_RATE_ERR']**2 + lc1_data['COUNT_RATE_ERR']**2)
+		combined_rate = lc0_data['NET_RATE'] + lc1_data['COUNT_RATE']
+		combined_error = np.sqrt(lc0_data['ERR_RATE']**2 + lc1_data['COUNT_RATE_ERR']**2)
 
 		# Create a new table with the combined data
 		new_cols = [
 			fits.Column(name='TIME', array=lc0_data['TIME'], format='D'),
-			fits.Column(name='COUNTS', array=lc0_data['COUNTS'] + lc1_data['COUNTS'], format='D'),
+			fits.Column(name='COUNTS', array=lc0_data['NET_COUNTS'] + lc1_data['COUNTS'], format='D'),
 			fits.Column(name='COUNT_RATE', array=combined_rate, format='E'),
 			fits.Column(name='COUNT_RATE_ERR', array=combined_error, format='E'),
 		]

@@ -79,6 +79,8 @@ while i < maxi-1:
 
     obsid_5digit = str(obsid).zfill(5)
 
+    #pileup_correction = None
+
     if magnetar == 'True':
         #pileup_correction = True
 
@@ -101,8 +103,16 @@ while i < maxi-1:
         bb_info_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_eff_bayesianBlocks_info.txt" #block info 
         bb_info_mag = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_magnetar_bayesianBlocks_info.txt" #block info 
 
-        bb.process(evt_eff, bb_info_eff, pileup_correction, repro_wd)
-        bb.process(evt_mag, bb_info_mag, pileup_correction, repro_wd)
+
+        if pileup_correction == 'marx' or pileup_correction == 'analytical':
+            bb_info_eff_p = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_eff_bayesianBlocks_info_pileup.txt"
+            bb_info_mag_p = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_magnetar_bayesianBlocks_info_pileup.txt"
+        else:
+            bb_info_eff_p = None
+            bb_info_mag_p = None
+
+        bb.process(evt_eff, bb_info_eff, bb_info_eff_p, pileup_correction, repro_wd)
+        bb.process(evt_mag, bb_info_mag, bb_info_mag_p, pileup_correction, repro_wd)
 
         with open(bb_info_mag, "r") as f:
             lines = f.readlines()
@@ -113,10 +123,22 @@ while i < maxi-1:
                     values = line.strip().split()
                     mag_block = float(values[4])
                     break
+
+        if pileup_correction == 'marx' or pileup_correction == 'analytical':
+            with open(bb_info_mag_p, "r") as f:
+                lines_p = f.readlines()
+
+                # Find the first non-comment line (the data line)
+                for linep in lines_p:
+                    if not linep.strip().startswith("#"):
+                        valuesp = linep.strip().split()
+                        mag_block_p = float(valuesp[4])
+                        break
         
         #print(f'The leak fraction is {leak_frac}.')
         
         bb_info_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + f"{obsid_5digit}_sgra_bayesianBlocks_info.txt"
+        
         column_index = 4  # Zero-based index for the column with 1052.933
 
         new_rows = []
@@ -137,6 +159,32 @@ while i < maxi-1:
         # Optionally save to new file
         with open(bb_info_sgra, "w") as f:
             f.writelines(new_rows)
+        
+        if pileup_correction == 'marx' or pileup_correction == 'analytical':
+            bb_info_sgra_p = "./" + str(obsid) + "/repro/" + "Results/"  + f"{obsid_5digit}_sgra_bayesianBlocks_info_pileup.txt"
+            column_index = 4  # Zero-based index for the column with 1052.933
+
+            new_rows_p = []
+
+            with open(bb_info_eff_p, "r") as fp:
+                lines_p = fp.readlines()
+
+            for line_p in lines_p:
+                if line_p.strip().startswith("#") or not line_p.strip():
+                    new_rows_p.append(line_p)  # Keep comment and empty lines unchanged
+                else:
+                    parts_p = line_p.strip().split()
+                    # Convert, subtract, and reformat
+                    original_value_p = float(parts_p[column_index])
+                    parts_p[column_index] = f"{original_value_p - leak_frac*mag_block_p:.6f}"
+                    new_rows_p.append(" ".join(parts_p) + "\n")
+
+            # Optionally save to new file
+            with open(bb_info_sgra_p, "w") as f:
+                f.writelines(new_rows_p)
+        
+        else:
+            bb_info_sgra_p = None
 
         rate_header = 'RATE_PILEUP'
         rate_err_header = 'PILEUP_ERR'
@@ -144,7 +192,12 @@ while i < maxi-1:
         plot = "./" + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_PLOT.png" #plot
 
         fig, ax = plt.subplots()
-        ax = bb.plot_bb(bb_info_sgra, ax) 
+
+        if bb_info_sgra_p != None:
+            bb.plot_bb(bb_info_sgra_p, ax) 
+        else:
+            bb.plot_bb(bb_info_sgra, ax)
+        
         ax = bb.plot_lc(lc_sgra, rate_header, rate_err_header, ax) 
         plt.xlabel("Time")
         plt.ylabel("Count Rate")
@@ -156,9 +209,9 @@ while i < maxi-1:
         table_res_sgra = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_SGRA_TABLE_RESULTS.txt" #info for flare table
         table_res_eff = "./" + str(obsid) + "/repro/" + "Results/"  + str(obsid_5digit) + "_EFF_TABLE_RESULTS.txt" #info for flare table
 
-        bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, table_res_sgra, rate_header, rate_err_header, gratingtype)
-        bb.getInfo(evt_mag, lc_mag, bb_info_mag, table_res_mag, rate_header, rate_err_header, gratingtype)
-        bb.getInfo(evt_eff, lc_eff, bb_info_eff, table_res_eff, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt_eff, lc_sgra, bb_info_sgra, bb_info_sgra_p, table_res_sgra, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt_mag, lc_mag, bb_info_mag, bb_info_mag_p, table_res_mag, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt_eff, lc_eff, bb_info_eff, bb_info_eff_p, table_res_eff, rate_header, rate_err_header, gratingtype)
 
         
 
@@ -200,12 +253,23 @@ while i < maxi-1:
             #rate_err_header = 'COUNT_RATE_ERR'
 
         print("running code for ObsID " + str(obsid_5digit))
+
         #run bayesian block: 
-        bb.process(evt, bb_info, pileup_correction, repro_wd)
+        if pileup_correction == 'marx' or pileup_correction == 'analytical':
+            bb_info_p = "./"  + str(obsid) + "/repro/" + "Results/" + str(obsid_5digit) + "_sgra_bayesianBlocks_info_pileup.txt"
+        else:
+            bb_info_p = None
+        
+        bb.process(evt, bb_info, bb_info_p, pileup_correction, repro_wd)
         
         #Create the plot: 
         fig, ax = plt.subplots(figsize=(8, 10))
-        bb.plot_bb(bb_info, ax) 
+
+        if bb_info_p != None:
+            bb.plot_bb(bb_info_p, ax) 
+        else:
+            bb.plot_bb(bb_info, ax)
+        
         bb.plot_lc(lc, rate_header, rate_err_header, ax) 
         plt.xlabel("Time")
         plt.ylabel("Count Rate")
@@ -214,7 +278,7 @@ while i < maxi-1:
         fig.savefig(plot)
         
         #Get flare information for database: 
-        bb.getInfo(evt , lc , bb_info, table_res, rate_header, rate_err_header, gratingtype)
+        bb.getInfo(evt , lc , bb_info, bb_info_p, table_res, rate_header, rate_err_header, gratingtype)
         
     i = i + 11 #update value of i 
  

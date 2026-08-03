@@ -1,5 +1,5 @@
 '''
-This pipeline by Zach Sumners and Nicole Ford was created to minimize the human intervention needed to produce light curves of Chandra Xray observations of Sagittarius A*.
+This pipeline was developed by Zach Sumners and Nicole Ford to minimize the human intervention needed to produce light curves of Chandra Xray observations of Sagittarius A*.
 
 It is inspired by the "Guide to analyzing flares" by McGill University's Extreme Gravity and Accretion group (MEGA) but adds additional treatment of
 important precision calibrations such as photon pileup and barycentric timing. 
@@ -18,6 +18,7 @@ import os
 import sys
 from astropy.io import fits
 import shutil
+import numpy as np
 
 #Import utility functions from the various pipeline scripts.
 from barycenter import barycenter_corr
@@ -58,10 +59,11 @@ def pipeline(observationID):
 
 	#Sgr A* observations need special treatment if the magnetar (SGR J1745-2900) was active. This occured in a time period and since observation ID's are sequential, 
 	#we can define a range of IDs that need magnetar care.
-	if observationID >= 14702 and observationID < 18731 and observationID != 15570 and observationID != 15568:
+	if observationID >= 14702 and observationID < 18731 and observationID != 15570 and observationID != 15568 and observationID != 14941 and observationID != 14942 and observationID != 18055 and observationID != 18056:
 		magnetar = True
 	else:
 		magnetar = False
+
 
 	observationID_5digit = str(observationID).zfill(5)
 
@@ -158,19 +160,26 @@ def pipeline(observationID):
 	#This step comptues the pileup correction and scales the lightcurves appropriately. Applies to 3 lightcurves if magnetar is present.
 	#input('\n========= Press Enter to start pileup correction. =========\n')
 	
+	flags = []
 	if marx == True:
 		print('Running MARX pileup estimation. This may take a while.\n')
+		data = np.loadtxt(f"{repro_wd}/marx_pileup_conversion.txt")
+		marx_observed_flux = data[:, 0]
+		marx_true_flux = data[:, 1]
 		if magnetar == True:
 			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'eff', repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'magnetar', repro_wd)
-			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam', repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam1', repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam2', repro_wd)
+			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'contam3', repro_wd)
 		else:
 			marx_observed_flux, marx_true_flux, flags = marx_pileup_estimation(observationID, repro_wd)
 			marx_pileup_interpolation(marx_observed_flux, marx_true_flux, observationID, erange, tbin, fileName, 'sgra', repro_wd)
 		print('MARX pileup estimation complete.\n')
 	else:
 		if grating_check == False:
+			flags = []
 			if magnetar == False:
 				pileup_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
 			elif magnetar == True:
@@ -184,7 +193,7 @@ def pipeline(observationID):
 	if magnetar == True:
 		leak_frac, q_mag = magnetar_correction(observationID_5digit, repro_wd, erange, tbin, fileName)
 		with open(f"{repro_wd}/magnetar_info.txt", "w") as f:
-			f.write(f"leak_frac = {leak_frac}")
+			f.write(f"leak_frac = {leak_frac}\n")
 			f.write(f"q_mag = {q_mag}")
 
 
@@ -197,11 +206,11 @@ def pipeline(observationID):
 	#input('\n========= Press Enter to start bayesian blocks fitting. =========\n')
 	#Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 	if marx == True:
-		pileup_correction = 'marx'
+		pileup_correction_type = 'marx'
 	else:
-		pileup_correction = 'analytical'
-
-	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction} {repro_wd} {grating_check}', shell=True)
+		pileup_correction_type = 'analytical'
+	
+	subprocess.call(f'python3 RUN.py {observationID} {magnetar} {grating_check} {erange[0]} {erange[1]} {tbin} {leak_frac} {pileup_correction_type} {repro_wd} {grating_check}', shell=True)
 	print('Bayesian blocks complete.\n')
 
 	observation_summary_figure(observationID, repro_wd, observationID_5digit, erange, tbin, grating_check, flags)
@@ -210,18 +219,29 @@ def pipeline(observationID):
 
 
 #obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
-obs_ids = [31019]
+
+obs_ids = [3392]
+
+#ObsID 14463 got a special 1200 second minimum block length. (line 118 of xbblocks.py)
+#ncp_prior got set to 6 for obs 13849
+#13854 got a 1100 second minimum block length.
+#13851 got a 600 second minimum block length
+#3392 got 1200 second minimum block length
 
 
 for i, observation in enumerate(obs_ids):
-	observation = int(observation)
-	print(f'========= OBSERVATION ID {observation} =========')
-	print(f'COUNT: {i}')
+	if int(observation) != 15651 and int(observation) != 15040 and int(observation) != 15654:
 
-	try:
-		pipeline(observation)
-	except:
-		print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+		observation = int(observation)
+
+		print(f'========= OBSERVATION ID {observation} =========')
+		print(f'COUNT: {i}')
+
+		try:
+			pipeline(observation)
+		except:
+			print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+
 '''
 obs_ids = [d for d in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(),d)) and d.isdigit()]
 count = 0

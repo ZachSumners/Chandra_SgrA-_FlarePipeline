@@ -21,10 +21,20 @@ def barycenter_corr(wd, observationID, repro_wd, fileName):
 	#Run the barycenter correction on the command line.
 	subprocess.call('punlearn axbary', shell=True, cwd=repro_wd)
 	#Unzip the eph file if not done already.
-	if not glob.glob(f"{wd}/primary/*eph1.fits"):
+	if len(glob.glob(f"{wd}/primary/*eph1.fits")) != 0:
+		subprocess.call(f'gunzip {wd}/primary/*eph1.fits', shell=True, cwd=repro_wd)
+		subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
+	if len(glob.glob(f"{wd}/primary/*eph1.fits.gz")) != 0:
 		subprocess.call(f'gunzip {wd}/primary/*eph1.fits.gz', shell=True, cwd=repro_wd)
+		subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
+	if len(glob.glob(f"{wd}/primary/*eph0.fits.gz")) != 0:
+		subprocess.call(f'gunzip {wd}/primary/*eph0.fits.gz', shell=True, cwd=repro_wd)
+		subprocess.call(f'cp {wd}/primary/*eph0.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
+	if len(glob.glob(f"{wd}/primary/*eph0.fits")) != 0:
+		subprocess.call(f'gunzip {wd}/primary/*eph0.fits', shell=True, cwd=repro_wd)
+		subprocess.call(f'cp {wd}/primary/*eph0.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
 	#Copy the eph file originally in the "primary" folder to the repro folder.
-	subprocess.call(f'cp {wd}/primary/*eph1.fits orbit_eph0.fits', shell=True, cwd=repro_wd)
+	
 
 	#Run the barycenter correction with the evt2.fits infile and various other files describing the barycenter calculation.
 	subprocess.call(f'axbary infile="acisf{observationID}_repro_evt2.fits" orbitfile="orbit_eph0.fits" outfile="acisf{observationID}_{fileName}_evt2.fits" ra={ra} dec={dec}', shell=True, cwd=repro_wd)
