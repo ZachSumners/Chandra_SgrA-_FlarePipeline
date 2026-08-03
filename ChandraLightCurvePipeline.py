@@ -71,7 +71,7 @@ def pipeline(observationID):
 	#The data needs to be reprocessed by the latest Chandra calibration files.
 	subprocess.call('punlearn ardlib', shell=True, cwd=wd)
 	if reprocess == True:
-		#input('========= Press any key to start CIAO reprocessing. =========')
+		input('========= Press any key to start CIAO reprocessing. =========')
 		subprocess.call('chandra_repro indir=./ outdir= clobber=yes', shell=True, cwd=wd)
 		print('CIAO reprocessing complete.\n')
 
@@ -94,18 +94,18 @@ def pipeline(observationID):
 	#We apply a barycenter timing correction. If we do so, the corrected files will have "bary" in the name.
 
 	if barycentric == True:
-		#input('\n========= Press Enter to start barycenter correction. =========\n')
+		input('\n========= Press Enter to start barycenter correction. =========\n')
 		fileName = 'bary'
 		barycenter_corr(wd, observationID_5digit, repro_wd, fileName)
 		print('Barycenter correction complete.\n')
 	else:
 		fileName='repro'
 
-	#input('\n========= Press Enter to start source location. =========\n')
+	input('\n========= Press Enter to start source location. =========\n')
 	find_sources(observationID_5digit, repro_wd, erange, fileName)
 	print('Source location complete.\n')
 
-	#input('\n========= Press Enter to start image creation. =========\n')
+	input('\n========= Press Enter to start image creation. =========\n')
 	#We need to create smoothed images of the observations to find the sources and reference catalogues in the WCS correction.
 	subprocess.call(f'fluximage acisf{observationID_5digit}_{fileName}_evt2.fits {observationID_5digit} bin=1 band=broad clobber=yes', shell=True, cwd=repro_wd)
 	subprocess.call(f'cp {repro_wd}/{observationID_5digit}_broad_thresh.img {repro_wd}/{observationID_5digit}_broad_thresh_img.fits', shell=True, cwd=repro_wd)
@@ -114,29 +114,29 @@ def pipeline(observationID):
 	#Computes a WCS correction on our observations to improve the precision of our coordinate system. This is important when we define where the Sgr A*
 	#region should go.
 	if wcsCorrect == True:
-		#input('\n========= Press Enter to start WCS correction. =========\n')
+		input('\n========= Press Enter to start WCS correction. =========\n')
 		wcs_correct(fp, observationID_5digit, repro_wd, erange, fileName)
 		print('WCS correction complete.\n')
 
 	if grating_check == True:
 		#Identifies zero and first order source regions for HETG grating observations and stores them in .reg files.
-		#input('\n========= Press Enter to start grating region creation. =========\n')
+		input('\n========= Press Enter to start grating region creation. =========\n')
 		regions_search_grating(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
 		print('Grating region creation complete.\n')
 	elif grating_check == False:
 		if search == True:
 			#Find all the sources in the image, and store a text file with a best fit ellipse for each one.
-			#input('\n========= Press Enter to start manual Sgr A* selection and region creation. =========\n')
+			input('\n========= Press Enter to start manual Sgr A* selection and region creation. =========\n')
 			regions_search_manual_select(observationID_5digit, repro_wd, erange, bkg_coords, fileName)
 			print('Manual Sgr A* selection and region creation complete.\n')
 		else:
 			#This step identifies the Sgr A* source region, defines a background region.
 			if magnetar == False:
-				#input('\n========= Press Enter to start standard region creation. =========\n')
+				input('\n========= Press Enter to start standard region creation. =========\n')
 				regions_search(observationID_5digit, repro_wd, src_coords, bkg_coords, fileName)
 				print('Standard region creation complete.\n')
 			elif magnetar == True:
-				#input('\n========= Press Enter to start magnetar region creation. =========\n')
+				input('\n========= Press Enter to start magnetar region creation. =========\n')
 				#Identifies the special regions for magnetar observations (see Bouffard 2019)
 				magnetar_extraction2(observationID_5digit, repro_wd, erange, src_coords, bkg_coords, fileName)
 				print('Magnetar region creation complete.\n')
@@ -146,20 +146,20 @@ def pipeline(observationID):
 	#regions separately for pileup correction later on.
 	if grating_check == False:
 		if magnetar == False:
-			#input('\n========= Press Enter to start standard lightcurve extraction. =========\n')
+			input('\n========= Press Enter to start standard lightcurve extraction. =========\n')
 			extract_lightcurve(observationID_5digit, repro_wd, erange, tbin, fileName)
 			print('Standard lightcurve extraction complete.\n')
 		elif magnetar == True:
-			#input('\n========= Press Enter to start magnetar lightcurve extraction. =========\n')
+			input('\n========= Press Enter to start magnetar lightcurve extraction. =========\n')
 			extract_lightcurve_magnetar(observationID_5digit, repro_wd, erange, tbin, fileName)
 			print('Magnetar lightcurve extraction complete.\n')
 	elif grating_check == True:
-		#input('\n========= Press Enter to start grating lightcurve extraction. =========\n')
+		input('\n========= Press Enter to start grating lightcurve extraction. =========\n')
 		extract_lightcurve_grating(observationID_5digit, repro_wd, erange, tbin, fileName)
 		print('Grating lightcurve extraction complete.\n')
 
 	#This step comptues the pileup correction and scales the lightcurves appropriately. Applies to 3 lightcurves if magnetar is present.
-	#input('\n========= Press Enter to start pileup correction. =========\n')
+	input('\n========= Press Enter to start pileup correction. =========\n')
 	
 	flags = []
 	if marx == True:
@@ -201,7 +201,7 @@ def pipeline(observationID):
 	#Plots the light curve
 	plot_lightcurve(observationID_5digit, repro_wd, erange, tbin, fileName)
 
-	#input('\n========= Press Enter to start bayesian blocks fitting. =========\n')
+	input('\n========= Press Enter to start bayesian blocks fitting. =========\n')
 	#Runs the bayesian blocks algorithm to determine whether a flare has occured and what parameters that flare has.
 	if marx == True:
 		pileup_correction_type = 'marx'
