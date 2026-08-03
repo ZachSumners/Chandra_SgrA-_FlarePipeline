@@ -216,15 +216,14 @@ def pipeline(observationID):
 	print('\n=*=*=*=*= The Chandra Sgr A* lightcurve pipeline is complete. See ./repro/Results for results. =*=*=*=*=\n')
 
 
-for i, observation in enumerate(obs_ids):
-	if int(observation) != 15651 and int(observation) != 15040 and int(observation) != 15654:
+if int(observation) != 15651 and int(observation) != 15040 and int(observation) != 15654:
 
-		observation = int(observation)
+	observation = int(observation)
 
-		print(f'========= OBSERVATION ID {observation} =========')
-		print(f'COUNT: {i}')
+	print(f'========= OBSERVATION ID {observation} =========')
+	print(f'COUNT: {i}')
 
-		try:
-			pipeline(observation)
-		except:
-			print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
+	try:
+		pipeline(observation)
+	except:
+		print(f'***=========*** OBSERVATION ID {observation} FAILED ***=========***')
