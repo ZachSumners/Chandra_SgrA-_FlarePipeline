@@ -6,8 +6,27 @@ from astropy.visualization import simple_norm
 from crates_contrib.utils import *
 import subprocess
 from astropy.wcs import WCS
+import os
+
+
+def read_ellipse_centers(filename):
+    centers = []
+    with open(filename, "r") as f:
+        for i, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.lower().startswith("ellipse"):
+                # expect something like: ellipse(xc,yc,a,b,theta)
+                inside = line[line.find("(")+1 : line.find(")")]
+                parts = [p.strip() for p in inside.split(",")]
+                if len(parts) < 2:
+                    continue
+                x, y = float(parts[0]), float(parts[1])
+                centers.append((x, y, i, line))
+    return centers
 	
-def regions_search(observationID, repro_wd, fileName):
+def regions_search(observationID, repro_wd, src_coords, bkg_coords, fileName):
 	'''This function selects which region found by searchsources.py is Sgr A*. This can be done with a manual selection or automatic selection
  	assuming the WCS correction is appropriate.
   
@@ -16,22 +35,42 @@ def regions_search(observationID, repro_wd, fileName):
 	
 	#Open the image created earlier and selects which pixel is the center of Sgr A* based on its literature position.
 	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
-	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', 266.41683708333333333, -29.007810555555556)
+	#converts coordinates in degrees to pixel coordinates
+	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', src_coords[0], src_coords[1])
+
+	src_centers = read_ellipse_centers(f'{repro_wd}/src.reg')
+	ref = np.array([sgra_ra_px, sgra_dec_px])
+
+	distances = []
+	for (x, y, line_no, raw_line) in src_centers:
+		d = np.hypot(x - ref[0], y - ref[1])
+		distances.append((d, x, y, line_no, raw_line))
+
+	# find closest
+	distances.sort(key=lambda t: t[0])
+	if distances[0][0] < 2:
+		dmin, x_closest, y_closest, line_no, raw_line = distances[0]
+		sgra_ra_px = x_closest
+		sgra_dec_px = y_closest
 
 	#Radius of Sgr A* region in pixels based on the resolution of Chandra.
 	sgra_rad = 2.5406504
 
 	#Creates the Sgr A* region.
-	sgra_f = open(f'{repro_wd}/sgra.reg', 'w')
-	sgra_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
-	sgra_f.close()
+	if not os.path.exists(f"{repro_wd}/sgra.reg"):
+		sgra_f = open(f'{repro_wd}/sgra.reg', 'w')
+		sgra_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
+		sgra_f.close()
 
 	#Creates the background region.
-	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},12.703252,20.3252032)')
-	bkg_f.close()
+	if not os.path.exists(f"{repro_wd}/bkg.reg"):
+		bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
+		#bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
+		bkg_f.write(f'annulus({sgra_ra_px},{sgra_dec_px},{bkg_coords[0]},{bkg_coords[1]})')
+		bkg_f.close()
 
-def regions_search_manual_select(observationID, repro_wd, fileName):
+
+def regions_search_manual_select(observationID, repro_wd, erange, bkg_coords, fileName):
 	'''
 	This function allows the user to visually select which region corresponds to Sgr A* and extracts the Sgr A* region at the center of the 
 	CIAO located source, not the absolute literature coordinates. This allows for slight offsets in WCS coordinates.
@@ -48,7 +87,7 @@ def regions_search_manual_select(observationID, repro_wd, fileName):
 	src_list_np = np.array(src_list)
 
 	#Create a smoothed image of the source extraction region for visualization
-	subprocess.call(f'csmooth {repro_wd}/{observationID}_{fileName}_2-8keV_cropped.fits outfile={repro_wd}/{observationID}_smoothed_image.fits outsigfile={repro_wd}/{observationID}_smoothed_sig.fits outsclfile={repro_wd}/{observationID}_smoothed_scl.fits sigmin=2 sigmax=5 conmeth=fft conkerneltype=gauss sclmode=compute sclmin=INDEF sclmax=INDEF sclmap= clobber=yes', shell=True, cwd=repro_wd)
+	subprocess.call(f'csmooth {repro_wd}/{observationID}_{fileName}_{erange[0]}-{erange[1]}keV_cropped.fits outfile={repro_wd}/{observationID}_smoothed_image.fits outsigfile={repro_wd}/{observationID}_smoothed_sig.fits outsclfile={repro_wd}/{observationID}_smoothed_scl.fits sigmin=2 clobber=yes sclmap= conmeth=fft conkerneltype=gauss sclmode=compute sigmax=5 sclmin=INDEF sclmax=INDEF', shell=True, cwd=repro_wd)
 
 	#Open the smoothed fits file.
 	hdu_list = fits.open(f'{repro_wd}/{observationID}_smoothed_image.fits')
@@ -89,5 +128,71 @@ def regions_search_manual_select(observationID, repro_wd, fileName):
 
 	#Save the background region with the central coordinates selected as well.
 	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
-	bkg_f.write(f'annulus({sgra[0]},{sgra[1]},28.455285,40.650407)')
+	#bkg_f.write(f'annulus({sgra[0]},{sgra[1]},28.455285,40.650407)')
+	bkg_f.write(f'annulus({sgra[0]},{sgra[1]},{bkg_coords[0]},{bkg_coords[1]})')
+	bkg_f.close()
+
+
+
+
+def regions_search_grating(observationID, repro_wd, src_coords, bkg_coords, fileName):
+	'''This function defines the zeroth and first order regions for Chandra HETG grating observations, as given by the region slice of the evt2 HDUL fits file.'''
+
+	#Open the image created earlier and selects which pixel is the center of Sgr A* based on its literature position.
+	tr = SimpleCoordTransform(f'{repro_wd}/{observationID}_broad_thresh_img.fits')
+	#converts coordinates in degrees to pixel coordinates
+	sgra_ra_px, sgra_dec_px = tr.convert('world', 'physical', src_coords[0], src_coords[1])
+
+	src_centers = read_ellipse_centers(f'{repro_wd}/src.reg')
+	ref = np.array([sgra_ra_px, sgra_dec_px])
+
+	distances = []
+	for (x, y, line_no, raw_line) in src_centers:
+		d = np.hypot(x - ref[0], y - ref[1])
+		distances.append((d, x, y, line_no, raw_line))
+
+	# find closest
+	distances.sort(key=lambda t: t[0])
+	if distances[0][0] < 2:
+		dmin, x_closest, y_closest, line_no, raw_line = distances[0]
+		sgra_ra_px = x_closest
+		sgra_dec_px = y_closest
+
+	#Open file that gives the zeroth and first order region from the reprocessing.
+	hetg_region_file = fits.open(f'{repro_wd}/acisf{observationID}_tgmask.fits')
+	regions = hetg_region_file[1].data
+
+	#Radius of Sgr A* (zeroth order) region.
+	sgra_rad = 2.5406504
+	
+	#Create the zeroth order region.
+	if not os.path.exists(f"{repro_wd}/order0.reg"):
+		order0_f = open(f'{repro_wd}/order0.reg', 'w')
+		order0_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})')
+		#order0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})')
+		order0_f.close()
+
+	#Write the first order regions.
+	if not os.path.exists(f"{repro_wd}/order1.reg"):
+		order1_f = open(f'{repro_wd}/order1.reg', 'w')
+		order1_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+		order1_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[2][4][0])},5,{regions[2][5]})')
+		#order1_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+		#order1_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+		order1_f.close()
+
+	#Write a region file with both orders
+	if not os.path.exists(f"{repro_wd}/order1and0.reg"):
+		order1and0_f = open(f'{repro_wd}/order1and0.reg', 'w')
+		order1and0_f.write(f'ellipse({sgra_ra_px},{sgra_dec_px},{sgra_rad},{sgra_rad},{0})\n')
+		order1and0_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+		order1and0_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px},{float(regions[2][4][0])},5,{regions[2][5]})')
+		#order1and0_f.write(f'ellipse({float(regions[0][2])},{float(regions[0][3])},{sgra_rad},{sgra_rad},{0})\n')
+		#order1and0_f.write(f'rotbox({float(regions[1][2])},{float(regions[1][3])},{float(regions[1][4][0])},5,{regions[1][5]})\n')
+		#order1and0_f.write(f'rotbox({float(regions[2][2])},{float(regions[2][3])},{float(regions[2][4][0])},5,{regions[2][5]})')
+		order1and0_f.close()
+
+	#if not os.path.exists(f"{repro_wd}/bkg.reg"):
+	bkg_f = open(f'{repro_wd}/bkg.reg', 'w')
+	bkg_f.write(f'rotbox({sgra_ra_px},{sgra_dec_px - 6},36,3,0)')
 	bkg_f.close()

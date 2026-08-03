@@ -31,15 +31,90 @@ import sys
 import numpy as np
 import numpy.ma as ma
 import math
+from scipy.optimize import root_scalar
 
-
+from astropy.time import Time
+from datetime import datetime, timedelta
+import matplotlib.dates as mdates
 
 from astropy.io import fits
 from astropy.table import Table
 
 import xbblocks #this is a set of functions written by Eli Bouffard
+from marx_pileup_simulation import marx_pileup_interpolation_block
 
-def process(infile, outfile, pileup_correction, p0=0.05):
+def nongrating_equation(x, alpha=0.5, dividezero_epsilon=1e-8):
+	fd = 1-(((np.exp(alpha*x)-1)*np.exp(-alpha*x))/(alpha*x + dividezero_epsilon))
+	observed_count_rate = x/(1-(fd + dividezero_epsilon))
+
+	return observed_count_rate
+
+def nongrating_intersection(x):
+	return nongrating_equation(x) - count_rate_equation(x)
+
+def grating_equation(x):
+	K = 0.94
+	alpha = 1
+	beta = 0.52
+
+	y = x * (1 + K/(alpha * x)*(np.exp(alpha*x) - 1)*np.exp(-x))*(beta)
+
+	return y
+
+def intersection(x):
+	return grating_equation(x) - count_rate_equation(x)
+
+def block_pileup_correction(rate, exptime):
+    count_rate = rate/86400 * exptime
+
+    #Additional factor so no division by 0.
+    dividezero_epsilon = 1e-8
+
+    #pileup_rate = np.zeros(len(count_rate))
+    #for i, count_rate_point in enumerate(count_rate):
+    if count_rate == 0:
+        pileup_rate = count_rate
+    else:
+        intersection = lambda x: nongrating_equation(x) - count_rate
+
+        result = root_scalar(intersection, bracket=[0.00001, 2], method='brentq')
+        pileup_rate = result.root
+
+    #Need to derive pileup error rate
+    pileup_rate = pileup_rate*1/exptime
+    return np.array([pileup_rate])
+
+
+def block_pileup_correction_grating(rate, exptime, repro_wd):
+    #Additional factor so no division by 0.
+    dividezero_epsilon = 1e-8
+
+    pileup_rate = np.zeros(len(count_rate))
+    for i, count_rate_point in enumerate(count_rate):
+        if count_rate_point < 0.06:
+            pileup_rate[i] = count_rate_point
+        else:
+            intersection = lambda x: grating_equation(x) - count_rate_point
+
+            result = root_scalar(intersection, bracket=[0.00001, 2], method='brentq')
+            pileup_rate[i] = result.root
+
+    #Need to derive pileup error rate
+    pileup_rate = pileup_rate*1/exptime
+    return pileup_rate
+
+
+def block_pileup_correction_marx(rate, exptime, repro_wd):
+    rate = rate/86400
+
+    marx_conversions = np.loadtxt(f"{repro_wd}/marx_pileup_conversion.txt")
+    marx_observed_flux = marx_conversions[:, 0]
+    marx_true_flux = marx_conversions[:, 1]
+    pileup_rate = marx_pileup_interpolation_block(marx_observed_flux, marx_true_flux, rate)
+
+    return pileup_rate * 86400
+
+def process(infile, outfile, pileup_outfile, pileup_correction, repro_wd, p0=0.05):
     
     ''' 
     Generates the bayesian blocks and creates file with results 
@@ -77,10 +152,11 @@ def process(infile, outfile, pileup_correction, p0=0.05):
     
     f = fits.open(infile)
     o = open(outfile, mode='w')
-
+    op = open(pileup_outfile, mode='w')
 
     timesys = f[0].header['timesys']
     mjdref = f[0].header['mjdref']
+    
     timeunit = f[0].header['timeunit']
     timezero = f[0].header['timezero']
     tstart = f[0].header['tstart']
@@ -105,7 +181,10 @@ def process(infile, outfile, pileup_correction, p0=0.05):
     if eventhdu is None:
         die('input "%s" has no EVENTS sections')
 
-    ccdid = 7#eventhdu.data.ccd_id.min ()
+    values, counts = np.unique(eventhdu.data.ccd_id, return_counts=True)
+    most_common_ccd = values[np.argmax(counts)]
+    
+    ccdid = most_common_ccd#eventhdu.data.ccd_id.min ()
     #if eventhdu.data.ccd_id.max () != ccdid:
     #    die ('can\'t handle data from multiple CCDs in input "%s"')
 
@@ -134,23 +213,124 @@ def process(infile, outfile, pileup_correction, p0=0.05):
 
 
     exptime = float(f[1].header['exptime'])
-    info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, p0=p0, nbootstrap=256)
+    info = xbblocks.bsttbblock (times, tstarts, tstops, exptime, pileup_correction, repro_wd, p0=p0, nbootstrap=256)
+
+
+    ######### Drops blocks with 0 count and if they are too thin ##########
+    #MIN_DURATION = 3/86400  # seconds
+    keep = [True] * info.nblocks  # a boolean flag per block
+    merged_counts = info.counts.copy()
+    merged_exposure = [info.widths[i] for i in range(info.nblocks)]
+    # note: if info.widths is already exposure in seconds, use that. 
+    # Otherwise, convert lengths to actual exposure sums if needed.
+
+    # First round: mark any block that is too thin
+    #for i in range(info.nblocks):
+    #    if info.widths[i] < MIN_DURATION:
+    #        keep[i] = False
+    #    if info.counts[i] == 0:
+    #        keep[i] = False
+
+    # Second round: for each block i that is “too thin,” merge its counts/widths into the closest neighbor
+    for i in range(info.nblocks):
+        if not keep[i]:
+            # Decide whether to merge with block to the left (i-1) or right (i+1).
+            left_exists  = (i-1 >= 0) and keep[i-1]
+            right_exists = (i+1 < info.nblocks) and keep[i+1]
+
+            if left_exists and right_exists:
+                # Compare rates to decide which neighbor is “closer”
+                left_rate  = info.counts[i-1] / info.widths[i-1]
+                right_rate = info.counts[i+1] / info.widths[i+1]
+                this_rate  = info.counts[i] / info.widths[i]
+
+                # Merge into the neighbor whose rate is closer to this block’s rate
+                if abs(left_rate - this_rate) <= abs(right_rate - this_rate):
+                    merged_counts[i-1] += info.counts[i]
+                    merged_exposure[i-1] += info.widths[i]
+                else:
+                    merged_counts[i+1] += info.counts[i]
+                    merged_exposure[i+1] += info.widths[i]
+
+            elif left_exists:
+                merged_counts[i-1] += info.counts[i]
+                merged_exposure[i-1] += info.widths[i]
+            elif right_exists:
+                merged_counts[i+1] += info.counts[i]
+                merged_exposure[i+1] += info.widths[i]
+            # If neither neighbor “exists” (edge case), just leave it—dropping will happen later.
 
     print('# p0 = %g' % p0, file=o)
     print('# timesys =', timesys, file=o)
     print('# tstarts =', ' '.join ('%.5f' % t for t in tstarts), file=o)
     print('#tstops  =', ' '.join ('%.5f' % t for t in tstops), file=o)
     print('# n = %d' % times.size, file=o)
-    for i in range (info.nblocks):
-        #s = '%.5f %.5f %4d %g %g %g' % (info.ledges[i], info.redges[i],
-                                        #info.counts[i], info.widths[i],
-                                        #info.rates[i], info.bsrstds[i])
-        s = '%.10f %.10f %10f %10f %10f %10f' % (info.ledges[i], info.redges[i],
-                                                 info.counts[i], info.widths[i],
-                                                 info.rates[i], info.bsrstds[i])
-        
+
+    if pileup_outfile != None:
+        print('# p0 = %g' % p0, file=op)
+        print('# timesys =', timesys, file=op)
+        print('# tstarts =', ' '.join ('%.5f' % t for t in tstarts), file=op)
+        print('#tstops  =', ' '.join ('%.5f' % t for t in tstops), file=op)
+        print('# n = %d' % times.size, file=op)
+
+    # Finally, print only those blocks where keep[i] == True, using the merged stats:
+    for i in range(info.nblocks):
+        if not keep[i]:
+            continue
+
+        # The “merged” block has:
+        #    counts = merged_counts[i]
+        #    exposure (seconds) = merged_exposure[i]
+        # so the rate becomes merged_counts[i] / merged_exposure[i].
+        merged_rate = merged_counts[i] / merged_exposure[i]
+
+        s = '%.10f %.10f %10d %10f %10f %10f' % (
+            info.ledges[i],
+            info.redges[i],
+            merged_counts[i],        # total counts (including any merged‐in bits)
+            merged_exposure[i],      # total duration in seconds
+            merged_rate,             # updated rate
+            info.bsrstds[i]          # you can either leave the old block STD or recompute
+        )
         print(s, file=o)
+
+        if pileup_outfile != None:
+            if pileup_correction == 'analytical':
+                merged_rate = block_pileup_correction(merged_rate, exptime) * 86400
+                merged_counts[i] = merged_rate*merged_exposure[i]
+            elif pileup_correction == 'marx':
+                merged_rate = block_pileup_correction_marx(np.array([merged_rate]), exptime, repro_wd)
+                merged_counts[i] = merged_rate*merged_exposure[i]
+                
+            sp = '%.10f %.10f %10d %10f %10f %10f' % (
+                info.ledges[i],
+                info.redges[i],
+                merged_counts[i],        # total counts (including any merged‐in bits)
+                merged_exposure[i],      # total duration in seconds
+                merged_rate,             # updated rate
+                info.bsrstds[i]          # you can either leave the old block STD or recompute
+            )
+            print(sp, file=op)
+
     o.close()
+    if pileup_outfile != None:
+        op.close()
+
+    #print('# p0 = %g' % p0, file=o)
+    #print('# timesys =', timesys, file=o)
+    #print('# tstarts =', ' '.join ('%.5f' % t for t in tstarts), file=o)
+    #print('#tstops  =', ' '.join ('%.5f' % t for t in tstops), file=o)
+    #print('# n = %d' % times.size, file=o)
+    #for i in range (info.nblocks):
+    #    #s = '%.5f %.5f %4d %g %g %g' % (info.ledges[i], info.redges[i],
+    #                                    #info.counts[i], info.widths[i],
+    #                                    #info.rates[i], info.bsrstds[i])
+    #    s = '%.10f %.10f %10f %10f %10f %10f' % (info.ledges[i], info.redges[i],
+    #                                             info.counts[i], info.widths[i],
+    #                                             info.rates[i], info.bsrstds[i])
+        
+    #    print(s, file=o)
+    #o.close()
 
 
 
@@ -159,59 +339,63 @@ def process(infile, outfile, pileup_correction, p0=0.05):
 
 
 
-def plot_bb(file):
-	'''
-	Plot Bayesian Blocks onto a plot
+def plot_bb(file, ax):
+    '''
+    Plot Bayesian Blocks onto a plot
 
-	Parameters
-	----------   
+    Parameters
+    ----------   
     file     : string
-		location and name of Bayesian Blocks results
+        location and name of Bayesian Blocks results
 
-	time_start : float
-		MJD start of observation in days
+    time_start : float
+        MJD start of observation in days
 
-	time_end : float
-		MJD end of observation in days
+    time_end : float
+        MJD end of observation in days
 
-	Returns
-	-------
-		nothing, plots the bayesian blocks. 
+    Returns
+    -------
+        nothing, plots the bayesian blocks. 
 
-	'''
+    '''
+    ### read Bayesian Blocks data in 
+    ledges, redges, counts, widths, rates, bsrstds = np.transpose(np.loadtxt(file))
 
-	### read Bayesian Blocks data in 
-	ledges, redges, counts, widths, rates, bsrstds = np.transpose(np.loadtxt(file))
+    bstart = ledges ### rename
+    bend = redges ### rename
+    rates = rates/86400.0 #convert from counts/day to counts/s
+    #####
+    ### Recasting Bblocks results into arrays that are easier for plotting
+    ### x = time array
+    ### rates = the levels of blocks
+    #####
+    if hasattr(rates, "__len__"):
+        ### If there is more than one Bblock
+        x = [bstart[0]]
+        for j in range(0,len(rates)):
+            x= np.concatenate([x,[bstart[j]]])
+        x= np.concatenate([x,[max(bend)]])
+        rates = np.concatenate([[0],rates,[0]])
+    else:
+        ### If there's only one Bblock
+        x = np.array([bstart,bstart,(bend)])
 
-	bstart = ledges ### rename
-	bend = redges ### rename
-	rates = rates/86400.0 #convert from counts/day to counts/s
+        rates = np.array([rates])
+        rates = np.concatenate([[0],rates,[0]])
+        
 
-	#####
-	### Recasting Bblocks results into arrays that are easier for plotting
-	### x = time array
-	### rates = the levels of blocks
-	#####
-	if hasattr(rates, "__len__"):
-		### If there is more than one Bblock
-		x = [bstart[0]]
-		for j in range(0,len(rates)):
-			x= np.concatenate([x,[bstart[j]]])
-		x= np.concatenate([x,[max(bend)]])
-		rates = np.concatenate([[0],rates,[0]])
-	else:
-		### If there's only one Bblock
-		x = np.array([bstart,bstart,(bend)])
+    dt = Time(x, format='mjd')
+    datetime_block = dt.datetime
 
-		rates = np.array([rates])
-		rates = np.concatenate([[0],rates,[0]])
+    ##x_utc = Time(x, format='mjd', scale='utc') ## convert time array into UTC format
 
-	##x_utc = Time(x, format='mjd', scale='utc') ## convert time array into UTC format
+    ###plotting
 
-	###plotting
-	plt.plot(x,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with MJD axis - timestart
-	# plt.plot(x_utc.datetime,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with UTC axis
- 
+
+    ax.plot(datetime_block,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with MJD axis - timestart
+    # plt.plot(x_utc.datetime,rates,drawstyle='steps-post',color='#ff7b0f', lw=1.5,zorder=5) ### plot with UTC axis
+    return ax
 
 
 '''___________________________________________________________________
@@ -219,7 +403,7 @@ def plot_bb(file):
 
 
 
-def plot_lc(file, rate_header, rate_err_header):
+def plot_lc(file, rate_header, rate_err_header, ax):
     ''' Plot the lightcurve file 
     
     Parameters
@@ -237,8 +421,14 @@ def plot_lc(file, rate_header, rate_err_header):
     #obtain the mjdref from the primary header file : 
     #obtain the timezero correction from primary header: 
     primary = f[0].header
-    mjdref = primary['MJDREF']
-    timezero = primary['TIMEZERO']
+
+    try:
+        mjdref = primary['MJDREF']
+        timezero = primary['TIMEZERO']
+    except KeyError:
+        primary = f[1].header
+        mjdref = primary['MJDREF']
+        timezero = primary['TIMEZERO']
     
     #obtain necessary data for plotting: 
     data = Table.read(f, hdu=1)
@@ -249,9 +439,13 @@ def plot_lc(file, rate_header, rate_err_header):
     
     
     #plot : 
-    
-    plt.errorbar(time, counts, yerr=err, marker=".", color="blue", mfc="black",mec="black", ecolor="navy")
-    
+    dt = Time(time, format='mjd')
+    datetime_ct = dt.datetime
+    #ax.spines['right'].set_position(('outward', 80))
+
+    plt.errorbar(datetime_ct, counts, yerr=err, marker=".", color="blue", mfc="black",mec="black", ecolor="navy")
+    myFmt = mdates.DateFormatter('%H:%M')
+    ax.xaxis.set_major_formatter(myFmt)
 
 
 
@@ -261,7 +455,7 @@ def plot_lc(file, rate_header, rate_err_header):
 
 
     
-def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, countmin=8, amp_crit=3):
+def getInfo(evtfile, lcfile, bbfile, bbfile_p, outfile, rate_header, rate_err_header, gratingtype, countmin=8, amp_crit=3):
     ''' 
     Generate a document that contains all the data required for the flare
     table database. 
@@ -344,11 +538,24 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
     #NOTE: the data that is given by 'process' function is in mjd 
     
     #Get the flare and block information:
-    d,b,l = get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amp_crit, countmin)
-    
-    print("Quiescent Count Rate (10^-3 ct/s):", np.around((l[0][0]/86400.0)/(10**(-3)), 3), "+/-", np.around((l[0][1]/86400.0)/(10**(-3)), 3), "\n", file=o)
+    splits = None#[56516.3577665360 + 2360/86400, 56516.3577665360 + 4119/86400, 56516.3577665360 + 9109/86400]#
+    manual_groups = None#[[1], [2], [4]]
+
+    d,b,l = get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amplitude_criteria=3, minflu=5, manual_groups=manual_groups, split_times=splits)#get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amp_crit, countmin)
+
+    if bbfile_p != None:
+        ledges_p, redges_p, counts_p, widths_p, rates_p, bsrstds_p = np.transpose(np.loadtxt(bbfile_p))
+        dp,bp,lp = get_flare_bb_nobsnopcr(ledges_p, redges_p, counts_p, widths_p, rates_p, amplitude_criteria=3, minflu=5, manual_groups=manual_groups, split_times=splits)#get_flare_bb_nobsnopcr(ledges_p, redges_p, counts_p, widths_p, rates_p, amp_crit, countmin)
+    else:
+        dp = d
+        bp = b
+        lp = l
+
+    print("Quiescent Count Rate (10**-3 ct/s):", np.around((lp[0][0]/86400.0)/(10**(-3)), 3), "+/-", np.around((lp[0][1]/86400.0)/(10**(-3)), 3), "\n", file=o)
    # print("Quiescent Count Rate (10^-3 ct/s):", np.around((269.678/86400.0)/(10**(-3)), 3), "+/-", np.around((131.224/86400.0)/(10**(-3)), 3), "\n", file=o)
-  
+    
+    quies_rate_cts = lp[0][0] / 86400.0
+
     #to find the number of flares: 
     if type(b) is type(None):
         print("No Flares in Observation \n", file=o)
@@ -356,46 +563,60 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
     else:
         
         b = np.asarray(np.transpose(b))
+        bp = np.asarray(np.transpose(bp))
         num_flare = b[0].size
-    
+
+        
         #for each flare, get the information 
         for i in range (0,num_flare):
-            start = b[0][i] #start time of the flare
-            end = b[1][i]  #end time of the flare 
+            start = bp[0][i] #start time of the flare
+            end = bp[1][i]  #end time of the flare 
         
             '''Picking out the mximum count rate from lightcurve:  '''
             #within this time region, need to find the max count rate:
-            upper = np.where(time_lc <= b[1][i])
-            lower = np.where(time_lc >= b[0][i]) #indices that say where 
+            upper = np.where(time_lc <= bp[1][i])
+            lower = np.where(time_lc >= bp[0][i]) #indices that say where 
             #within the light curve the lightcurves start/finish 
         
         
             #the maximum count rate can be found for times between indices min(lower) and max(upper)
-            #then the maximum count rate is: 
-            ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)])
-            ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
+            #then the maximum count rate is:
+
+            if (np.min(lower) == np.max(upper)+1):
+                ct_max = np.max(count_rate_lc[np.min(lower)])
+                ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
+            else:
+                ct_max = np.max(count_rate_lc[np.min(lower):np.max(upper)+1])
+                ct_max_err = err[np.where(count_rate_lc == ct_max)][0]
         
             '''Picking out Luminosity & Energy emitted by each flare: '''
             #According to Eli's paper there is a proportionality between 
             #counts in a block and the energy 
             #for non gratings: 0.013 ct / (10^34 erg) 
             #then the energy is given by: 
-            ct_mean = b[4][i]/86400.0 #count rate in each block
+            ct_mean = bp[4][i]/86400.0 #count rate in each block
 
-            ct_mean_err = b[5][i]/86400.0 #err in mean ct rate
+            ct_mean_err = bp[5][i]/86400.0 #err in mean ct rate
         
-            ct_quies_sub = ct_mean - (l[0][0]/86400.0) #quiescence subtracted countrates
-            dur = b[3][i]*86400.0 #duration of flare in s 
+            ct_quies_sub = ct_mean - (lp[0][0]/86400.0) #quiescence subtracted countrates
+            dur = bp[3][i]*86400.0 #duration of flare in s 
         
-        
-            #Determining values
-            luminosity = (ct_quies_sub*(10**(34)/0.013)) # erg/s  
-            energy = luminosity * dur  #erg
-        
-        
-            #Error propagation
-            lum_err = (np.sqrt((ct_mean_err)**2 + (l[0][1]/86400.0)**2))*(10**(34)/0.013)
-            energy_err = energy * np.sqrt((lum_err/luminosity)**2)
+            if gratingtype == 'False':
+                #Determining values
+                luminosity = (ct_quies_sub*(10**(34)/0.0118766)) # erg/s  
+                energy = luminosity * dur  #erg
+                #Error propagation
+                lum_err = (lp[0][1]/86400)*(10**(34)/0.0118766)
+                energy_err = dur * lum_err
+            elif gratingtype == 'True':
+                #Determining values
+                luminosity = (ct_quies_sub*(10**(34)/0.008485)) # erg/s  
+                energy = luminosity * dur  #erg
+                #Error propagation
+                lum_err = (lp[0][1]/86400)*(10**(34)/0.008485)
+                energy_err = dur * lum_err
+
+            
             
         
             #Finding the Flux of each flare: 
@@ -403,7 +624,7 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
             #which is about radius = 2.45*10^22 cm 
             #the surface area over which we are dividing for the 
             #flux is 4*pi*radius^2 
-            radius = 2.45*10**(22)
+            radius = 2.523467125*10**(22)
             err_rad = 4 *10**(19)
             flux = ((luminosity)/(4*np.pi*radius**2))# 10^-12 erg/s/cm2
             
@@ -413,7 +634,7 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
             #Finding the fluence of each flare: 
             #fluence is given in ct so I am assuming it is the total 
             #count number incident upon the detector 
-            fluence = ct_mean*b[3][i]*86400.0
+            fluence = ct_mean*bp[3][i]*86400.0
         
         
         
@@ -425,10 +646,30 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
             print("Duration: ", dur, "(s) \n", file=o)
             print("Count Rate (mean): ",np.around(ct_mean,4) , "+/-", np.around(ct_mean_err, decimals=4), "(ct/s) \n", file=o)
             print("Count Rate (max): ",np.around(ct_max,4) ,"+/-", np.around(ct_max_err,4), "(ct/s) \n", file=o)
-            print("Energy: ", np.around(energy/10**(37), 4), "+/-", np.around(energy_err/10**(37),4), "10^37 ergs \n", file =o)
-            print("Luminosity: ", np.around(luminosity/10**(34),4), "+/-", np.around(lum_err/10**(34),4), "10^34 erg/s \n", file=o)
-            print("Flux: ", np.around(flux/(10**(-12)),4) ,"+/-" ,np.around(flux_err/(10**(-12)),4) , "10^-12 erg/s/cm2 \n", file=o)
+            print("Energy: ", np.around(energy/10**(37), 4), "+/-", np.around(energy_err/10**(37),4), "10**37 ergs \n", file =o)
+            print("Luminosity: ", np.around(luminosity/10**(34),4), "+/-", np.around(lum_err/10**(34),4), "10**34 erg/s \n", file=o)
+            print("Flux: ", np.around(flux/(10**(-12)),4) ,"+/-" ,np.around(flux_err/(10**(-12)),4) , "10**-12 erg/s/cm2 \n", file=o)
             print("Fluence: ", np.around(fluence,4), "ct \n", file=o)
+
+            # ------------------------------------------------------------------
+            # Times within this flare where LC falls below 3 * quiescence
+            # ------------------------------------------------------------------
+            in_flare = (time_lc >= start) & (time_lc <= end)
+
+            # boolean mask for points inside the flare that are below 3 * quies
+            low_mask = in_flare & (count_rate_lc <= 3.0 * quies_rate_cts)
+
+            times_below_3q = time_lc[low_mask]          # MJD times
+            rates_below_3q = count_rate_lc[low_mask]    # corresponding ct/s
+
+            # Print to the output file (MJD + rate); adjust formatting as you like
+            if times_below_3q.size > 0:
+                print("Times in flaring block below 3*quiescence (MJD, ct/s):", file=o)
+                for t_b, r_b in zip(times_below_3q, rates_below_3q):
+                    print(f"  {t_b:.10f}  {r_b:.5e}", file=o)
+                print("", file=o)  # blank line for readability
+            else:
+                print("No points in flaring block below 3*quiescence within this flare.\n", file=o)
         
     f.close()
     o.close()
@@ -441,246 +682,567 @@ def getInfo(evtfile, lcfile, bbfile, outfile, rate_header, rate_err_header, coun
 '''
 
 
-
-    
-    
-def get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amplitude_criteria = 3, minflu = 8):
+def get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates,
+                           amplitude_criteria=3, minflu=7,
+                           manual_groups=None, split_times=None):
     '''
-    Outputs Flare parameters for a given set of parameters from a 
+    Outputs flare parameters for a given set of parameters from a 
     Bayesian Blocks analysis without bootstrap. For subarray mode 
-    (Not gratings!). 
+    (not gratings!). 
     
-    This function is taken from Eli Bouffard's code. 
-    
-    Helper function for getInfo. 
+    This function is taken from Eli Bouffard's code and lightly
+    modified to allow:
+      - manual grouping of blocks into flares (manual_groups)
+      - manual splitting of blocks at specified times (split_times)
     
     Parameters
     ----------
-    ledges: array of floats
+    ledges : array-like of float
         Time of the beginning of each block (s)
         
-    redges: array of floats
+    redges : array-like of float
         Time of the end of each block (s)
         
-    counts: array of int
-         Total counts in each block 
+    counts : array-like of int or float
+        Total counts in each block 
          
-    widths: array of floats
-         Total length of each block (s)
+    widths : array-like of float
+        Total length of each block (s)
          
-    rates: array of floats
+    rates : array-like of float
         Mean count rate of each block (ct/s)
 
-    amplitude_criteria: float:
-        Sigma range above quiesence for a block to be considered a 
-        flare
-        Default value is 3
+    amplitude_criteria : float, optional
+        Sigma range above quiescence for a block to be considered a 
+        flare. Default is 4.
         
-    minflu: int
-        minimum number of counts in a block. If lower, it is combined 
-        with a nearby block
+    minflu : int, optional
+        Minimum number of counts in a block. If lower, it is combined 
+        with a nearby block. Default is 7.
         
+    manual_groups : list of lists of int, optional
+        If given, overrides the automatic flare grouping.
+        Each inner list is a set of block indices (after low-count
+        merging AND any splitting) that form one flare, e.g.:
+            [[3, 4, 5], [6, 7, 8]]
+        means:
+            flare 1 = blocks 3,4,5
+            flare 2 = blocks 6,7,8
+
+    split_times : list of float, optional
+        Times (in same units as ledges/redges) at which to split blocks.
+        For each t_split, the block that contains t_split is divided
+        into two blocks at t_split, with counts split in proportion to
+        the time width (so the rate stays the same).
+        This happens after low-count merging and before flare grouping.
+
     Returns
-    ----------
-    data:  array of floats
-        Contains, in order, the time of the beginning of each block (s), 
-        the time of the end of each block (s),
-        the number of counts in each block, the total lenght of 
-        each block (MJD), the mean count rate of each block (ct/MJD), the
-        standard deviation in count rate
-        in each block (ct/MJD) 
+    -------
+    data : 2D ndarray (Nblocks, 6)
+        For each block (after low-count merging and optional splitting):
+        [t_start, t_end, counts, width, rate, rate_error]
         
-        (and the Poisson error in each block count
-        rate (ct/MJD)) -> NOT
+    block : 2D ndarray (Nflares, 6) or None
+        Same columns as `data` but for each FLARE instead of each block
+        (flares can be made of multiple blocks). If no flare is found,
+        this can be None.
         
-    block:  array of floats
-        Same as data but for pile-up corrected values and for each 
-        FLARE instead of each block (flares can be made of multiple 
-        blocks)
-        
-    LoRate : array of floats
-        Contains the mean count rate of the longest block and its 
-        Poisson error
-    '''    
-    #Note how many blocks there are in the obsid
+    LoRate : 2D ndarray (1, 2)
+        [quiescent_rate, quiescent_rate_error]
+    '''
+    ledges = np.asarray(ledges, dtype=float)
+    redges = np.asarray(redges, dtype=float)
+    counts = np.asarray(counts, dtype=float)
+    widths = np.asarray(widths, dtype=float)
+    rates = np.asarray(rates, dtype=float)
+
     num_blocks = np.size(redges)
-    
-    l = 0     #counts the number flaring blocks (the total, not the number of individual flares)
-    
-    counts = np.asarray(counts)
-    widths = np.asarray(widths)
-    rateserr = np.sqrt(counts)/widths
+    l = 0  # counts the number of flares
+    rateserr = np.sqrt(counts) / widths
     block = None
-    #If there are more than 1 block, then the ones significantly above the lowest one are flares
-    #EXCEPT IF THEIR FLUENCE IS LESS THAN 8 COUNTS
-    del_blocks = np.array([])
-    if num_blocks > 1:    
-        if (counts < 8).any():
-            lowfluence = np.where(counts < 8)[0]
-            #print('low counts:',counts[lowfluence])
+
+    # ------------------------------------------------------------------
+    # If there are more than 1 block, we can look for flares
+    # ------------------------------------------------------------------
+    if num_blocks > 1:
+        # Merge low-fluence blocks (counts < minflu) into neighbours
+        del_blocks = np.array([], dtype=int)
+
+        if (counts < minflu).any():
+            lowfluence = np.where(counts < minflu)[0]
+
             for i in lowfluence:
                 if i == 0:
-                    counts[i+1] = counts[i+1] + counts[i]
-                    ledges[i+1] = ledges[i]
-                    widths[i+1] = widths[i+1] + widths[i]
-                    rates[i+1] = counts[i+1]/widths[i+1]
-                    rateserr[i+1] = np.sqrt(counts[i+1])/widths[i+1]
-                    del_blocks = np.append(del_blocks,i)
+                    # merge first block into next
+                    counts[i + 1] += counts[i]
+                    ledges[i + 1] = ledges[i]
+                    widths[i + 1] += widths[i]
+                    rates[i + 1] = counts[i + 1] / widths[i + 1]
+                    rateserr[i + 1] = np.sqrt(counts[i + 1]) / widths[i + 1]
+                    del_blocks = np.append(del_blocks, i)
                 else:
-                    counts[i-1] = counts[i-1] + counts[i] 
-                    redges[i-1] = redges[i]
-                    widths[i-1] = widths[i-1] + widths[i]
-                    rates[i-1] = counts[i-1]/widths[i-1]
-                    rateserr[i-1] = np.sqrt(counts[i-1])/widths[i-1]
-                    del_blocks = np.append(del_blocks,i)
-                    
-            counts = np.delete(counts,del_blocks.astype(int))
-            ledges = np.delete(ledges,del_blocks.astype(int))
-            redges = np.delete(redges,del_blocks.astype(int))
-            widths = np.delete(widths,del_blocks.astype(int))
-            rates = np.delete(rates,del_blocks.astype(int))
-            rateserr = np.delete(rateserr,del_blocks.astype(int)) 
-        #Note how many blocks there are in the obsid
-        num_blocks = np.size(redges)
-        quies_id = np.argmax(widths)#quiescent block is largest block
-	#Identify each flaring block             
-        flares_id = (rates-amplitude_criteria*rateserr)>(rates[quies_id] + amplitude_criteria*rateserr[quies_id])
-        flares = ma.array(rates, mask = ~flares_id)
-        data = np.ones(6).reshape(1,6)
-        for h in range(num_blocks):
-            data = np.concatenate((data, np.array([ledges[h], redges[h], counts[h], widths[h], rates[h], rateserr[h]]).reshape(1,6)))
-            #print(ledges[h], redges[h], peakcr[h])
-        data = np.delete(data, (0), axis = 0)
-        LoRate = np.array([rates[quies_id], rateserr[quies_id]]).reshape(1,2)
-        
-        #UNPILE EACH FLARE BLOCK
-        '''for p in range(num_blocks):
-            if flares_id[p]:
-                #print('block',p,'rate before pile-up corr ',rates[p], 'counts ', counts[p], 'rateserr ', rateserr[p])
-                rates[p] = incident_cr[np.argmin(np.abs(rates[p] - observed_cr))]
-                counts[p] = int(rates[p]*widths[p])
-                rateserr[p] = np.sqrt(counts[p])/widths[p]
-                #print('block',p,'rate after pile-up corr ',rates[p], 'counts ', counts[p], 'rateserr ', rateserr[p])
-'''
-        
-        #If the obsid has only one flare
-        if np.size(flares[~flares.mask]) == 1:
-            indice = np.where(flares_id == True)[0][0]
-            if l == 0:
-                block = np.array([ledges[indice], redges[indice], counts[indice], widths[indice], 
-                                                  rates[indice], rateserr[indice]]).reshape(1,6)
-                l = l + 1
-            else:
-                block = np.concatenate((block, np.array([ledges[indice], redges[indice], counts[indice],
-                                                  widths[indice], rates[indice], rateserr[indice]]).reshape(1,6)), axis = 0) 
-        #If there are multiple blocks significantly above quiescence, then we need to figure out how many
-        #flares there are
-        else:
-            k = 0        #Used to spot the first flare of the obsid
-            j = 0        #Used to move through the blocks
-            while j < num_blocks:
-                if ~flares_id[j]:
-                    j = j + 1
-                    continue 
-                else:
-                    if k == 0:                  
-                        k = k + 1
-                        if (j < num_blocks - 1):
-                            if ~flares_id[j + 1]:
-                             #if the next block isnt a flare, then this flare is made of only one block
-                                if l == 0: 
-                                    block = np.array([ledges[j], redges[j], counts[j], widths[j], 
-                                                  rates[j], rateserr[j]]).reshape(1,6)
-                                    l = l + 1
-                                    j = j + 1
-                                else:
-                                    block = np.concatenate((block, np.array([ledges[j], redges[j], counts[j], widths[j], 
-                                                  rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                    j = j + 1
-                            else:
-                           #But if the next block is also a flare then add the blocks until they end
-                                flare_block = np.ones(6).reshape(1,6)
-                                while(flares_id[j] and j < (num_blocks - 1)):
-                                    flare_block = np.concatenate((flare_block, np.array([ledges[j], 
-                                                     redges[j], counts[j], widths[j], 
-                                                     rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                    j = j + 1
-                                    
-                                if flares_id[j] and j == (num_blocks - 1):
-                                    flare_block = np.concatenate((flare_block, np.array([ledges[j], 
-                                                     redges[j], counts[j], widths[j], 
-                                                     rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                #Delete the first row that was used to initiate the array
-                                flare_block = np.delete(flare_block, (0), axis = 0)
-                                
-                                #Finalize the block
-                                if l == 0:
-                                    l = l + 1
-                                    block = np.array([flare_block[0,0],flare_block[-1,1],
-                                                  np.sum(flare_block[:,2]), np.sum(flare_block[:,3]),
-                                                  np.sum(flare_block[:,2])/float(np.sum(flare_block[:,3])),
-                                                  math.sqrt(np.sum(flare_block[:,2]))/float(np.sum(flare_block[:,3]))]).reshape(1,6)
-                                else:
-                                    block = np.concatenate((block, np.array([flare_block[0,0],flare_block[-1,1],
-                                                  np.sum(flare_block[:,2]), np.sum(flare_block[:,3]),
-                                                  np.sum(flare_block[:,2])/float(np.sum(flare_block[:,3])), math.sqrt(np.sum(flare_block[:,2]))/
-                                                     float(np.sum(flare_block[:,3]))]).reshape(1,6)), axis = 0)
-                        else:
-                            #If this is the last block, then this flare is also made up of only one block
-                            if l == 0:
-                                l = l + 1
-                                block = np.array([ledges[j], redges[j], counts[j], widths[j], rates[j],
-                                                        rateserr[j]]).reshape(1,6)
-                            else:
-                                block = np.concatenante((block,np.array([ledges[j], redges[j], counts[j], widths[j], rates[j],
-                                                        rateserr[j]]).reshape(1,6)), axis = 0)
-                            j = j + 1
-                    
-                    #If this isnt the first flare...
-                    else:
-                        if j < (num_blocks - 1):
-                            #If this isnt the last block...
-                            if ~flares_id[j + 1]:
-                                #and if the next block isnt a flare, then this flare is made of only one block
-                                block = np.concatenate((block, np.array([ledges[j], redges[j], counts[j], widths[j], 
-                                                        rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                j = j + 1
-                            else:
-                                #If the previous block wasnt a flare and this one  and the next are then 
-                                #add the blocks until they end
-                                flare_block = np.ones(6).reshape(1,6)
-                                while(flares_id[j] and j < (num_blocks - 1)):
-                                    flare_block = np.concatenate((flare_block, np.array([ledges[j], 
-                                                     redges[j], counts[j], widths[j], 
-                                                     rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                    j = j + 1
-                                    
-                                if flares_id[j] and j == (num_blocks - 1):
-                                    flare_block = np.concatenate((flare_block, np.array([ledges[j], 
-                                                     redges[j], counts[j], widths[j], 
-                                                     rates[j], rateserr[j]]).reshape(1,6)), axis = 0)
-                                #Delete the first row that was use to initiate the array
-                                flare_block = np.delete(flare_block, (0), axis = 0)
-                                
-                                #Finalize the block
-                                block = np.concatenate((block,np.array([flare_block[0,0],flare_block[-1,1],
-                                                  np.sum(flare_block[:,2]), np.sum(flare_block[:,3]),
-                                                  np.sum(flare_block[:,2])/float(np.sum(flare_block[:,3])),math.sqrt(np.sum(flare_block[:,2]))/
-                                                  float(np.sum(flare_block[:,3]))]).reshape(1,6)), axis = 0)
-                        else:
-                            if ~flares_id[j-1]:
-                                #If this is the last block, then this flare is also made up of only one block
-                                block = np.concatenate((block, np.array([ledges[j], redges[j], counts[j], widths[j], rates[j],
-                                                        rateserr[j]]).reshape(1,6)), axis = 0)
-                            j = j + 1
-    else:
-        data = np.array([ledges, redges, counts, widths, rates, rateserr]).reshape(1,6)
-        LoRate = np.array([rates, rateserr]).reshape(1,2)
-    
-    #Make sure the arrays are sorted in time
-    
-    if block is not None:
-        block = block[np.argsort(block[:,0])]
-    data = data[np.argsort(data[:,0])]
-    return data, block, LoRate
+                    # merge into previous block
+                    counts[i - 1] += counts[i]
+                    redges[i - 1] = redges[i]
+                    widths[i - 1] += widths[i]
+                    rates[i - 1] = counts[i - 1] / widths[i - 1]
+                    rateserr[i - 1] = np.sqrt(counts[i - 1]) / widths[i - 1]
+                    del_blocks = np.append(del_blocks, i)
 
+            # delete merged-away blocks
+            keep = np.ones(len(counts), dtype=bool)
+            keep[del_blocks.astype(int)] = False
+            counts = counts[keep]
+            ledges = ledges[keep]
+            redges = redges[keep]
+            widths = widths[keep]
+            rates = rates[keep]
+            rateserr = rateserr[keep]
+
+        # ------------------------------------------------------------------
+        # OPTIONAL: split blocks at specified times
+        # ------------------------------------------------------------------
+        if split_times is not None:
+            # ensure list-like
+            split_times = np.atleast_1d(split_times)
+            # sort by time so splits proceed in temporal order
+            split_times = np.sort(split_times)
+
+            for t_split in split_times:
+                # find block that contains t_split
+                idx = np.where((t_split > ledges) & (t_split < redges))[0]
+                if idx.size != 1:
+                    # either no block or ambiguous; skip this split
+                    continue
+                idx = idx[0]
+
+                tL = ledges[idx]
+                tR = redges[idx]
+                W = widths[idx]
+                C = counts[idx]
+
+                # sanity check
+                if not (tL < t_split < tR):
+                    continue
+
+                W1 = t_split - tL
+                W2 = tR - t_split
+                if W1 <= 0 or W2 <= 0:
+                    continue
+
+                # split counts proportional to width so rate stays constant
+                C1 = C * (W1 / W)
+                C2 = C - C1
+
+                # new blocks
+                ledges_new = []
+                redges_new = []
+                counts_new = []
+                widths_new = []
+                rates_new = []
+                rateserr_new = []
+
+                for j in range(len(ledges)):
+                    if j != idx:
+                        ledges_new.append(ledges[j])
+                        redges_new.append(redges[j])
+                        counts_new.append(counts[j])
+                        widths_new.append(widths[j])
+                        rates_new.append(rates[j])
+                        rateserr_new.append(rateserr[j])
+                    else:
+                        # insert split block A
+                        ledges_new.append(tL)
+                        redges_new.append(t_split)
+                        counts_new.append(C1)
+                        widths_new.append(W1)
+                        rates_new.append(C1 / W1)
+                        rateserr_new.append(np.sqrt(C1) / W1)
+                        # insert split block B
+                        ledges_new.append(t_split)
+                        redges_new.append(tR)
+                        counts_new.append(C2)
+                        widths_new.append(W2)
+                        rates_new.append(C2 / W2)
+                        rateserr_new.append(np.sqrt(C2) / W2)
+
+                ledges = np.array(ledges_new)
+                redges = np.array(redges_new)
+                counts = np.array(counts_new)
+                widths = np.array(widths_new)
+                rates = np.array(rates_new)
+                rateserr = np.array(rateserr_new)
+                
+
+        # Update block count after merging + splitting
+        num_blocks = np.size(redges)
+
+        # Quiescent block is the one with the longest duration
+        quies_id = np.argmax(widths)
+
+        # Identify flaring blocks: significantly above quiescent rate
+        flares_id = (rates - amplitude_criteria * rateserr) > \
+                    (rates[quies_id] + amplitude_criteria * rateserr[quies_id])
+        flares = ma.array(rates, mask=~flares_id)
+
+        # Build the "data" array: one row per block
+        data = np.ones(6).reshape(1, 6)
+        for h in range(num_blocks):
+            data = np.concatenate(
+                (
+                    data,
+                    np.array(
+                        [
+                            ledges[h],
+                            redges[h],
+                            counts[h],
+                            widths[h],
+                            rates[h],
+                            rateserr[h],
+                        ]
+                    ).reshape(1, 6),
+                )
+            )
+        data = np.delete(data, 0, axis=0)
+        LoRate = np.array([rates[quies_id], rateserr[quies_id]]).reshape(1, 2)
+
+        # ------------------------------------------------------------------
+        # MANUAL GROUPING OPTION
+        # ------------------------------------------------------------------
+        if manual_groups is not None and len(manual_groups) > 0:
+            block_list = []
+            for grp in manual_groups:
+                grp = np.asarray(grp, dtype=int)
+                if grp.size == 0:
+                    continue
+                # ensure sorted indices
+                grp = np.sort(grp)
+                # start and end of flare
+                t_start = ledges[grp[0]]
+                t_end = redges[grp[-1]]
+                # sum quantities over the selected blocks
+                csum = counts[grp].sum()
+                wsum = widths[grp].sum()
+                rate = csum / float(wsum)
+                rateerr = math.sqrt(csum) / float(wsum)
+                block_list.append([t_start, t_end, csum, wsum, rate, rateerr])
+
+            block = np.array(block_list) if block_list else None
+
+        else:
+            # ------------------------------------------------------------------
+            # ORIGINAL AUTOMATIC GROUPING (Eli's logic)
+            # ------------------------------------------------------------------
+            # If the obsid has only one flaring block
+            if np.size(flares[~flares.mask]) == 1:
+                indice = np.where(flares_id)[0][0]
+                if l == 0:
+                    block = np.array(
+                        [
+                            ledges[indice],
+                            redges[indice],
+                            counts[indice],
+                            widths[indice],
+                            rates[indice],
+                            rateserr[indice],
+                        ]
+                    ).reshape(1, 6)
+                    l += 1
+                else:
+                    block = np.concatenate(
+                        (
+                            block,
+                            np.array(
+                                [
+                                    ledges[indice],
+                                    redges[indice],
+                                    counts[indice],
+                                    widths[indice],
+                                    rates[indice],
+                                    rateserr[indice],
+                                ]
+                            ).reshape(1, 6),
+                        ),
+                        axis=0,
+                    )
+            # If multiple flaring blocks, group contiguous ones into flares
+            else:
+                k = 0  # used to spot the first flare of the obsid
+                j = 0  # index over blocks
+                while j < num_blocks:
+                    if not flares_id[j]:
+                        j += 1
+                        continue
+                    else:
+                        if k == 0:
+                            k += 1
+                            if j < num_blocks - 1:
+                                if not flares_id[j + 1]:
+                                    # flare consists of a single block
+                                    if l == 0:
+                                        block = np.array(
+                                            [
+                                                ledges[j],
+                                                redges[j],
+                                                counts[j],
+                                                widths[j],
+                                                rates[j],
+                                                rateserr[j],
+                                            ]
+                                        ).reshape(1, 6)
+                                        l += 1
+                                    else:
+                                        block = np.concatenate(
+                                            (
+                                                block,
+                                                np.array(
+                                                    [
+                                                        ledges[j],
+                                                        redges[j],
+                                                        counts[j],
+                                                        widths[j],
+                                                        rates[j],
+                                                        rateserr[j],
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+                                    j += 1
+                                else:
+                                    # multiple contiguous flaring blocks
+                                    flare_block = np.ones(6).reshape(1, 6)
+                                    while flares_id[j] and j < (num_blocks - 1):
+                                        flare_block = np.concatenate(
+                                            (
+                                                flare_block,
+                                                np.array(
+                                                    [
+                                                        ledges[j],
+                                                        redges[j],
+                                                        counts[j],
+                                                        widths[j],
+                                                        rates[j],
+                                                        rateserr[j],
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+                                        j += 1
+
+                                    if flares_id[j] and j == (num_blocks - 1):
+                                        flare_block = np.concatenate(
+                                            (
+                                                flare_block,
+                                                np.array(
+                                                    [
+                                                        ledges[j],
+                                                        redges[j],
+                                                        counts[j],
+                                                        widths[j],
+                                                        rates[j],
+                                                        rateserr[j],
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+
+                                    flare_block = np.delete(flare_block, 0, axis=0)
+
+                                    if l == 0:
+                                        l += 1
+                                        block = np.array(
+                                            [
+                                                flare_block[0, 0],
+                                                flare_block[-1, 1],
+                                                np.sum(flare_block[:, 2]),
+                                                np.sum(flare_block[:, 3]),
+                                                np.sum(flare_block[:, 2])
+                                                / float(np.sum(flare_block[:, 3])),
+                                                math.sqrt(np.sum(flare_block[:, 2]))
+                                                / float(np.sum(flare_block[:, 3])),
+                                            ]
+                                        ).reshape(1, 6)
+                                    else:
+                                        block = np.concatenate(
+                                            (
+                                                block,
+                                                np.array(
+                                                    [
+                                                        flare_block[0, 0],
+                                                        flare_block[-1, 1],
+                                                        np.sum(flare_block[:, 2]),
+                                                        np.sum(flare_block[:, 3]),
+                                                        np.sum(flare_block[:, 2])
+                                                        / float(
+                                                            np.sum(flare_block[:, 3])
+                                                        ),
+                                                        math.sqrt(
+                                                            np.sum(flare_block[:, 2])
+                                                        )
+                                                        / float(
+                                                            np.sum(flare_block[:, 3])
+                                                        ),
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+                            else:
+                                # this is the last block → single-block flare
+                                if l == 0:
+                                    l += 1
+                                    block = np.array(
+                                        [
+                                            ledges[j],
+                                            redges[j],
+                                            counts[j],
+                                            widths[j],
+                                            rates[j],
+                                            rateserr[j],
+                                        ]
+                                    ).reshape(1, 6)
+                                else:
+                                    block = np.concatenate(
+                                        (
+                                            block,
+                                            np.array(
+                                                [
+                                                    ledges[j],
+                                                    redges[j],
+                                                    counts[j],
+                                                    widths[j],
+                                                    rates[j],
+                                                    rateserr[j],
+                                                ]
+                                            ).reshape(1, 6),
+                                        ),
+                                        axis=0,
+                                    )
+                                j += 1
+                        else:
+                            # not the first flare
+                            if j < (num_blocks - 1):
+                                if not flares_id[j + 1]:
+                                    # single-block flare
+                                    block = np.concatenate(
+                                        (
+                                            block,
+                                            np.array(
+                                                [
+                                                    ledges[j],
+                                                    redges[j],
+                                                    counts[j],
+                                                    widths[j],
+                                                    rates[j],
+                                                    rateserr[j],
+                                                ]
+                                            ).reshape(1, 6),
+                                        ),
+                                        axis=0,
+                                    )
+                                    j += 1
+                                else:
+                                    # multiple contiguous flaring blocks
+                                    flare_block = np.ones(6).reshape(1, 6)
+                                    while flares_id[j] and j < (num_blocks - 1):
+                                        flare_block = np.concatenate(
+                                            (
+                                                flare_block,
+                                                np.array(
+                                                    [
+                                                        ledges[j],
+                                                        redges[j],
+                                                        counts[j],
+                                                        widths[j],
+                                                        rates[j],
+                                                        rateserr[j],
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+                                        j += 1
+
+                                    if flares_id[j] and j == (num_blocks - 1):
+                                        flare_block = np.concatenate(
+                                            (
+                                                flare_block,
+                                                np.array(
+                                                    [
+                                                        ledges[j],
+                                                        redges[j],
+                                                        counts[j],
+                                                        widths[j],
+                                                        rates[j],
+                                                        rateserr[j],
+                                                    ]
+                                                ).reshape(1, 6),
+                                            ),
+                                            axis=0,
+                                        )
+
+                                    flare_block = np.delete(flare_block, 0, axis=0)
+
+                                    block = np.concatenate(
+                                        (
+                                            block,
+                                            np.array(
+                                                [
+                                                    flare_block[0, 0],
+                                                    flare_block[-1, 1],
+                                                    np.sum(flare_block[:, 2]),
+                                                    np.sum(flare_block[:, 3]),
+                                                    np.sum(flare_block[:, 2])
+                                                    / float(
+                                                        np.sum(flare_block[:, 3])
+                                                    ),
+                                                    math.sqrt(
+                                                        np.sum(flare_block[:, 2])
+                                                    )
+                                                    / float(
+                                                        np.sum(flare_block[:, 3])
+                                                    ),
+                                                ]
+                                            ).reshape(1, 6),
+                                        ),
+                                        axis=0,
+                                    )
+                            else:
+                                # last block
+                                if not flares_id[j - 1]:
+                                    block = np.concatenate(
+                                        (
+                                            block,
+                                            np.array(
+                                                [
+                                                    ledges[j],
+                                                    redges[j],
+                                                    counts[j],
+                                                    widths[j],
+                                                    rates[j],
+                                                    rateserr[j],
+                                                ]
+                                            ).reshape(1, 6),
+                                        ),
+                                        axis=0,
+                                    )
+                                j += 1
+
+    else:
+        # Only one block in the obsid
+        data = np.array([ledges, redges, counts, widths, rates, rateserr]).reshape(
+            1, 6
+        )
+        LoRate = np.array([rates, rateserr]).reshape(1, 2)
+
+    # ----------------------------------------------------------------------
+    # Sort arrays in time
+    # ----------------------------------------------------------------------
+    data = data[np.argsort(data[:, 0])]
+    if block is not None:
+        block = block[np.argsort(block[:, 0])]
+
+    return data, block, LoRate

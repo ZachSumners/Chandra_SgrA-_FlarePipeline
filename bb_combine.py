@@ -13,8 +13,8 @@ import math
 
 #obsid = 13843
 
-lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + "_sgra_2-8keV_lc300_pileup.fits")
-evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  "_sgra_2-8keV_evt.fits")
+lc = "./" +  str(obsid) + "/repro/" + (str(obsid) + f"_sgra_{erange[0]}-{erange[1]}keV_lc{tbin}_pileup.fits")
+evt = "./" + str(obsid) + "/repro/" + (str(obsid) +  f"_sgra_{erange[0]}-{erange[1]}keV_evt.fits")
 
 bb_info = "./"  + str(obsid) + "/repro/" + "Results/combined_" + str(obsid) + "_sgra_bayesianBlocks_info.txt" #block info 
 plot = "./" + str(obsid) + "/repro/" + "Results/combined_" + str(obsid) + "_PLOT_sgra.png" #plot 
@@ -249,7 +249,6 @@ def getInfo(evtfile, lcfile, bbfile, outfile, countmin=8, amp_crit=2):
     amp_crit = 1
     d,b,l = get_flare_bb_nobsnopcr(ledges, redges, counts, widths, rates, amp_crit, countmin)
     #print(d, b, l)
-    print(b)
     
     print("Quiescent Count Rate (10^-3 ct/s):", np.around((l[0][0]/86400.0)/(10**(-3)), 3), "+/-", np.around((l[0][1]/86400.0)/(10**(-3)), 3), "\n", file=o)
    # print("Quiescent Count Rate (10^-3 ct/s):", np.around((269.678/86400.0)/(10**(-3)), 3), "+/-", np.around((131.224/86400.0)/(10**(-3)), 3), "\n", file=o)
