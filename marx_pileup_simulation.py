@@ -90,6 +90,8 @@ def param_set(flux, tstart, exposuretime, gratingtype, detectortype, ditherfile,
     subprocess.call(f'pset {marx_folder}/MARX_SupportFiles/marx.par DetOffsetY={detoffsety}', shell=True, cwd=wd)
     subprocess.call(f'pset {marx_folder}/MARX_SupportFiles/marx.par DetOffsetZ={detoffsetz}', shell=True, cwd=wd)
     subprocess.call(f'pset {marx_folder}/MARX_SupportFiles/marx.par OutputDir={marx_folder}/MARX_SupportFiles/output', shell=True, cwd=wd)
+	subprocess.call(f'pset {marx_folder}/MARX_SupportFiles/marx.par SpectrumFile={marx_folder}/MARX_SupportFiles/literature_spectrum.dat', shell=True, cwd=wd)
+
     
     #Set the pileup frame time
     subprocess.call(f'pset {marx_folder}/MARX_SupportFiles/marxpileup.par FrameTime={acis_exposure_time}', shell=True, cwd=wd)
