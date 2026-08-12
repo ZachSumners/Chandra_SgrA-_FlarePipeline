@@ -1,4 +1,4 @@
-# Chandra_SgrA-_FlarePipeline
+# Chandra_SgrA*_FlarePipeline
 
 Chandra_SgrA-_FlarePipeline is a Python package for identifying flares in Chandra data -- primarily targeting SgrA* -- using a Bayesian Blocks algorithm.
 
