@@ -10,13 +10,20 @@ If you would like to run a version of the code where no user inputs to the termi
 You will also need to install CIAO and obtain the associated CALDB files. Instructions for installing the latest release of CIAO can be found 
 [here](https://cxc.cfa.harvard.edu/ciao/threads/ciao_install_tool/). Optionally, if you would like to enable remote CALDB access (so you don't need to always re-download the latest files), follow the instructions [here](https://heasarc.gsfc.nasa.gov/docs/heasarc/caldb/caldb_remote_access.html).
 
-Advanced pileup correction requires the installation of MARX found [here](https://space.mit.edu/asc/marx/index.html).
+Advanced pileup correction requires the installation of MARX found [here](https://chandra-marx.github.io/inbrief/install.html).
 
 ## Setup
 
 Before running the pipeline, you will need to go to the Chandra Data Archive [CDA](https://cxc.harvard.edu/cda/), download your observation data folder(s) and put them in the **same directory** as the flare pipeline scripts. 
 
 ```ChandraLightCurvePipeline.py``` is the main script that will execute the rest of the pipeline. You can run it by entering ```python3 {path/to/Chandra_SgrA-_FlarePipeline}/ChandraLightCurvePipeline.py``` in the terminal.
+
+**To use the pipeline, you need to change:**
+- The Chandra observation ID
+- Your working directory (this will be the folder that the "primary" and "secondary" folders from a Chandra observation download live in).
+- You need to unzip the orbit eph file from the primary folder before using the pipeline.
+
+You can also change which processes you want the pipeline to run.
 
 ## User Inputs
 
@@ -30,6 +37,10 @@ The ```ChandraLightCurvePipeline.py``` user inputs include:
 * tbin: (integer) Sets the time bin size in seconds for lightcurve extraction
 * src_coords: (list) Sets the coordinates in degrees of the source of interest (e.g., SgrA*) to use in the source region selection
 * bkg_coords: (list) Sets the size of the inner and outer radii of the background selection region in pixels
+
+## Branches
+
+By default, the pipeline prompts you to continue through each section of the code. If you would like to skip these prompts, use the no-intervention branch. 
 
 ## Outputs
 
