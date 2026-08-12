@@ -49,5 +49,7 @@ as well as lightcurve files. The pipeline runs a Bayesian Blocks algorithm to de
 
 ## Additional Notes
 
+This code was developed for the analysis presented in [Sumners et al. 2026](https://arxiv.org/abs/2605.13962)
+
 For more information on the data calibration methods and flare detection algorithm, see [this paper](https://ui.adsabs.harvard.edu/abs/2019ApJ...884..148B/abstract) from Elie Bouffard,
 and the associated code can be found [here](https://github.com/Elie23/X-ray-flare-simulator/tree/master).
