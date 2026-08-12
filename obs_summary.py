@@ -13,20 +13,12 @@ import CompleteBB as bb
 
 
 plt.rcParams.update({
-    "text.usetex": True,
-    "font.family": "sans-serif",
-
-    # Tell LaTeX which font to use:
-    "text.latex.preamble": r"""
-        \usepackage{helvet}         % Helvetica / TeX Gyre Heros
-        \renewcommand{\familydefault}{\sfdefault}
-        \usepackage{sfmath}         % match math to sans serif
-        \boldmath                   % make math bold by default
-    """,
-
+    "text.usetex": False,
+    "font.family": "DejaVu Sans",
     "font.weight": "bold",
     "axes.labelweight": "bold",
     "axes.titleweight": "bold",
+
 })
 
 mult = 1.5
