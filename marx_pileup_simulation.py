@@ -22,8 +22,6 @@ plt.rcParams['xtick.minor.size'] = 5
 plt.rcParams['ytick.major.size'] = 8
 plt.rcParams['ytick.minor.size'] = 5
 
-plt.rcParams.update({'text.usetex' : True, 'font.family' : 'Computer Modern Roman'})
-
 fontsize = 14 
 markersize = 6
 capsize = 2
